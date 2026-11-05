@@ -14,8 +14,10 @@ import ReminderModal from '@/components/ReminderModal';
 import SettingsModal from '@/components/SettingsModal';
 import { Task, Reminder, Habit, UserProfile, ChatMessage } from '@/types';
 import { sound } from '@/lib/sound';
+import { useTheme } from '@/context/ThemeContext';
 
 export default function LifeOSApp() {
+  const { theme, setTheme } = useTheme();
   const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [tasks, setTasks] = useState<Task[]>([]);
   const [reminders, setReminders] = useState<Reminder[]>([]);
@@ -258,6 +260,9 @@ export default function LifeOSApp() {
   // Profile Operations
   const handleUpdateProfile = async (updates: Partial<UserProfile>) => {
     try {
+      if (updates.theme && updates.theme !== theme) {
+        setTheme(updates.theme);
+      }
       const res = await fetch('/api/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -337,7 +342,7 @@ export default function LifeOSApp() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#090d16] text-slate-100">
+    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-[#0b0f19] text-slate-800 dark:text-slate-100 transition-colors duration-150">
       <div className="flex flex-1">
         {/* Navigation Sidebar */}
         <Sidebar

@@ -8,12 +8,13 @@ import {
   Flame, 
   Timer, 
   Bot, 
-  Sliders, 
   X, 
   Sparkles,
-  Layers,
-  Database
+  Database,
+  Sun,
+  Moon
 } from 'lucide-react';
+import { useTheme } from '@/context/ThemeContext';
 
 interface SidebarProps {
   activeTab: string;
@@ -32,6 +33,8 @@ export default function Sidebar({
   pendingTasksCount,
   upcomingRemindersCount,
 }: SidebarProps) {
+  const { theme, toggleTheme } = useTheme();
+
   const navItems = [
     {
       id: 'dashboard',
@@ -44,7 +47,7 @@ export default function Sidebar({
       label: 'Smart Tasks',
       icon: CheckSquare,
       badge: pendingTasksCount > 0 ? pendingTasksCount : null,
-      badgeColor: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30',
+      badgeColor: 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800/50',
     },
     {
       id: 'calendar',
@@ -57,7 +60,7 @@ export default function Sidebar({
       label: 'Habits & Streaks',
       icon: Flame,
       badge: 'Streak',
-      badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
+      badgeColor: 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/50',
     },
     {
       id: 'focus',
@@ -70,7 +73,7 @@ export default function Sidebar({
       label: 'LifeOS Copilot',
       icon: Bot,
       badge: 'AI',
-      badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+      badgeColor: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/50',
     },
   ];
 
@@ -80,41 +83,39 @@ export default function Sidebar({
   };
 
   const sidebarContent = (
-    <div className="flex flex-col h-full bg-slate-950/95 border-r border-slate-800/80 p-4 text-slate-200">
+    <div className="flex flex-col h-full bg-white dark:bg-[#0b0f19] border-r border-slate-200 dark:border-slate-800/80 p-4 text-slate-700 dark:text-slate-200 transition-colors duration-150">
       {/* Brand Header */}
       <div className="flex items-center justify-between px-2 py-3 mb-6">
         <div className="flex items-center gap-3">
-          <div className="relative flex items-center justify-center w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-violet-600 to-cyan-400 p-0.5 shadow-lg shadow-indigo-500/25">
-            <div className="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-indigo-400 animate-pulse" />
-            </div>
+          <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-indigo-600 text-white shadow-sm">
+            <Sparkles className="w-4 h-4 text-white" />
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="font-bold text-base tracking-tight bg-gradient-to-r from-white via-slate-100 to-indigo-200 bg-clip-text text-transparent">
+              <span className="font-bold text-base tracking-tight text-slate-900 dark:text-white">
                 LifeOS
               </span>
-              <span className="px-1.5 py-0.2 rounded text-[9px] font-bold tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 uppercase">
+              <span className="px-1.5 py-0.2 rounded text-[9px] font-semibold tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 uppercase">
                 Pro
               </span>
             </div>
-            <p className="text-[11px] text-slate-400">Personal AI Assistant</p>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">Personal AI Assistant</p>
           </div>
         </div>
 
         {/* Mobile close button */}
         <button
           onClick={onCloseMobile}
-          className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 lg:hidden"
+          className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 lg:hidden transition"
         >
           <X className="w-5 h-5" />
         </button>
       </div>
 
       {/* Navigation list */}
-      <div className="flex-1 space-y-1.5">
-        <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
-          Management
+      <div className="flex-1 space-y-1">
+        <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">
+          Workspace
         </p>
 
         {navItems.map(item => {
@@ -126,14 +127,14 @@ export default function Sidebar({
               onClick={() => handleTabClick(item.id)}
               className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition group ${
                 isActive
-                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
-                  : 'text-slate-400 hover:text-slate-100 hover:bg-slate-900'
+                  ? 'bg-slate-900 text-white dark:bg-indigo-600 dark:text-white shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900/80'
               }`}
             >
               <div className="flex items-center gap-3">
                 <Icon
                   className={`w-4 h-4 transition ${
-                    isActive ? 'text-white' : 'text-slate-400 group-hover:text-indigo-400'
+                    isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-200'
                   }`}
                 />
                 <span>{item.label}</span>
@@ -141,7 +142,7 @@ export default function Sidebar({
 
               {item.badge && (
                 <span
-                  className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold border ${
+                  className={`px-1.5 py-0.5 rounded-md text-[10px] font-medium border ${
                     isActive ? 'bg-white/20 text-white border-white/30' : item.badgeColor
                   }`}
                 >
@@ -153,23 +154,42 @@ export default function Sidebar({
         })}
       </div>
 
-      {/* Storage & System Status Footer */}
-      <div className="pt-4 border-t border-slate-800/80 px-2 space-y-3">
-        <div className="p-3 rounded-xl bg-slate-900/70 border border-slate-800/60 text-xs">
-          <div className="flex items-center justify-between text-slate-300 font-medium mb-1">
+      {/* Footer: Theme Toggle & Sync Status */}
+      <div className="pt-4 border-t border-slate-200 dark:border-slate-800/80 px-1 space-y-3">
+        {/* Quick theme switcher row */}
+        <button
+          onClick={toggleTheme}
+          className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium bg-slate-100/80 hover:bg-slate-200/80 dark:bg-slate-900/70 dark:hover:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 transition"
+          title="Toggle color theme"
+        >
+          <div className="flex items-center gap-2">
+            {theme === 'dark' ? (
+              <Moon className="w-3.5 h-3.5 text-indigo-400" />
+            ) : (
+              <Sun className="w-3.5 h-3.5 text-amber-500" />
+            )}
+            <span>Theme: {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}</span>
+          </div>
+          <span className="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 uppercase">
+            Switch
+          </span>
+        </button>
+
+        <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800/60 text-xs">
+          <div className="flex items-center justify-between text-slate-700 dark:text-slate-300 font-medium mb-1">
             <span className="flex items-center gap-1.5">
-              <Database className="w-3.5 h-3.5 text-emerald-400" />
+              <Database className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
               Sync Engine
             </span>
-            <span className="text-[10px] text-emerald-400">Live</span>
+            <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">Ready</span>
           </div>
-          <p className="text-[11px] text-slate-400">
-            Persistent local storage + Supabase cloud sync ready.
+          <p className="text-[11px] text-slate-500 dark:text-slate-400">
+            Local persistent storage + Supabase sync.
           </p>
         </div>
 
-        <div className="text-[10px] text-slate-400 text-center">
-          LifeOS v2.4 • Next.js & TypeScript
+        <div className="text-[10px] text-slate-400 dark:text-slate-500 text-center">
+          LifeOS • Simple & Sober
         </div>
       </div>
     </div>
@@ -186,7 +206,7 @@ export default function Sidebar({
       {isMobileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden flex">
           <div
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm"
+            className="fixed inset-0 bg-black/40 dark:bg-black/70 backdrop-blur-sm"
             onClick={onCloseMobile}
           />
           <div className="relative w-72 max-w-[85vw] h-full z-10 animate-slideRight">

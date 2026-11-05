@@ -5,7 +5,6 @@ import confetti from 'canvas-confetti';
 import { 
   CheckSquare, 
   Search, 
-  Filter, 
   Plus, 
   Check, 
   Trash2, 
@@ -19,13 +18,10 @@ import {
   Tag,
   ChevronDown,
   ChevronUp,
-  AlertCircle,
-  MoreVertical,
   CheckCircle2,
-  Sparkles
 } from 'lucide-react';
-import { Task, Priority, Category, TaskStatus, Subtask } from '@/types';
-import { formatDate, formatTime, getRelativeTimeString } from '@/lib/utils';
+import { Task, Priority, Category, Subtask } from '@/types';
+import { formatDate } from '@/lib/utils';
 import { sound } from '@/lib/sound';
 
 interface TaskManagerViewProps {
@@ -85,7 +81,7 @@ export default function TaskManagerView({
           particleCount: 50,
           spread: 60,
           origin: { y: 0.8 },
-          colors: ['#6366f1', '#a855f7', '#3b82f6', '#10b981'],
+          colors: ['#4f46e5', '#3b82f6', '#10b981'],
         });
       } catch {}
     } else {
@@ -99,7 +95,6 @@ export default function TaskManagerView({
       s.id === subId ? { ...s, completed: !s.completed } : s
     );
     await onUpdateTask(task.id, { subtasks: updatedSubtasks });
-    sound.playClick();
   };
 
   const handleDeleteConfirm = async (id: string) => {
@@ -107,46 +102,53 @@ export default function TaskManagerView({
     setDeletingId(null);
   };
 
-  // Filtered and sorted tasks
   const filteredTasks = useMemo(() => {
-    return tasks
-      .filter(t => {
-        // Search
-        if (searchQuery.trim()) {
-          const q = searchQuery.toLowerCase();
-          const matchTitle = t.title.toLowerCase().includes(q);
-          const matchDesc = t.description?.toLowerCase().includes(q);
-          const matchTags = t.tags?.some(tag => tag.toLowerCase().includes(q));
-          if (!matchTitle && !matchDesc && !matchTags) return false;
-        }
-        // Status
-        if (statusFilter === 'pending' && t.status === 'completed') return false;
-        if (statusFilter === 'completed' && t.status !== 'completed') return false;
-        // Priority
-        if (priorityFilter !== 'all' && t.priority !== priorityFilter) return false;
-        // Category
-        if (categoryFilter !== 'all' && t.category !== categoryFilter) return false;
+    let list = [...tasks];
 
-        return true;
-      })
-      .sort((a, b) => {
-        if (sortBy === 'dueDate') {
-          if (!a.dueDate) return 1;
-          if (!b.dueDate) return -1;
-          return a.dueDate.localeCompare(b.dueDate);
-        }
-        if (sortBy === 'priority') {
-          const weight = { high: 3, medium: 2, low: 1 };
-          return weight[b.priority] - weight[a.priority];
-        }
-        if (sortBy === 'title') {
-          return a.title.localeCompare(b.title);
-        }
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      });
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      list = list.filter(
+        t =>
+          t.title.toLowerCase().includes(q) ||
+          (t.description && t.description.toLowerCase().includes(q)) ||
+          (t.tags && t.tags.some(tag => tag.toLowerCase().includes(q)))
+      );
+    }
+
+    if (statusFilter !== 'all') {
+      list = list.filter(t => (statusFilter === 'completed' ? t.status === 'completed' : t.status !== 'completed'));
+    }
+
+    if (priorityFilter !== 'all') {
+      list = list.filter(t => t.priority === priorityFilter);
+    }
+
+    if (categoryFilter !== 'all') {
+      list = list.filter(t => t.category === categoryFilter);
+    }
+
+    list.sort((a, b) => {
+      if (sortBy === 'dueDate') {
+        if (!a.dueDate) return 1;
+        if (!b.dueDate) return -1;
+        return a.dueDate.localeCompare(b.dueDate);
+      }
+      if (sortBy === 'priority') {
+        const order: Record<Priority, number> = { high: 0, medium: 1, low: 2 };
+        return order[a.priority] - order[b.priority];
+      }
+      if (sortBy === 'title') {
+        return a.title.localeCompare(b.title);
+      }
+      if (sortBy === 'newest') {
+        return (b.createdAt || '').localeCompare(a.createdAt || '');
+      }
+      return 0;
+    });
+
+    return list;
   }, [tasks, searchQuery, statusFilter, priorityFilter, categoryFilter, sortBy]);
 
-  // Kanban column buckets
   const kanbanColumns = useMemo(() => {
     return {
       todo: filteredTasks.filter(t => t.status === 'pending'),
@@ -158,81 +160,81 @@ export default function TaskManagerView({
   return (
     <div className="space-y-6 pb-12 animate-fadeIn">
       {/* Header & View Switcher */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 glass-panel p-6 rounded-3xl border border-slate-800/80 shadow-xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors duration-150">
         <div>
           <div className="flex items-center gap-2">
-            <div className="p-2 rounded-xl bg-indigo-500/15 text-indigo-400">
+            <div className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400">
               <CheckSquare className="w-5 h-5" />
             </div>
-            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">Smart Task Manager</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Smart Tasks</h1>
           </div>
-          <p className="text-xs text-slate-400 mt-1">
-            Organize, prioritize, and conquer your goals with full scheduling and subtask checklists
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            Organize, prioritize, and manage your tasks with checklists and deadlines
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           {/* View Toggles */}
-          <div className="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800">
+          <div className="flex items-center bg-slate-100 dark:bg-slate-950 p-1 rounded-xl border border-slate-200 dark:border-slate-800">
             <button
               onClick={() => setActiveView('list')}
-              className={`p-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition ${
                 activeView === 'list'
-                  ? 'bg-indigo-600 text-white shadow'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs font-semibold'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
               title="List View"
             >
               <List className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">List</span>
+              <span>List</span>
             </button>
             <button
               onClick={() => setActiveView('kanban')}
-              className={`p-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition ${
                 activeView === 'kanban'
-                  ? 'bg-indigo-600 text-white shadow'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs font-semibold'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
               title="Kanban Board"
             >
               <Kanban className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Board</span>
+              <span>Board</span>
             </button>
             <button
               onClick={() => setActiveView('calendar')}
-              className={`p-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition ${
                 activeView === 'calendar'
-                  ? 'bg-indigo-600 text-white shadow'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs font-semibold'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
               title="Calendar Schedule"
             >
               <CalendarDays className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Calendar</span>
+              <span>Calendar</span>
             </button>
           </div>
 
           <button
             onClick={onOpenNewTask}
-            className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-lg shadow-indigo-600/30 flex items-center gap-1.5 transition"
+            className="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm flex items-center gap-1.5 transition"
           >
-            <Plus className="w-4 h-4" /> New Task
+            <Plus className="w-3.5 h-3.5" /> New Task
           </button>
         </div>
       </div>
 
       {/* Search & Filter Bar */}
-      <div className="glass-panel p-4 rounded-2xl border border-slate-800/80 space-y-3">
+      <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-3 transition-colors duration-150">
         <div className="flex flex-col md:flex-row gap-3">
           {/* Search Input */}
           <div className="relative flex-1">
-            <Search className="w-4 h-4 absolute left-3.5 top-3 text-slate-500" />
+            <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search tasks by title, description, or tags..."
-              className="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-950/70 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+              className="w-full pl-9 pr-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-indigo-600 focus:bg-white dark:focus:bg-slate-950 transition"
             />
           </div>
 
@@ -242,7 +244,7 @@ export default function TaskManagerView({
             <select
               value={statusFilter}
               onChange={e => setStatusFilter(e.target.value as any)}
-              className="px-3 py-2 rounded-xl bg-slate-950/70 border border-slate-800 text-xs text-slate-300 focus:outline-none focus:border-indigo-500"
+              className="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-300 focus:outline-none focus:border-indigo-600"
             >
               <option value="all">All Status</option>
               <option value="pending">Pending Only</option>
@@ -253,7 +255,7 @@ export default function TaskManagerView({
             <select
               value={priorityFilter}
               onChange={e => setPriorityFilter(e.target.value)}
-              className="px-3 py-2 rounded-xl bg-slate-950/70 border border-slate-800 text-xs text-slate-300 focus:outline-none focus:border-indigo-500"
+              className="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-300 focus:outline-none focus:border-indigo-600"
             >
               <option value="all">All Priorities</option>
               <option value="high">High Priority</option>
@@ -265,7 +267,7 @@ export default function TaskManagerView({
             <select
               value={categoryFilter}
               onChange={e => setCategoryFilter(e.target.value)}
-              className="px-3 py-2 rounded-xl bg-slate-950/70 border border-slate-800 text-xs text-slate-300 focus:outline-none focus:border-indigo-500"
+              className="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-300 focus:outline-none focus:border-indigo-600"
             >
               <option value="all">All Categories</option>
               {CATEGORIES.map(c => (
@@ -277,7 +279,7 @@ export default function TaskManagerView({
             <select
               value={sortBy}
               onChange={e => setSortBy(e.target.value as any)}
-              className="px-3 py-2 rounded-xl bg-slate-950/70 border border-slate-800 text-xs text-slate-300 focus:outline-none focus:border-indigo-500"
+              className="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-300 focus:outline-none focus:border-indigo-600"
             >
               <option value="dueDate">Sort by Due Date</option>
               <option value="priority">Sort by Priority</option>
@@ -288,12 +290,12 @@ export default function TaskManagerView({
         </div>
 
         {/* Counter Info */}
-        <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1">
+        <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 pt-1">
           <span>Showing {filteredTasks.length} of {tasks.length} tasks</span>
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="text-indigo-400 hover:text-indigo-300"
+              className="text-indigo-600 dark:text-indigo-400 hover:underline"
             >
               Clear search filter
             </button>
@@ -303,17 +305,17 @@ export default function TaskManagerView({
 
       {/* VIEW 1: LIST VIEW */}
       {activeView === 'list' && (
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           {filteredTasks.length === 0 ? (
-            <div className="text-center py-16 px-4 rounded-3xl glass-panel border border-dashed border-slate-800">
-              <CheckCircle2 className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-              <h3 className="text-base font-semibold text-white">No tasks found</h3>
-              <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto mb-4">
+            <div className="text-center py-16 px-4 rounded-2xl bg-white dark:bg-slate-900 border border-dashed border-slate-200 dark:border-slate-800">
+              <CheckCircle2 className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
+              <h3 className="text-base font-semibold text-slate-800 dark:text-slate-200">No tasks found</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto mb-4">
                 No items match your filter criteria. Try adjusting filters or create a new task.
               </p>
               <button
                 onClick={onOpenNewTask}
-                className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition"
+                className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition"
               >
                 + Create New Task
               </button>
@@ -324,18 +326,18 @@ export default function TaskManagerView({
               const isExpanded = expandedTaskIds.has(task.id);
               const priorityColor =
                 task.priority === 'high'
-                  ? 'border-rose-500/40 text-rose-300 bg-rose-500/10'
+                  ? 'border-rose-200 dark:border-rose-900/50 text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40'
                   : task.priority === 'medium'
-                  ? 'border-amber-500/40 text-amber-300 bg-amber-500/10'
-                  : 'border-emerald-500/40 text-emerald-300 bg-emerald-500/10';
+                  ? 'border-amber-200 dark:border-amber-900/50 text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40'
+                  : 'border-emerald-200 dark:border-emerald-900/50 text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40';
 
               return (
                 <div
                   key={task.id}
-                  className={`rounded-2xl border transition-all ${
+                  className={`rounded-xl border transition-all ${
                     isDone
-                      ? 'glass-panel bg-slate-950/30 border-slate-900/60 opacity-65'
-                      : 'glass-panel bg-slate-900/80 border-slate-800/80 hover:border-slate-700 shadow-md'
+                      ? 'bg-slate-50/60 dark:bg-slate-950/30 border-slate-200/50 dark:border-slate-800/40 opacity-65'
+                      : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-xs'
                   }`}
                 >
                   <div className="p-4 flex items-start justify-between gap-3">
@@ -343,38 +345,38 @@ export default function TaskManagerView({
                       {/* Checkbox */}
                       <button
                         onClick={() => handleCheckbox(task)}
-                        className={`mt-1 w-5 h-5 rounded-lg border flex items-center justify-center shrink-0 transition ${
+                        className={`mt-0.5 w-4 h-4 rounded border flex items-center justify-center shrink-0 transition ${
                           isDone
-                            ? 'bg-emerald-500 border-emerald-500 text-slate-950'
-                            : 'border-slate-600 hover:border-indigo-400 bg-slate-950'
+                            ? 'bg-emerald-600 border-emerald-600 text-white'
+                            : 'border-slate-300 dark:border-slate-600 hover:border-indigo-600 bg-white dark:bg-slate-950'
                         }`}
                       >
-                        {isDone && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                        {isDone && <Check className="w-3 h-3 stroke-[3]" />}
                       </button>
 
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
                           <h3
                             className={`text-sm font-semibold tracking-tight ${
-                              isDone ? 'line-through text-slate-500' : 'text-slate-100'
+                              isDone ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-900 dark:text-slate-100'
                             }`}
                           >
                             {task.title}
                           </h3>
 
                           {/* Priority badge */}
-                          <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold border uppercase ${priorityColor}`}>
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-semibold border uppercase ${priorityColor}`}>
                             {task.priority}
                           </span>
 
                           {/* Category badge */}
-                          <span className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-slate-800 text-slate-300 border border-slate-700">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
                             {task.category}
                           </span>
 
                           {/* Recurrence badge */}
                           {task.recurrence && task.recurrence !== 'none' && (
-                            <span className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 flex items-center gap-1">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/50 flex items-center gap-1">
                               <Repeat className="w-3 h-3" />
                               {task.recurrence}
                             </span>
@@ -382,35 +384,35 @@ export default function TaskManagerView({
                         </div>
 
                         {task.description && (
-                          <p className="text-xs text-slate-400 mt-1 line-clamp-2">
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">
                             {task.description}
                           </p>
                         )}
 
                         {/* Metadata row */}
-                        <div className="flex flex-wrap items-center gap-4 text-[11px] text-slate-400 mt-2">
+                        <div className="flex flex-wrap items-center gap-4 text-[11px] text-slate-400 dark:text-slate-500 mt-2">
                           {task.dueDate && (
-                            <span className="flex items-center gap-1 text-slate-300">
-                              <CalendarIcon className="w-3 h-3 text-indigo-400" />
+                            <span className="flex items-center gap-1 text-slate-600 dark:text-slate-300">
+                              <CalendarIcon className="w-3 h-3 text-slate-400" />
                               {formatDate(task.dueDate)}
                             </span>
                           )}
                           {task.dueTime && (
-                            <span className="flex items-center gap-1 text-indigo-300">
-                              <Clock className="w-3 h-3" />
+                            <span className="flex items-center gap-1 text-slate-600 dark:text-slate-300">
+                              <Clock className="w-3 h-3 text-slate-400" />
                               {task.dueTime}
                             </span>
                           )}
                           {task.estimatedMinutes && (
-                            <span className="text-slate-400">
+                            <span className="text-slate-500 dark:text-slate-400">
                               ~{task.estimatedMinutes}m focus
                             </span>
                           )}
                           {task.tags && task.tags.length > 0 && (
                             <div className="flex items-center gap-1">
-                              <Tag className="w-3 h-3 text-slate-500" />
+                              <Tag className="w-3 h-3 text-slate-400" />
                               {task.tags.map((tg, idx) => (
-                                <span key={idx} className="text-slate-400">
+                                <span key={idx} className="text-slate-500 dark:text-slate-400">
                                   #{tg}
                                 </span>
                               ))}
@@ -421,7 +423,7 @@ export default function TaskManagerView({
                           {task.subtasks && task.subtasks.length > 0 && (
                             <button
                               onClick={() => toggleExpand(task.id)}
-                              className="text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1 ml-auto"
+                              className="text-indigo-600 dark:text-indigo-400 hover:underline font-medium flex items-center gap-1 ml-auto"
                             >
                               Checklist ({task.subtasks.filter(s => s.completed).length}/{task.subtasks.length})
                               {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
@@ -435,23 +437,23 @@ export default function TaskManagerView({
                     <div className="flex items-center gap-1">
                       <button
                         onClick={() => onOpenEditTask(task)}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition"
                         title="Edit task"
                       >
                         <Edit3 className="w-4 h-4" />
                       </button>
 
                       {deletingId === task.id ? (
-                        <div className="flex items-center gap-1 bg-rose-500/20 p-1 rounded-lg border border-rose-500/40">
+                        <div className="flex items-center gap-1 bg-rose-50 dark:bg-rose-950/40 p-1 rounded-lg border border-rose-200 dark:border-rose-900/50">
                           <button
                             onClick={() => handleDeleteConfirm(task.id)}
-                            className="px-2 py-0.5 text-[10px] font-bold bg-rose-600 text-white rounded hover:bg-rose-500 transition"
+                            className="px-2 py-0.5 text-[10px] font-bold bg-rose-600 text-white rounded hover:bg-rose-700 transition"
                           >
                             Delete
                           </button>
                           <button
                             onClick={() => setDeletingId(null)}
-                            className="px-1.5 py-0.5 text-[10px] text-slate-300 hover:text-white"
+                            className="px-1.5 py-0.5 text-[10px] text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white"
                           >
                             Cancel
                           </button>
@@ -459,7 +461,7 @@ export default function TaskManagerView({
                       ) : (
                         <button
                           onClick={() => setDeletingId(task.id)}
-                          className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-slate-800 transition"
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
                           title="Delete task"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -470,22 +472,22 @@ export default function TaskManagerView({
 
                   {/* Expanded Subtasks Checklist */}
                   {isExpanded && task.subtasks && task.subtasks.length > 0 && (
-                    <div className="px-12 pb-4 pt-1 border-t border-slate-800/60 bg-slate-950/40 space-y-2">
-                      <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 pt-2">
+                    <div className="px-10 pb-3 pt-2 border-t border-slate-100 dark:border-slate-800/80 bg-slate-50/60 dark:bg-slate-950/40 space-y-2">
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 pt-1">
                         Subtasks & Checklist
                       </div>
                       {task.subtasks.map(sub => (
                         <label
                           key={sub.id}
-                          className="flex items-center gap-2.5 text-xs text-slate-300 cursor-pointer hover:text-white transition"
+                          className="flex items-center gap-2.5 text-xs text-slate-700 dark:text-slate-300 cursor-pointer hover:text-slate-900 dark:hover:text-white transition"
                         >
                           <input
                             type="checkbox"
                             checked={sub.completed}
                             onChange={() => handleToggleSubtask(task, sub.id)}
-                            className="rounded border-slate-700 bg-slate-900 text-indigo-500 focus:ring-0 w-3.5 h-3.5"
+                            className="rounded border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-0 w-3.5 h-3.5"
                           />
-                          <span className={sub.completed ? 'line-through text-slate-500' : 'text-slate-200'}>
+                          <span className={sub.completed ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-800 dark:text-slate-200'}>
                             {sub.title}
                           </span>
                         </label>
@@ -503,40 +505,40 @@ export default function TaskManagerView({
       {activeView === 'kanban' && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Column 1: To Do */}
-          <div className="glass-panel p-4 rounded-3xl border border-slate-800/80 space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+          <div className="bg-slate-100/70 dark:bg-slate-900/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
               <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-indigo-500" />
-                <h3 className="text-sm font-bold text-white">To Do</h3>
+                <span className="w-2 h-2 rounded-full bg-indigo-500" />
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">To Do</h3>
               </div>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-900 text-slate-300">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800">
                 {kanbanColumns.todo.length}
               </span>
             </div>
 
-            <div className="space-y-3 min-h-[300px]">
+            <div className="space-y-2.5 min-h-[300px]">
               {kanbanColumns.todo.map(task => (
                 <div
                   key={task.id}
-                  className="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800 hover:border-slate-700 shadow-md space-y-2"
+                  className="p-3.5 rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-xs space-y-2"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="px-2 py-0.5 rounded text-[9px] font-bold uppercase bg-slate-900 text-slate-300 border border-slate-800">
+                    <span className="px-1.5 py-0.5 rounded text-[9px] font-medium bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800">
                       {task.category}
                     </span>
                     <button
                       onClick={() => onUpdateTask(task.id, { status: 'in_progress' })}
-                      className="text-[10px] font-semibold text-indigo-400 hover:text-indigo-300"
+                      className="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
                     >
                       Start &rarr;
                     </button>
                   </div>
-                  <h4 className="text-xs font-semibold text-white">{task.title}</h4>
-                  <div className="flex items-center justify-between text-[10px] text-slate-400 pt-1">
+                  <h4 className="text-xs font-semibold text-slate-900 dark:text-white">{task.title}</h4>
+                  <div className="flex items-center justify-between text-[10px] text-slate-400 dark:text-slate-500 pt-1">
                     <span>{task.dueDate ? formatDate(task.dueDate) : 'No due date'}</span>
                     <button
                       onClick={() => handleCheckbox(task)}
-                      className="hover:text-emerald-400 flex items-center gap-1"
+                      className="hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-1 font-medium"
                     >
                       <Check className="w-3 h-3" /> Mark Done
                     </button>
@@ -547,42 +549,42 @@ export default function TaskManagerView({
           </div>
 
           {/* Column 2: In Progress */}
-          <div className="glass-panel p-4 rounded-3xl border border-slate-800/80 space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+          <div className="bg-slate-100/70 dark:bg-slate-900/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
               <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-                <h3 className="text-sm font-bold text-white">In Progress</h3>
+                <span className="w-2 h-2 rounded-full bg-amber-500" />
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">In Progress</h3>
               </div>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-900 text-slate-300">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800">
                 {kanbanColumns.in_progress.length}
               </span>
             </div>
 
-            <div className="space-y-3 min-h-[300px]">
+            <div className="space-y-2.5 min-h-[300px]">
               {kanbanColumns.in_progress.map(task => (
                 <div
                   key={task.id}
-                  className="p-3.5 rounded-2xl bg-slate-950/70 border border-amber-500/30 hover:border-amber-500/50 shadow-md space-y-2"
+                  className="p-3.5 rounded-xl bg-white dark:bg-slate-950 border border-amber-200 dark:border-amber-900/40 hover:border-amber-300 dark:hover:border-amber-800 shadow-xs space-y-2"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="px-2 py-0.5 rounded text-[9px] font-bold uppercase bg-amber-500/10 text-amber-300 border border-amber-500/20">
+                    <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-900/50">
                       {task.category}
                     </span>
                     <button
                       onClick={() => handleCheckbox(task)}
-                      className="text-[10px] font-semibold text-emerald-400 hover:text-emerald-300"
+                      className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 hover:underline"
                     >
                       Complete &rarr;
                     </button>
                   </div>
-                  <h4 className="text-xs font-semibold text-white">{task.title}</h4>
-                  <div className="flex items-center justify-between text-[10px] text-slate-400 pt-1">
+                  <h4 className="text-xs font-semibold text-slate-900 dark:text-white">{task.title}</h4>
+                  <div className="flex items-center justify-between text-[10px] text-slate-400 dark:text-slate-500 pt-1">
                     <span>{task.dueDate ? formatDate(task.dueDate) : 'No date'}</span>
                     <button
                       onClick={() => onUpdateTask(task.id, { status: 'pending' })}
-                      className="text-slate-400 hover:text-slate-200"
+                      className="text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
                     >
-                      &larr; Back to To Do
+                      &larr; To Do
                     </button>
                   </div>
                 </div>
@@ -591,30 +593,30 @@ export default function TaskManagerView({
           </div>
 
           {/* Column 3: Completed */}
-          <div className="glass-panel p-4 rounded-3xl border border-slate-800/80 space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+          <div className="bg-slate-100/70 dark:bg-slate-900/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
               <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-                <h3 className="text-sm font-bold text-white">Completed</h3>
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">Completed</h3>
               </div>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-900 text-slate-300">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800">
                 {kanbanColumns.completed.length}
               </span>
             </div>
 
-            <div className="space-y-3 min-h-[300px]">
+            <div className="space-y-2.5 min-h-[300px]">
               {kanbanColumns.completed.map(task => (
                 <div
                   key={task.id}
-                  className="p-3.5 rounded-2xl bg-slate-950/40 border border-slate-800/60 opacity-70 space-y-2"
+                  className="p-3.5 rounded-xl bg-white/70 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800/60 opacity-70 space-y-2"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="px-2 py-0.5 rounded text-[9px] font-bold uppercase bg-slate-900 text-slate-400">
+                    <span className="px-1.5 py-0.5 rounded text-[9px] font-medium bg-slate-100 dark:bg-slate-900 text-slate-500">
                       {task.category}
                     </span>
                     <button
                       onClick={() => handleCheckbox(task)}
-                      className="text-[10px] text-slate-400 hover:text-indigo-300"
+                      className="text-[10px] text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium"
                     >
                       Reopen
                     </button>
@@ -629,10 +631,10 @@ export default function TaskManagerView({
 
       {/* VIEW 3: CALENDAR GRID VIEW */}
       {activeView === 'calendar' && (
-        <div className="glass-panel p-6 rounded-3xl border border-slate-800/80 space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-            <h3 className="text-base font-bold text-white">Upcoming Days Schedule</h3>
-            <span className="text-xs text-slate-400">Grouped by Due Date</span>
+        <div className="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+            <h3 className="text-base font-bold text-slate-900 dark:text-white">Upcoming Schedule</h3>
+            <span className="text-xs text-slate-500 dark:text-slate-400">Grouped by Due Date</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -642,30 +644,30 @@ export default function TaskManagerView({
               return (
                 <div
                   key={offset}
-                  className={`p-4 rounded-2xl border ${
+                  className={`p-4 rounded-xl border ${
                     offset === 0
-                      ? 'bg-indigo-950/30 border-indigo-500/40'
-                      : 'bg-slate-950/60 border-slate-800'
+                      ? 'bg-indigo-50/50 dark:bg-indigo-950/20 border-indigo-200 dark:border-indigo-800/50'
+                      : 'bg-slate-50/70 dark:bg-slate-950/60 border-slate-200 dark:border-slate-800'
                   }`}
                 >
-                  <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-800">
-                    <span className={`text-xs font-bold ${offset === 0 ? 'text-indigo-300' : 'text-slate-300'}`}>
+                  <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-200 dark:border-slate-800">
+                    <span className={`text-xs font-bold ${offset === 0 ? 'text-indigo-700 dark:text-indigo-300' : 'text-slate-800 dark:text-slate-200'}`}>
                       {label}
                     </span>
-                    <span className="text-[10px] text-slate-500">{dayTasks.length} tasks</span>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400">{dayTasks.length} tasks</span>
                   </div>
 
                   <div className="space-y-2">
                     {dayTasks.length === 0 ? (
-                      <div className="text-[11px] text-slate-500 py-4 text-center">No tasks scheduled</div>
+                      <div className="text-[11px] text-slate-400 dark:text-slate-500 py-4 text-center">No tasks scheduled</div>
                     ) : (
                       dayTasks.map(t => (
                         <div
                           key={t.id}
-                          className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-200"
+                          className="p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-800 dark:text-slate-200 shadow-xs"
                         >
                           <div className="font-medium truncate">{t.title}</div>
-                          <div className="text-[10px] text-slate-400 mt-0.5">{t.dueTime || t.priority}</div>
+                          <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">{t.dueTime || t.priority}</div>
                         </div>
                       ))
                     )}

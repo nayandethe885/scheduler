@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
-import { Flame, Check, Plus, Sparkles, Droplet, Brain, BookOpen, Activity } from 'lucide-react';
+import { Flame, Check, Sparkles, Droplet, Brain, BookOpen, Activity } from 'lucide-react';
 import { Habit } from '@/types';
 import { sound } from '@/lib/sound';
 
@@ -20,7 +20,7 @@ const ICON_MAP: Record<string, any> = {
 };
 
 export default function HabitsView({ habits, onToggleHabitDay }: HabitsViewProps) {
-  const [selectedWeekOffset, setSelectedWeekOffset] = useState(0);
+  const [selectedWeekOffset] = useState(0);
   const [daysOfWeek, setDaysOfWeek] = useState<{ dateStr: string; dayName: string; dateNumber: number; isToday: boolean }[]>([]);
 
   useEffect(() => {
@@ -47,6 +47,7 @@ export default function HabitsView({ habits, onToggleHabitDay }: HabitsViewProps
           particleCount: 40,
           spread: 50,
           origin: { y: 0.8 },
+          colors: ['#4f46e5', '#10b981', '#f59e0b'],
         });
       } catch {}
     } else {
@@ -58,24 +59,24 @@ export default function HabitsView({ habits, onToggleHabitDay }: HabitsViewProps
   return (
     <div className="space-y-6 pb-12 animate-fadeIn">
       {/* Header */}
-      <div className="glass-panel p-6 rounded-3xl border border-slate-800/80 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors duration-150">
         <div>
           <div className="flex items-center gap-2">
-            <div className="p-2 rounded-xl bg-amber-500/15 text-amber-400">
+            <div className="p-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400">
               <Flame className="w-5 h-5" />
             </div>
-            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-              Habits & Daily Routines
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+              Habits & Routines
             </h1>
           </div>
-          <p className="text-xs text-slate-400 mt-1">
-            Build consistency, eliminate friction, and watch your daily productivity streaks compound.
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            Build consistency, track daily streaks, and reinforce positive habits.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-400">
-            Total active habits: <strong className="text-white">{habits.length}</strong>
+          <span className="text-xs text-slate-500 dark:text-slate-400">
+            Active habits: <strong className="text-slate-900 dark:text-white font-semibold">{habits.length}</strong>
           </span>
         </div>
       </div>
@@ -87,54 +88,54 @@ export default function HabitsView({ habits, onToggleHabitDay }: HabitsViewProps
           return (
             <div
               key={habit.id}
-              className="glass-panel p-5 rounded-3xl border border-slate-800/80 hover:border-slate-700 shadow-xl space-y-4"
+              className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-sm space-y-4 transition-colors duration-150"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div
-                    className="p-3 rounded-2xl flex items-center justify-center text-white"
-                    style={{ backgroundColor: `${habit.color}25`, color: habit.color }}
+                    className="p-2.5 rounded-xl flex items-center justify-center text-slate-900 dark:text-white"
+                    style={{ backgroundColor: `${habit.color}15`, color: habit.color }}
                   >
                     <IconComponent className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-white">{habit.name}</h3>
-                    <span className="text-[11px] text-slate-400">{habit.category}</span>
+                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{habit.name}</h3>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400">{habit.category}</span>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-bold">
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 text-amber-700 dark:text-amber-400 text-xs font-semibold">
                   <Flame className="w-3.5 h-3.5 fill-current" />
                   <span>{habit.streak} Day Streak</span>
                 </div>
               </div>
 
               {/* 7-Day Completion Grid */}
-              <div className="pt-2">
+              <div className="pt-1">
                 <div className="grid grid-cols-7 gap-2">
                   {daysOfWeek.map(day => {
                     const isDone = habit.completedDates.includes(day.dateStr);
                     return (
                       <div key={day.dateStr} className="flex flex-col items-center gap-1.5">
                         <span
-                          className={`text-[10px] font-bold ${
-                            day.isToday ? 'text-indigo-400' : 'text-slate-500'
+                          className={`text-[10px] font-semibold ${
+                            day.isToday ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500'
                           }`}
                         >
                           {day.dayName}
                         </span>
                         <button
                           onClick={() => handleToggle(habit.id, day.dateStr, isDone)}
-                          className={`w-9 h-9 rounded-xl border flex flex-col items-center justify-center text-xs font-semibold transition active:scale-90 ${
+                          className={`w-9 h-9 rounded-xl border flex flex-col items-center justify-center text-xs font-semibold transition active:scale-95 ${
                             isDone
-                              ? 'bg-emerald-500 border-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
+                              ? 'bg-emerald-600 border-emerald-600 text-white font-bold shadow-xs'
                               : day.isToday
-                              ? 'bg-slate-900 border-indigo-500/50 text-indigo-300 hover:border-indigo-400'
-                              : 'bg-slate-950/70 border-slate-800 text-slate-400 hover:border-slate-700'
+                              ? 'bg-indigo-50 dark:bg-indigo-950/40 border-indigo-300 dark:border-indigo-700/60 text-indigo-700 dark:text-indigo-300 hover:border-indigo-500'
+                              : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
                           }`}
                           title={isDone ? `Completed on ${day.dateStr}` : `Mark completed for ${day.dateStr}`}
                         >
-                          {isDone ? <Check className="w-4 h-4 stroke-[3]" /> : day.dateNumber}
+                          {isDone ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : day.dateNumber}
                         </button>
                       </div>
                     );
