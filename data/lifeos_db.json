@@ -1,0 +1,278 @@
+{
+  "profile": {
+    "name": "Nayan",
+    "greetingTitle": "Productivity Architect",
+    "email": "nayan@lifeos.app",
+    "dailyTaskGoal": 6,
+    "focusGoalMinutes": 120,
+    "aiTone": "friendly",
+    "theme": "dark",
+    "aiModel": "gpt-4o-mini"
+  },
+  "tasks": [
+    {
+      "id": "task-1",
+      "title": "Complete React assignment & architecture test",
+      "description": "Finish the full-stack state management, unit tests, and dashboard polish.",
+      "status": "pending",
+      "priority": "high",
+      "category": "Study",
+      "dueDate": "2026-11-05",
+      "dueTime": "10:00 AM",
+      "recurrence": "none",
+      "subtasks": [
+        {
+          "id": "sub-1",
+          "title": "Implement AI chat function calling",
+          "completed": true
+        },
+        {
+          "id": "sub-2",
+          "title": "Design dark glassmorphism dashboard",
+          "completed": true
+        },
+        {
+          "id": "sub-3",
+          "title": "Write unit tests for task manager",
+          "completed": false
+        }
+      ],
+      "tags": [
+        "React",
+        "University",
+        "Priority"
+      ],
+      "estimatedMinutes": 60,
+      "createdAt": "2026-11-03T18:00:00.000Z",
+      "updatedAt": "2026-11-04T18:00:00.000Z"
+    },
+    {
+      "id": "task-2",
+      "title": "Schedule quarterly team sync for Friday",
+      "description": "Review upcoming roadmap deliverables, cloud infrastructure, and AI features.",
+      "status": "pending",
+      "priority": "medium",
+      "category": "Work",
+      "dueDate": "2026-11-07",
+      "dueTime": "02:00 PM",
+      "recurrence": "weekly",
+      "subtasks": [
+        {
+          "id": "sub-4",
+          "title": "Draft agenda slide deck",
+          "completed": true
+        },
+        {
+          "id": "sub-5",
+          "title": "Send calendar invite",
+          "completed": false
+        }
+      ],
+      "tags": [
+        "Planning",
+        "Meetings"
+      ],
+      "estimatedMinutes": 45,
+      "createdAt": "2026-11-02T18:00:00.000Z",
+      "updatedAt": "2026-11-03T18:00:00.000Z"
+    },
+    {
+      "id": "task-3",
+      "title": "Review investment portfolio & monthly expenses",
+      "description": "Check automated ETF allocations, subscription renewals, and balance ledger.",
+      "status": "completed",
+      "priority": "low",
+      "category": "Finance",
+      "dueDate": "2026-11-04",
+      "dueTime": "06:00 PM",
+      "recurrence": "monthly",
+      "subtasks": [],
+      "tags": [
+        "Budget",
+        "Finance"
+      ],
+      "estimatedMinutes": 30,
+      "createdAt": "2026-11-01T18:00:00.000Z",
+      "updatedAt": "2026-11-03T18:00:00.000Z",
+      "completedAt": "2026-11-03T18:00:00.000Z"
+    },
+    {
+      "id": "task-4",
+      "title": "30-minute cardio & stretching routine",
+      "description": "Interval running on treadmill followed by spine mobility workout.",
+      "status": "pending",
+      "priority": "medium",
+      "category": "Health",
+      "dueDate": "2026-11-05",
+      "dueTime": "06:30 PM",
+      "recurrence": "daily",
+      "subtasks": [],
+      "tags": [
+        "Fitness",
+        "Cardio"
+      ],
+      "estimatedMinutes": 30,
+      "createdAt": "2026-11-03T18:00:00.000Z",
+      "updatedAt": "2026-11-04T18:00:00.000Z"
+    },
+    {
+      "id": "task-5",
+      "title": "Brainstorm creative features for LifeOS 2.0",
+      "description": "Explore multi-agent workflows, voice wake word triggers, and smart ambient music.",
+      "status": "pending",
+      "priority": "high",
+      "category": "Creative",
+      "dueDate": "2026-11-06",
+      "dueTime": "04:00 PM",
+      "recurrence": "none",
+      "subtasks": [],
+      "tags": [
+        "LifeOS",
+        "AI"
+      ],
+      "estimatedMinutes": 50,
+      "createdAt": "2026-11-04T18:00:00.000Z",
+      "updatedAt": "2026-11-04T18:00:00.000Z"
+    }
+  ],
+  "reminders": [
+    {
+      "id": "rem-1",
+      "title": "Call friend Alex to catch up",
+      "dateTime": "2026-11-05T04:00:00.000Z",
+      "priority": "medium",
+      "isCompleted": false,
+      "createdAt": "2026-11-03T18:00:00.000Z"
+    },
+    {
+      "id": "rem-2",
+      "title": "Submit assignment deliverables to portal",
+      "dateTime": "2026-11-05T18:00:00.000Z",
+      "priority": "high",
+      "isCompleted": false,
+      "createdAt": "2026-11-04T18:00:00.000Z"
+    },
+    {
+      "id": "rem-3",
+      "title": "Hydration break & 5-minute eye rest",
+      "dateTime": "2026-11-04T22:00:00.000Z",
+      "priority": "low",
+      "isCompleted": false,
+      "createdAt": "2026-11-04T18:00:00.000Z"
+    }
+  ],
+  "memories": [
+    {
+      "id": "mem-1",
+      "key": "study_habit",
+      "content": "Prefers deep work and study sessions in 60-90 minute morning blocks.",
+      "category": "preference",
+      "createdAt": "2026-10-30T17:00:00.000Z"
+    },
+    {
+      "id": "mem-2",
+      "key": "current_focus",
+      "content": "Currently learning React 19, TypeScript, and modern AI Agent architectures.",
+      "category": "fact",
+      "createdAt": "2026-11-01T18:00:00.000Z"
+    },
+    {
+      "id": "mem-3",
+      "key": "friend_name",
+      "content": "Close friend is Alex; usually catches up during evening hours.",
+      "category": "fact",
+      "createdAt": "2026-11-02T18:00:00.000Z"
+    }
+  ],
+  "habits": [
+    {
+      "id": "hab-1",
+      "name": "Hydration (2.5L Water)",
+      "category": "Health",
+      "icon": "Droplet",
+      "targetDays": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "completedDates": [
+        "2026-11-03",
+        "2026-11-04",
+        "2026-11-05"
+      ],
+      "streak": 5,
+      "color": "#06b6d4"
+    },
+    {
+      "id": "hab-2",
+      "name": "Deep Work Session (90 min)",
+      "category": "Productivity",
+      "icon": "Brain",
+      "targetDays": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "completedDates": [
+        "2026-11-04",
+        "2026-11-05"
+      ],
+      "streak": 4,
+      "color": "#8b5cf6"
+    },
+    {
+      "id": "hab-3",
+      "name": "Read 20 pages of Book",
+      "category": "Learning",
+      "icon": "BookOpen",
+      "targetDays": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "completedDates": [
+        "2026-11-04"
+      ],
+      "streak": 3,
+      "color": "#10b981"
+    },
+    {
+      "id": "hab-4",
+      "name": "Posture & Mobility Stretch",
+      "category": "Health",
+      "icon": "Activity",
+      "targetDays": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "completedDates": [
+        "2026-11-05"
+      ],
+      "streak": 2,
+      "color": "#f59e0b"
+    }
+  ],
+  "chatHistory": [
+    {
+      "id": "msg-welcome",
+      "sender": "assistant",
+      "text": "Good day! I am **LifeOS Copilot**, your personal intelligence assistant. I am connected directly to your tasks, deadlines, and schedule. You can ask me to plan your day, schedule reminders, reschedule tasks, or generate customized study plans. What would you like to achieve today?",
+      "timestamp": "2026-11-04T16:30:00.000Z"
+    }
+  ]
+}

@@ -1,69 +1,487 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import Navbar from '@/components/Navbar';
+import Sidebar from '@/components/Sidebar';
+import DashboardView from '@/components/DashboardView';
+import TaskManagerView from '@/components/TaskManagerView';
+import AIChatView from '@/components/AIChatView';
+import AIChatWidget from '@/components/AIChatWidget';
+import FocusTimerView from '@/components/FocusTimerView';
+import HabitsView from '@/components/HabitsView';
+import TaskModal from '@/components/TaskModal';
+import ReminderModal from '@/components/ReminderModal';
+import SettingsModal from '@/components/SettingsModal';
+import { Task, Reminder, Habit, UserProfile, ChatMessage } from '@/types';
+import { sound } from '@/lib/sound';
+
+export default function LifeOSApp() {
+  const [activeTab, setActiveTab] = useState<string>('dashboard');
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [reminders, setReminders] = useState<Reminder[]>([]);
+  const [habits, setHabits] = useState<Habit[]>([]);
+  const [todayStr, setTodayStr] = useState<string>('');
+  const [profile, setProfile] = useState<UserProfile>({
+    name: 'Nayan',
+    greetingTitle: 'Productivity Architect',
+    dailyTaskGoal: 5,
+    focusGoalMinutes: 120,
+    aiTone: 'friendly',
+    theme: 'dark',
+  });
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+
+  // Modals & Drawers state
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [isReminderModalOpen, setIsReminderModalOpen] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [isQuickAIOpen, setIsQuickAIOpen] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isThinking, setIsThinking] = useState(false);
+
+  // Initialize today date client-side
+  useEffect(() => {
+    setTodayStr(new Date().toISOString().split('T')[0]);
+  }, []);
+
+  // Initial Data Fetch
+  const loadInitialData = useCallback(async () => {
+    try {
+      const [tasksRes, remsRes, habitsRes, profileRes, chatRes] = await Promise.all([
+        fetch('/api/tasks').then(r => r.json()),
+        fetch('/api/reminders').then(r => r.json()),
+        fetch('/api/habits').then(r => r.json()),
+        fetch('/api/profile').then(r => r.json()),
+        fetch('/api/ai/chat').then(r => r.json()),
+      ]);
+
+      if (tasksRes.success) setTasks(tasksRes.tasks);
+      if (remsRes.success) setReminders(remsRes.reminders);
+      if (habitsRes.success) setHabits(habitsRes.habits);
+      if (profileRes.success) setProfile(profileRes.profile);
+      if (chatRes.success) setChatMessages(chatRes.messages);
+    } catch (err) {
+      console.error('Failed to load initial LifeOS data:', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadInitialData();
+  }, [loadInitialData]);
+
+  // Refresh tasks and reminders
+  const refreshTasks = async () => {
+    try {
+      const res = await fetch('/api/tasks').then(r => r.json());
+      if (res.success) setTasks(res.tasks);
+    } catch (err) {
+      console.error('Error refreshing tasks:', err);
+    }
+  };
+
+  const refreshReminders = async () => {
+    try {
+      const res = await fetch('/api/reminders').then(r => r.json());
+      if (res.success) setReminders(res.reminders);
+    } catch (err) {
+      console.error('Error refreshing reminders:', err);
+    }
+  };
+
+  // Completion calculation
+  const todayTasks = useMemo(() => {
+    if (!todayStr) return tasks;
+    return tasks.filter(t => t.dueDate === todayStr || (!t.dueDate && t.status !== 'completed'));
+  }, [tasks, todayStr]);
+
+  const completedToday = useMemo(() => {
+    return todayTasks.filter(t => t.status === 'completed');
+  }, [todayTasks]);
+
+  const completionRate = todayTasks.length > 0 
+    ? Math.round((completedToday.length / todayTasks.length) * 100) 
+    : tasks.length > 0 
+    ? Math.round((tasks.filter(t => t.status === 'completed').length / tasks.length) * 100) 
+    : 0;
+
+  const pendingTasksCount = tasks.filter(t => t.status !== 'completed').length;
+  const upcomingRemindersCount = reminders.filter(r => !r.isCompleted).length;
+
+  // Task Operations
+  const handleToggleTaskComplete = async (task: Task) => {
+    const nextStatus = task.status === 'completed' ? 'pending' : 'completed';
+    // Optimistic UI update
+    setTasks(prev =>
+      prev.map(t =>
+        t.id === task.id
+          ? {
+              ...t,
+              status: nextStatus,
+              completedAt: nextStatus === 'completed' ? new Date().toISOString() : undefined,
+            }
+          : t
+      )
+    );
+
+    try {
+      const res = await fetch(`/api/tasks/${task.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: nextStatus }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTasks(prev => prev.map(t => (t.id === task.id ? data.task : t)));
+      }
+    } catch (err) {
+      console.error('Failed toggling task status:', err);
+      refreshTasks();
+    }
+  };
+
+  const handleSaveTask = async (taskData: Partial<Task>) => {
+    try {
+      if (editingTask) {
+        // Update existing
+        const res = await fetch(`/api/tasks/${editingTask.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(taskData),
+        });
+        const data = await res.json();
+        if (data.success) {
+          setTasks(prev => prev.map(t => (t.id === editingTask.id ? data.task : t)));
+          sound.playClick();
+        }
+      } else {
+        // Create new
+        const res = await fetch('/api/tasks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(taskData),
+        });
+        const data = await res.json();
+        if (data.success) {
+          setTasks(prev => [data.task, ...prev]);
+          sound.playNotification();
+        }
+      }
+    } catch (err) {
+      console.error('Failed saving task:', err);
+      throw err;
+    }
+  };
+
+  const handleUpdateTask = async (id: string, updates: Partial<Task>) => {
+    try {
+      const res = await fetch(`/api/tasks/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTasks(prev => prev.map(t => (t.id === id ? data.task : t)));
+      }
+    } catch (err) {
+      console.error('Failed updating task:', err);
+    }
+  };
+
+  const handleDeleteTask = async (id: string) => {
+    try {
+      const res = await fetch(`/api/tasks/${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        setTasks(prev => prev.filter(t => t.id !== id));
+        sound.playClick();
+      }
+    } catch (err) {
+      console.error('Failed deleting task:', err);
+    }
+  };
+
+  // Reminder Operations
+  const handleSaveReminder = async (remData: Omit<Reminder, 'id' | 'createdAt'>) => {
+    try {
+      const res = await fetch('/api/reminders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(remData),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setReminders(prev => [...prev, data.reminder]);
+        sound.playNotification();
+      }
+    } catch (err) {
+      console.error('Failed saving reminder:', err);
+      throw err;
+    }
+  };
+
+  const handleToggleReminderComplete = async (reminder: Reminder) => {
+    try {
+      const res = await fetch(`/api/reminders/${reminder.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isCompleted: !reminder.isCompleted }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setReminders(prev => prev.map(r => (r.id === reminder.id ? data.reminder : r)));
+        sound.playClick();
+      }
+    } catch (err) {
+      console.error('Failed toggling reminder:', err);
+    }
+  };
+
+  // Habit Operations
+  const handleToggleHabitDay = async (habitId: string, dateStr: string) => {
+    try {
+      const res = await fetch('/api/habits', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'toggle', habitId, date: dateStr }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setHabits(prev => prev.map(h => (h.id === habitId ? data.habit : h)));
+      }
+    } catch (err) {
+      console.error('Failed toggling habit:', err);
+    }
+  };
+
+  // Profile Operations
+  const handleUpdateProfile = async (updates: Partial<UserProfile>) => {
+    try {
+      const res = await fetch('/api/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setProfile(data.profile);
+      }
+    } catch (err) {
+      console.error('Failed updating profile:', err);
+      throw err;
+    }
+  };
+
+  // AI Chat Operations
+  const handleSendMessage = async (text: string) => {
+    const userMsg: ChatMessage = {
+      id: `usr-${Date.now()}`,
+      sender: 'user',
+      text,
+      timestamp: new Date().toISOString(),
+    };
+    setChatMessages(prev => [...prev, userMsg]);
+    setIsThinking(true);
+
+    try {
+      const res = await fetch('/api/ai/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text }),
+      });
+      const data = await res.json();
+      if (data.success && data.message) {
+        setChatMessages(prev => [...prev, data.message]);
+        sound.playNotification();
+
+        if (data.message.receipt) {
+          await Promise.all([refreshTasks(), refreshReminders()]);
+        }
+      }
+    } catch (err) {
+      console.error('Error sending message to AI:', err);
+      const errorMsg: ChatMessage = {
+        id: `err-${Date.now()}`,
+        sender: 'assistant',
+        text: 'Sorry, I encountered an error communicating with the LifeOS engine. Please try again.',
+        timestamp: new Date().toISOString(),
+      };
+      setChatMessages(prev => [...prev, errorMsg]);
+    } finally {
+      setIsThinking(false);
+    }
+  };
+
+  const handleConfirmAction = async (action: string, targetId: string) => {
+    try {
+      const res = await fetch('/api/ai/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, targetId }),
+      });
+      const data = await res.json();
+      if (data.success && data.message) {
+        setChatMessages(prev => [...prev, data.message]);
+        sound.playClick();
+        await Promise.all([refreshTasks(), refreshReminders()]);
+      }
+    } catch (err) {
+      console.error('Error executing confirmed action:', err);
+    }
+  };
+
+  const handleSendQuickAIChat = (promptText: string) => {
+    setActiveTab('ai');
+    handleSendMessage(promptText);
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className="min-h-screen flex flex-col bg-[#090d16] text-slate-100">
+      <div className="flex flex-1">
+        {/* Navigation Sidebar */}
+        <Sidebar
+          activeTab={activeTab}
+          onSelectTab={setActiveTab}
+          isMobileOpen={isMobileSidebarOpen}
+          onCloseMobile={() => setIsMobileSidebarOpen(false)}
+          pendingTasksCount={pendingTasksCount}
+          upcomingRemindersCount={upcomingRemindersCount}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col min-w-0">
+          <Navbar
+            profile={profile}
+            onOpenNewTask={() => {
+              setEditingTask(null);
+              setIsTaskModalOpen(true);
+            }}
+            onOpenNewReminder={() => setIsReminderModalOpen(true)}
+            onOpenSettings={() => setIsSettingsModalOpen(true)}
+            onToggleSidebarMobile={() => setIsMobileSidebarOpen(true)}
+            onOpenQuickAI={() => setIsQuickAIOpen(true)}
+            onSelectTab={setActiveTab}
+            completionRate={completionRate}
+          />
+
+          <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
+            {activeTab === 'dashboard' && (
+              <DashboardView
+                tasks={tasks}
+                reminders={reminders}
+                profile={profile}
+                onToggleTaskComplete={handleToggleTaskComplete}
+                onDeleteTask={handleDeleteTask}
+                onOpenNewTask={() => {
+                  setEditingTask(null);
+                  setIsTaskModalOpen(true);
+                }}
+                onOpenNewReminder={() => setIsReminderModalOpen(true)}
+                onSelectTab={setActiveTab}
+                onSendQuickAIChat={handleSendQuickAIChat}
+                onToggleReminderComplete={handleToggleReminderComplete}
+                completionRate={completionRate}
+              />
+            )}
+
+            {activeTab === 'tasks' && (
+              <TaskManagerView
+                tasks={tasks}
+                onOpenNewTask={() => {
+                  setEditingTask(null);
+                  setIsTaskModalOpen(true);
+                }}
+                onOpenEditTask={task => {
+                  setEditingTask(task);
+                  setIsTaskModalOpen(true);
+                }}
+                onToggleTaskComplete={handleToggleTaskComplete}
+                onUpdateTask={handleUpdateTask}
+                onDeleteTask={handleDeleteTask}
+              />
+            )}
+
+            {activeTab === 'calendar' && (
+              <TaskManagerView
+                tasks={tasks}
+                onOpenNewTask={() => {
+                  setEditingTask(null);
+                  setIsTaskModalOpen(true);
+                }}
+                onOpenEditTask={task => {
+                  setEditingTask(task);
+                  setIsTaskModalOpen(true);
+                }}
+                onToggleTaskComplete={handleToggleTaskComplete}
+                onUpdateTask={handleUpdateTask}
+                onDeleteTask={handleDeleteTask}
+              />
+            )}
+
+            {activeTab === 'habits' && (
+              <HabitsView
+                habits={habits}
+                onToggleHabitDay={handleToggleHabitDay}
+              />
+            )}
+
+            {activeTab === 'focus' && (
+              <FocusTimerView
+                tasks={tasks}
+                onCompleteTask={handleToggleTaskComplete}
+              />
+            )}
+
+            {activeTab === 'ai' && (
+              <div className="max-w-4xl mx-auto">
+                <AIChatView
+                  messages={chatMessages}
+                  onSendMessage={handleSendMessage}
+                  onConfirmAction={handleConfirmAction}
+                  isThinking={isThinking}
+                />
+              </div>
+            )}
+          </main>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </div>
+
+      {/* Floating Copilot Widget (Accessible from all tabs) */}
+      {activeTab !== 'ai' && (
+        <AIChatWidget
+          isOpen={isQuickAIOpen}
+          onToggle={() => setIsQuickAIOpen(!isQuickAIOpen)}
+          messages={chatMessages}
+          onSendMessage={handleSendMessage}
+          onConfirmAction={handleConfirmAction}
+          isThinking={isThinking}
+        />
+      )}
+
+      {/* Modals */}
+      <TaskModal
+        isOpen={isTaskModalOpen}
+        onClose={() => {
+          setIsTaskModalOpen(false);
+          setEditingTask(null);
+        }}
+        onSave={handleSaveTask}
+        initialTask={editingTask}
+      />
+
+      <ReminderModal
+        isOpen={isReminderModalOpen}
+        onClose={() => setIsReminderModalOpen(false)}
+        onSave={handleSaveReminder}
+      />
+
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
+        profile={profile}
+        onUpdateProfile={handleUpdateProfile}
+      />
     </div>
   );
 }
