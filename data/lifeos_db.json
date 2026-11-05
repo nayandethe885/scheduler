@@ -9,7 +9,24 @@
     "theme": "dark",
     "aiModel": "gpt-4o-mini"
   },
-  "tasks": [],
+  "tasks": [
+    {
+      "title": "meeting",
+      "description": "remind me meeting regarging .....",
+      "status": "pending",
+      "priority": "low",
+      "category": "Work",
+      "dueDate": "2026-11-05",
+      "dueTime": "6:00 pm",
+      "recurrence": "none",
+      "subtasks": [],
+      "tags": [],
+      "estimatedMinutes": 10,
+      "id": "task-1793860823513-srxp7",
+      "createdAt": "2026-11-05T06:40:23.514Z",
+      "updatedAt": "2026-11-05T06:40:23.514Z"
+    }
+  ],
   "reminders": [
     {
       "id": "rem-1",
