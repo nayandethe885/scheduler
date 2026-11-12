@@ -1,26 +1,30 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import confetti from 'canvas-confetti';
+import gsap from 'gsap';
+import { ScrambleTextPlugin } from 'gsap/ScrambleTextPlugin';
+
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrambleTextPlugin);
+}
+import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { 
-  CheckCircle2, 
-  Circle, 
+  Check, 
   Clock, 
-  AlertTriangle, 
-  Calendar as CalendarIcon, 
-  Sparkles, 
-  Send, 
   ArrowUpRight, 
   Plus, 
   Bell, 
-  Check, 
-  ChevronRight,
-  Target,
-  ListTodo,
+  Compass, 
+  Send,
+  Calendar as CalendarIcon,
+  Sparkles
 } from 'lucide-react';
-import { Task, Reminder, UserProfile, Priority } from '@/types';
-import { formatDate, formatTime, getRelativeTimeString, getGreeting } from '@/lib/utils';
+import { Task, Reminder, UserProfile } from '@/types';
+import { formatDate, formatTime, getGreeting } from '@/lib/utils';
 import { sound } from '@/lib/sound';
+import TerrainCanvas from '@/components/TerrainCanvas';
+import CompassHUD from '@/components/CompassHUD';
 
 interface DashboardViewProps {
   tasks: Task[];
@@ -36,20 +40,34 @@ interface DashboardViewProps {
   completionRate: number;
 }
 
-const PRIORITY_BADGES: Record<Priority, { label: string; style: string }> = {
-  high: { label: 'High', style: 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-900/50' },
-  medium: { label: 'Medium', style: 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-900/50' },
-  low: { label: 'Low', style: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/50' },
+// Stagger container variants
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.05,
+    },
+  },
 };
 
-const CATEGORY_COLORS: Record<string, string> = {
-  Work: 'bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-900/40',
-  Study: 'bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-900/40',
-  Health: 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/40',
-  Finance: 'bg-teal-50 dark:bg-teal-950/30 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-900/40',
-  Meeting: 'bg-cyan-50 dark:bg-cyan-950/30 text-cyan-700 dark:text-cyan-300 border-cyan-200 dark:border-cyan-900/40',
-  Creative: 'bg-pink-50 dark:bg-pink-950/30 text-pink-700 dark:text-pink-300 border-pink-200 dark:border-pink-900/40',
-  Personal: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700',
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 16 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.45, ease: 'easeOut' },
+  },
+};
+
+const rowVariants: Variants = {
+  hidden: { opacity: 0, x: -12 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.4, ease: 'easeOut' },
+  },
 };
 
 export default function DashboardView({
@@ -68,13 +86,11 @@ export default function DashboardView({
   const [quickPrompt, setQuickPrompt] = useState('');
   const [currentTime, setCurrentTime] = useState('');
   const [currentDateStr, setCurrentDateStr] = useState('');
-  const [greeting, setGreeting] = useState('Good Morning');
   const [todayStr, setTodayStr] = useState('');
   const [filterTodayOnly, setFilterTodayOnly] = useState(true);
 
   useEffect(() => {
     setTodayStr(new Date().toISOString().split('T')[0]);
-    setGreeting(getGreeting());
     const updateTime = () => {
       const now = new Date();
       setCurrentTime(
@@ -82,40 +98,119 @@ export default function DashboardView({
           hour: '2-digit',
           minute: '2-digit',
           second: '2-digit',
-          hour12: true,
+          hour12: false,
         })
       );
       setCurrentDateStr(
         now.toLocaleDateString('en-US', {
-          weekday: 'long',
-          month: 'long',
+          weekday: 'short',
+          month: 'short',
           day: 'numeric',
           year: 'numeric',
         })
       );
-      setGreeting(getGreeting());
     };
     updateTime();
     const interval = setInterval(updateTime, 1000);
     return () => clearInterval(interval);
   }, []);
 
-  // Filter tasks
+  // GSAP Interactive Light Follower
+  const heroAreaRef = useRef<HTMLElement | null>(null);
+  const heroLightRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const area = heroAreaRef.current;
+    const light = heroLightRef.current;
+    if (!area || !light) return;
+
+    if (typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches) {
+      return;
+    }
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = area.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      gsap.to(light, {
+        left: x,
+        top: y,
+        opacity: 1,
+        duration: 0.2,
+        ease: 'power2.out',
+      });
+    };
+
+    const handleMouseLeave = () => {
+      gsap.to(light, {
+        opacity: 0,
+        duration: 0.35,
+        ease: 'power2.in',
+      });
+    };
+
+    area.addEventListener('mousemove', handleMouseMove);
+    area.addEventListener('mouseleave', handleMouseLeave);
+
+    return () => {
+      area.removeEventListener('mousemove', handleMouseMove);
+      area.removeEventListener('mouseleave', handleMouseLeave);
+      gsap.killTweensOf(light);
+    };
+  }, []);
+
+  // GSAP Scramble Text Cipher Transition
+  const triggerScramble = useCallback(() => {
+    if (typeof window === 'undefined') return;
+
+    gsap.killTweensOf('.text');
+    gsap.killTweensOf('.watermark-text');
+
+    // Scramble badge to TRAILHEAD
+    gsap.to('.text', {
+      scrambleText: {
+        text: 'TRAILHEAD',
+        chars: 'ﾊﾐﾋｰｳｼﾅﾓﾆｻ012345789',
+        speed: 0.3,
+      },
+      duration: 2.0,
+      ease: 'none',
+    });
+
+    // Scramble giant outline watermark to TRAILHEAD.
+    gsap.to('.watermark-text', {
+      scrambleText: {
+        text: 'TRAILHEAD.',
+        chars: 'ﾊﾐﾋｰｳｼﾅﾓﾆｻ012345789',
+        speed: 0.3,
+      },
+      duration: 2.5,
+      ease: 'none',
+    });
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      triggerScramble();
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [triggerScramble]);
+
   const todayTasks = tasks.filter(t => t.dueDate === todayStr || !t.dueDate);
   const pendingTasks = tasks.filter(t => t.status !== 'completed');
   const completedTasks = tasks.filter(t => t.status === 'completed');
   const highPriorityTasks = pendingTasks.filter(t => t.priority === 'high');
 
-  // Deadlines: upcoming within next 3 days
   const importantDeadlines = pendingTasks
     .filter(t => t.dueDate)
     .sort((a, b) => (a.dueDate || '').localeCompare(b.dueDate || ''))
     .slice(0, 4);
 
-  // Active reminders
   const activeReminders = reminders.filter(r => !r.isCompleted).slice(0, 5);
 
-  const handleTaskCheckbox = async (task: Task) => {
+  const handleTaskCheckbox = async (e: React.MouseEvent, task: Task) => {
+    e.stopPropagation();
     const willBeCompleted = task.status !== 'completed';
     if (willBeCompleted) {
       sound.playTaskComplete();
@@ -123,8 +218,8 @@ export default function DashboardView({
         confetti({
           particleCount: 50,
           spread: 60,
-          origin: { y: 0.8 },
-          colors: ['#4f46e5', '#3b82f6', '#10b981'],
+          origin: { y: 0.75 },
+          colors: ['#d95326', '#e06a3f', '#141514', '#f4f3ef'],
         });
       } catch {}
     } else {
@@ -141,478 +236,555 @@ export default function DashboardView({
   };
 
   const samplePrompts = [
-    'What are my tasks for today?',
-    'Remind me to call friend at 8 PM',
-    'Schedule a meeting for Friday',
-    'What important work is pending?',
-    'Create a study plan for next 7 days',
     'What should I focus on right now?',
+    'Schedule a deep work block tomorrow at 9 AM',
+    'Summarize my pending deadlines',
+    'Add task: Review Trailhead design system',
   ];
 
   return (
-    <div className="space-y-6 pb-12 animate-fadeIn">
-      {/* 1. HERO BRIEFING: Sober, Clean, Elegant */}
-      <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-7 shadow-sm transition-colors duration-150">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/60">
-              <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 dark:bg-indigo-400" />
-              Daily Briefing
+    <motion.div 
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+      className="space-y-12 pb-16"
+    >
+      {/* 1. HERO BANNER: "Out there. Starts here." (Matching Image 3) */}
+      <motion.section 
+        ref={heroAreaRef}
+        variants={itemVariants}
+        className="relative overflow-hidden border-[3px] border-black dark:border-white shadow-[6px_6px_0px_#000] dark:shadow-[6px_6px_0px_#fff] bg-white dark:bg-[#161816] p-6 sm:p-10 lg:p-12 transition-colors duration-200"
+      >
+        {/* Interactive GSAP Spotlight Light (User's Motion Graphic) */}
+        <div
+          ref={heroLightRef}
+          className="pointer-events-none absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full blur-2xl opacity-0 transition-opacity duration-200 z-1"
+          style={{
+            background: 'radial-gradient(circle, rgba(255, 77, 0, 0.28) 0%, rgba(255, 230, 0, 0.08) 45%, transparent 75%)',
+          }}
+          aria-hidden="true"
+        />
+
+        {/* Procedural Dynamic Topographic Elevation Waves Canvas Motion Graphic */}
+        <TerrainCanvas className="opacity-75 dark:opacity-85" />
+
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+          <div className="space-y-4 max-w-2xl">
+            {/* Animated Neo-Brutalist Sticker Kicker */}
+            <div className="flex flex-wrap items-center gap-2.5 text-xs font-black">
+              <span className="bg-[#ffe600] text-black border-2 border-black shadow-[2px_2px_0px_#000] px-3 py-1 uppercase tracking-wider -rotate-1">
+                BUILT FOR THE WAY OUT.
+              </span>
+              <button
+                type="button"
+                onClick={triggerScramble}
+                title="Click to trigger cipher scramble transition"
+                className="inline-flex items-center gap-1.5 px-3 py-1 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] bg-[#ff4d00] text-white text-xs font-black tracking-widest hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition cursor-pointer"
+              >
+                <span className="w-2 h-2 rounded-full bg-[#ffe600] animate-pulse" />
+                <span className="text">TRAILHEAD</span>
+              </button>
             </div>
 
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-              {greeting}, <span className="text-indigo-600 dark:text-indigo-400">{profile.name}</span>
+            {/* Massive Chunky Typography with Motion Stagger (Image 3) */}
+            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tighter uppercase leading-[0.95] text-[#141514] dark:text-[#f4f3ef] font-display-heavy">
+              <motion.span 
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+                className="block"
+              >
+                Out there.
+              </motion.span>
+              <motion.span 
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.12, ease: "easeOut" }}
+                className="block"
+              >
+                Starts here.
+              </motion.span>
             </h1>
 
-            <p className="text-sm text-slate-600 dark:text-slate-400 max-w-xl leading-relaxed">
-              You have completed <strong className="text-slate-900 dark:text-white font-semibold">{completedTasks.length}</strong> of <strong className="text-slate-900 dark:text-white font-semibold">{tasks.length}</strong> tasks today. {pendingTasks.length > 0 ? `${pendingTasks.length} pending items remaining.` : 'All clear for now!'}
-            </p>
-
-            <div className="flex flex-wrap items-center gap-3 pt-2 text-xs text-slate-500 dark:text-slate-400">
-              <span className="flex items-center gap-1.5 bg-slate-50 dark:bg-slate-800/60 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700/60">
-                <CalendarIcon className="w-3.5 h-3.5 text-slate-500" />
-                {currentDateStr || 'Today'}
-              </span>
-              <span className="flex items-center gap-1.5 bg-slate-50 dark:bg-slate-800/60 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700/60 font-mono text-slate-700 dark:text-slate-300">
-                <Clock className="w-3.5 h-3.5 text-slate-500" />
-                {currentTime || 'Clock'}
-              </span>
-            </div>
+            {/* Monospace Subtext */}
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.25, duration: 0.5 }}
+              className="font-mono text-xs sm:text-sm tracking-wider uppercase text-[#141514] dark:text-[#f4f3ef] font-bold pt-1 max-w-xl leading-relaxed"
+            >
+              TRUSTED GEAR. LOCAL KNOW-HOW. WIDE-OPEN POSSIBILITIES.
+            </motion.p>
           </div>
 
-          {/* Productivity Radial Progress Indicator */}
-          <div className="flex items-center gap-4 sm:gap-5 p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 self-start lg:self-auto">
-            <div className="relative w-20 h-20 sm:w-22 sm:h-22 flex items-center justify-center shrink-0">
-              <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                <path
-                  className="text-slate-200 dark:text-slate-800"
-                  strokeWidth="3.2"
-                  stroke="currentColor"
-                  fill="none"
-                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                />
-                <path
-                  className="text-indigo-600 dark:text-indigo-500 transition-all duration-1000 ease-out"
-                  strokeDasharray={`${completionRate}, 100`}
-                  strokeWidth="3.2"
-                  strokeLinecap="round"
-                  stroke="currentColor"
-                  fill="none"
-                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                />
-              </svg>
-              <div className="absolute flex flex-col items-center">
-                <span className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">{completionRate}%</span>
-                <span className="text-[9px] uppercase tracking-wider text-slate-400">Done</span>
+          {/* Right: Technical Radar, Compass HUD & Coordinates Stamp */}
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+            className="flex flex-col sm:flex-row lg:flex-col items-start lg:items-end justify-between gap-5 font-mono text-xs text-[#141514] dark:text-[#f4f3ef] shrink-0"
+          >
+            {/* Live Gyroscopic Compass HUD */}
+            <CompassHUD className="self-start lg:self-end" />
+
+            <div className="text-left lg:text-right space-y-1">
+              <div className="text-[#141514] dark:text-[#f4f3ef] font-black tracking-widest uppercase flex items-center lg:justify-end gap-2">
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ff4d00] opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#ff4d00]" />
+                </span>
+                DENVER, CO // 39.7392° N, 104.9903° W
+              </div>
+              <div className="tracking-wider text-xs text-[#141514] dark:text-[#f4f3ef] font-bold uppercase">
+                ELEVATION: 5,280 FT // TIME: {currentTime || '00:00:00'} MST
               </div>
             </div>
 
-            <div className="space-y-0.5">
-              <div className="text-xs font-semibold text-slate-500 dark:text-slate-400">Daily Target</div>
-              <div className="text-sm font-bold text-slate-900 dark:text-white">
-                {completedTasks.length} / {tasks.length} Completed
-              </div>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                {completionRate >= 80
-                  ? 'Excellent progress'
-                  : completionRate >= 50
-                  ? 'Good pace'
-                  : 'Let’s get started'}
+            {/* Interactive Progress Block */}
+            <motion.button 
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => onSelectTab('tasks')}
+              className="inline-flex items-center gap-3 px-4 py-2.5 bg-[#ffe600] text-black border-2 border-black shadow-[3px_3px_0px_#000] cursor-pointer font-black text-xs tracking-wider uppercase hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all"
+            >
+              <span className="w-2.5 h-2.5 rounded-full bg-[#ff4d00] animate-pulse" />
+              <span>
+                {completionRate}% RESOLVED // {completedTasks.length}/{tasks.length} DONE
+              </span>
+            </motion.button>
+          </motion.div>
+        </div>
+      </motion.section>
+
+      {/* 2. STATS OVERVIEW: Neo-Brutalist 4-Color Grid */}
+      <motion.section 
+        variants={itemVariants}
+        className="grid grid-cols-2 lg:grid-cols-4 gap-4 font-mono"
+      >
+        {/* Total Tasks (Yellow Accent) */}
+        <motion.div 
+          whileHover={{ y: -4 }}
+          onClick={() => onSelectTab('tasks')}
+          className="p-5 border-[3px] border-black dark:border-white shadow-[5px_5px_0px_#000] dark:shadow-[5px_5px_0px_#fff] bg-[#fffdf0] dark:bg-[#1a1c1a] cursor-pointer group hover:shadow-[7px_7px_0px_#000] active:translate-x-1 active:translate-y-1 active:shadow-[2px_2px_0px_#000] transition-all"
+        >
+          <div className="flex items-center justify-between text-xs font-black uppercase tracking-widest mb-3">
+            <span className="bg-[#ffe600] text-black px-2 py-0.5 border-2 border-black shadow-[1.5px_1.5px_0px_#000]">01 // BACKLOG</span>
+            <ArrowUpRight className="w-4 h-4 text-black dark:text-white stroke-[3] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+          </div>
+          <div className="text-4xl sm:text-5xl font-black tracking-tight text-[#141514] dark:text-[#f4f3ef]">
+            {tasks.length < 10 ? `0${tasks.length}` : tasks.length}
+          </div>
+          <div className="text-xs font-bold text-[#141514] dark:text-[#f4f3ef] uppercase tracking-wider mt-2">
+            TOTAL ACTIVE ITEMS
+          </div>
+        </motion.div>
+
+        {/* Pending Tasks (Orange Accent) */}
+        <motion.div 
+          whileHover={{ y: -4 }}
+          onClick={() => onSelectTab('tasks')}
+          className="p-5 border-[3px] border-black dark:border-white shadow-[5px_5px_0px_#000] dark:shadow-[5px_5px_0px_#fff] bg-[#fff5f0] dark:bg-[#201a18] cursor-pointer group hover:shadow-[7px_7px_0px_#000] active:translate-x-1 active:translate-y-1 active:shadow-[2px_2px_0px_#000] transition-all"
+        >
+          <div className="flex items-center justify-between text-xs font-black uppercase tracking-widest mb-3">
+            <span className="bg-[#ff4d00] text-white px-2 py-0.5 border-2 border-black shadow-[1.5px_1.5px_0px_#000]">02 // PENDING</span>
+            <ArrowUpRight className="w-4 h-4 text-black dark:text-white stroke-[3] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+          </div>
+          <div className="text-4xl sm:text-5xl font-black tracking-tight text-[#ff4d00]">
+            {pendingTasks.length < 10 ? `0${pendingTasks.length}` : pendingTasks.length}
+          </div>
+          <div className="text-xs font-bold text-[#141514] dark:text-[#f4f3ef] uppercase tracking-wider mt-2">
+            {highPriorityTasks.length} HIGH PRIORITY
+          </div>
+        </motion.div>
+
+        {/* Completed Tasks (Lime Accent) */}
+        <motion.div 
+          whileHover={{ y: -4 }}
+          onClick={() => onSelectTab('tasks')}
+          className="p-5 border-[3px] border-black dark:border-white shadow-[5px_5px_0px_#000] dark:shadow-[5px_5px_0px_#fff] bg-[#f6fff0] dark:bg-[#182018] cursor-pointer group hover:shadow-[7px_7px_0px_#000] active:translate-x-1 active:translate-y-1 active:shadow-[2px_2px_0px_#000] transition-all"
+        >
+          <div className="flex items-center justify-between text-xs font-black uppercase tracking-widest mb-3">
+            <span className="bg-[#ccff00] text-black px-2 py-0.5 border-2 border-black shadow-[1.5px_1.5px_0px_#000]">03 // RESOLVED</span>
+            <ArrowUpRight className="w-4 h-4 text-black dark:text-white stroke-[3] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+          </div>
+          <div className="text-4xl sm:text-5xl font-black tracking-tight text-[#141514] dark:text-[#f4f3ef]">
+            {completedTasks.length < 10 ? `0${completedTasks.length}` : completedTasks.length}
+          </div>
+          <div className="text-xs font-bold text-[#141514] dark:text-[#f4f3ef] uppercase tracking-wider mt-2">
+            FINISHED ITEMS
+          </div>
+        </motion.div>
+
+        {/* Reminders (Cyan Accent) */}
+        <motion.div 
+          whileHover={{ y: -4 }}
+          onClick={onOpenNewReminder}
+          className="p-5 border-[3px] border-black dark:border-white shadow-[5px_5px_0px_#000] dark:shadow-[5px_5px_0px_#fff] bg-[#f0fbff] dark:bg-[#151e22] cursor-pointer group hover:shadow-[7px_7px_0px_#000] active:translate-x-1 active:translate-y-1 active:shadow-[2px_2px_0px_#000] transition-all"
+        >
+          <div className="flex items-center justify-between text-xs font-black uppercase tracking-widest mb-3">
+            <span className="bg-[#00e5ff] text-black px-2 py-0.5 border-2 border-black shadow-[1.5px_1.5px_0px_#000]">04 // ALERTS</span>
+            <ArrowUpRight className="w-4 h-4 text-black dark:text-white stroke-[3] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+          </div>
+          <div className="text-4xl sm:text-5xl font-black tracking-tight text-[#141514] dark:text-[#f4f3ef]">
+            {activeReminders.length < 10 ? `0${activeReminders.length}` : activeReminders.length}
+          </div>
+          <div className="text-xs font-bold text-[#141514] dark:text-[#f4f3ef] uppercase tracking-wider mt-2">
+            EXPEDITION ALERTS
+          </div>
+        </motion.div>
+      </motion.section>
+
+      {/* 3. SIGNATURE LIST ROWS: "What's calling?" with Neo-Brutalist Layout */}
+      <motion.section variants={itemVariants} className="space-y-6">
+        {/* Section Header */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <span className="bg-[#ff4d00] text-white px-2.5 py-0.5 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] font-mono text-xs font-black uppercase tracking-wider">
+              01 // PRIORITY MATRIX
+            </span>
+          </div>
+
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+              <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-[#141514] dark:text-[#f4f3ef] uppercase font-display-heavy">
+                What&apos;s calling?
+              </h2>
+              <p className="text-xs font-mono font-bold text-[#141514] dark:text-[#f4f3ef] uppercase tracking-wider mt-1">
+                A switchback. A sprint. A new line. Start with what gets you outside.
               </p>
             </div>
-          </div>
-        </div>
-      </div>
 
-      {/* 2. STATS OVERVIEW CARDS: Simple, sober, elegant */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Total Tasks */}
-        <div 
-          onClick={() => onSelectTab('tasks')}
-          className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition cursor-pointer group shadow-sm"
-        >
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
-            <span className="text-xs font-medium uppercase tracking-wider">Total Tasks</span>
-            <div className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-              <ListTodo className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="text-2xl font-bold text-slate-900 dark:text-white">{tasks.length}</div>
-          <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 flex items-center justify-between">
-            <span>In backlog</span>
-            <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition" />
-          </div>
-        </div>
-
-        {/* Pending Tasks */}
-        <div 
-          onClick={() => onSelectTab('tasks')}
-          className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition cursor-pointer group shadow-sm"
-        >
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
-            <span className="text-xs font-medium uppercase tracking-wider">Pending</span>
-            <div className="p-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400">
-              <Circle className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="text-2xl font-bold text-slate-900 dark:text-white">{pendingTasks.length}</div>
-          <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 flex items-center justify-between">
-            <span>{highPriorityTasks.length} high priority</span>
-            <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-amber-500 transition" />
-          </div>
-        </div>
-
-        {/* Completed Tasks */}
-        <div 
-          onClick={() => onSelectTab('tasks')}
-          className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition cursor-pointer group shadow-sm"
-        >
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
-            <span className="text-xs font-medium uppercase tracking-wider">Completed</span>
-            <div className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400">
-              <CheckCircle2 className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{completedTasks.length}</div>
-          <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 flex items-center justify-between">
-            <span>Finished items</span>
-            <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-500 transition" />
-          </div>
-        </div>
-
-        {/* Upcoming Reminders */}
-        <div 
-          onClick={onOpenNewReminder}
-          className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition cursor-pointer group shadow-sm"
-        >
-          <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
-            <span className="text-xs font-medium uppercase tracking-wider">Reminders</span>
-            <div className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400">
-              <Bell className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="text-2xl font-bold text-slate-900 dark:text-white">{activeReminders.length}</div>
-          <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 flex items-center justify-between">
-            <span>Active alerts</span>
-            <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-500 transition" />
-          </div>
-        </div>
-      </div>
-
-      {/* 3. MAIN DASHBOARD CONTENT */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left 2 Columns: Today's Tasks */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm p-5 sm:p-6 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
-              <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
-                  <Target className="w-4 h-4" />
-                </div>
-                <div>
-                  <h2 className="text-base font-bold text-slate-900 dark:text-white tracking-tight">Today&apos;s Focus & Tasks</h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Action items scheduled for immediate execution</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setFilterTodayOnly(!filterTodayOnly)}
-                  className={`px-2.5 py-1 text-xs rounded-lg border font-medium transition ${
-                    filterTodayOnly
-                      ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800/60'
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700'
-                  }`}
-                >
-                  {filterTodayOnly ? "Today Only" : 'All Active'}
-                </button>
-                <button
-                  onClick={onOpenNewTask}
-                  className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium flex items-center gap-1 transition"
-                >
-                  <Plus className="w-3.5 h-3.5" /> Add Task
-                </button>
-              </div>
-            </div>
-
-            {/* Task Items List */}
-            <div className="space-y-2">
-              {(filterTodayOnly ? todayTasks : tasks).length === 0 ? (
-                <div className="text-center py-10 px-4 rounded-xl bg-slate-50 dark:bg-slate-950/40 border border-dashed border-slate-200 dark:border-slate-800">
-                  <CheckCircle2 className="w-9 h-9 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
-                  <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">No tasks scheduled</h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs mx-auto mt-1 mb-3">
-                    Your schedule is clear! Click below to create a new task or ask LifeOS Copilot.
-                  </p>
-                  <button
-                    onClick={onOpenNewTask}
-                    className="px-3.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-medium hover:bg-slate-200 dark:hover:bg-slate-700 transition"
-                  >
-                    + Create Task
-                  </button>
-                </div>
-              ) : (
-                (filterTodayOnly ? todayTasks : tasks).slice(0, 7).map(task => {
-                  const isDone = task.status === 'completed';
-                  const priorityInfo = PRIORITY_BADGES[task.priority] || PRIORITY_BADGES.medium;
-                  const categoryStyle = CATEGORY_COLORS[task.category] || CATEGORY_COLORS.Work;
-
-                  return (
-                    <div
-                      key={task.id}
-                      className={`group flex items-start justify-between p-3 rounded-xl border transition-all ${
-                        isDone
-                          ? 'bg-slate-50/60 dark:bg-slate-950/30 border-slate-200/50 dark:border-slate-800/40 opacity-60'
-                          : 'bg-white dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
-                      }`}
-                    >
-                      <div className="flex items-start gap-3 flex-1 min-w-0 pr-2">
-                        {/* Checkbox */}
-                        <button
-                          onClick={() => handleTaskCheckbox(task)}
-                          className={`mt-0.5 w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-all ${
-                            isDone
-                              ? 'bg-emerald-600 border-emerald-600 text-white'
-                              : 'border-slate-300 dark:border-slate-600 hover:border-indigo-600 dark:hover:border-indigo-400 bg-white dark:bg-slate-900'
-                          }`}
-                        >
-                          {isDone && <Check className="w-3 h-3 stroke-[3]" />}
-                        </button>
-
-                        <div className="min-w-0 flex-1">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span
-                              className={`text-xs sm:text-sm font-medium leading-tight truncate ${
-                                isDone ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-900 dark:text-slate-100'
-                              }`}
-                            >
-                              {task.title}
-                            </span>
-
-                            {/* Priority badge */}
-                            <span className={`px-1.5 py-0.2 rounded text-[10px] font-semibold border ${priorityInfo.style}`}>
-                              {priorityInfo.label}
-                            </span>
-
-                            {/* Category badge */}
-                            <span className={`px-1.5 py-0.2 rounded text-[10px] font-medium border ${categoryStyle}`}>
-                              {task.category}
-                            </span>
-                          </div>
-
-                          {task.description && (
-                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-1">
-                              {task.description}
-                            </p>
-                          )}
-
-                          {/* Subtasks counter & due info */}
-                          <div className="flex items-center gap-3 text-[11px] text-slate-400 dark:text-slate-500 mt-1">
-                            {task.dueTime && (
-                              <span className="flex items-center gap-1 text-slate-600 dark:text-slate-400">
-                                <Clock className="w-3 h-3" />
-                                {task.dueTime}
-                              </span>
-                            )}
-                            {task.dueDate && (
-                              <span className="flex items-center gap-1">
-                                <CalendarIcon className="w-3 h-3" />
-                                {formatDate(task.dueDate)}
-                              </span>
-                            )}
-                            {task.subtasks && task.subtasks.length > 0 && (
-                              <span className="flex items-center gap-1">
-                                <ListTodo className="w-3 h-3" />
-                                {task.subtasks.filter(s => s.completed).length}/{task.subtasks.length} steps
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Delete shortcut */}
-                      <button
-                        onClick={() => onDeleteTask(task.id)}
-                        className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-                        title="Delete task"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-
-            <div className="pt-2 text-center">
+            <div className="flex items-center gap-3">
               <button
-                onClick={() => onSelectTab('tasks')}
-                className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline inline-flex items-center gap-1 transition"
+                type="button"
+                onClick={() => setFilterTodayOnly(!filterTodayOnly)}
+                className={`px-3 py-1.5 font-mono text-xs font-black uppercase tracking-wider border-2 border-black dark:border-white shadow-[2.5px_2.5px_0px_#000] dark:shadow-[2.5px_2.5px_0px_#fff] active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer ${
+                  filterTodayOnly
+                    ? 'bg-[#ffe600] text-black'
+                    : 'bg-white dark:bg-[#1a1c1a] text-[#141514] dark:text-[#f4f3ef]'
+                }`}
               >
-                View all tasks in Smart Task Manager <ChevronRight className="w-3.5 h-3.5" />
+                {filterTodayOnly ? '⚡ TODAY ONLY' : 'ALL ACTIVE'}
               </button>
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={onOpenNewTask}
+                className="px-4 py-1.5 bg-[#ff4d00] hover:bg-[#e04400] text-white font-mono text-xs uppercase tracking-wider font-black border-2 border-black dark:border-white shadow-[3px_3px_0px_#000] dark:shadow-[3px_3px_0px_#fff] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center gap-1.5 cursor-pointer"
+              >
+                <Plus className="w-4 h-4 stroke-[3]" /> ADD TASK
+              </motion.button>
             </div>
           </div>
+        </div>
 
-          {/* Important Deadlines Widget */}
-          <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm p-5 sm:p-6">
-            <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-200 dark:border-slate-800">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 text-amber-500" />
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white tracking-tight">Critical Deadlines</h3>
+        {/* Trailhead Neo-Brutalist Task Container */}
+        <div className="border-[3px] border-black dark:border-white shadow-[5px_5px_0px_#000] dark:shadow-[5px_5px_0px_#fff] bg-white dark:bg-[#161816] divide-y-[2.5px] divide-black dark:divide-white">
+          {(filterTodayOnly ? todayTasks : tasks).length === 0 ? (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="py-16 px-6 text-center space-y-4 bg-[#fffdf0] dark:bg-[#181a18]"
+            >
+              <Compass className="w-12 h-12 text-[#ff4d00] mx-auto animate-spin-slow stroke-[2.5]" />
+              <div className="space-y-1">
+                <p className="text-lg uppercase tracking-wider text-[#141514] dark:text-[#f4f3ef] font-black">
+                  NO ACTIVE TERRAIN SCHEDULED
+                </p>
+                <p className="text-xs font-mono font-bold text-[#444] dark:text-[#bbb] max-w-sm mx-auto uppercase">
+                  All trail markers cleared for today. Plan your next route or dispatch Copilot.
+                </p>
               </div>
-              <span className="text-xs text-slate-500 dark:text-slate-400">Next 72 Hours</span>
-            </div>
+              <button
+                type="button"
+                onClick={onOpenNewTask}
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#ffe600] text-black border-2 border-black shadow-[3px_3px_0px_#000] text-xs font-black uppercase tracking-wider hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all cursor-pointer"
+              >
+                <Plus className="w-4 h-4 stroke-[3]" /> CREATE TRAIL TASK
+              </button>
+            </motion.div>
+          ) : (
+            (filterTodayOnly ? todayTasks : tasks).slice(0, 6).map((task, idx) => {
+              const isDone = task.status === 'completed';
+              const indexStr = idx < 9 ? `0${idx + 1}` : `${idx + 1}`;
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {importantDeadlines.length === 0 ? (
-                <div className="col-span-2 text-xs text-slate-500 dark:text-slate-400 py-3 text-center">
-                  No impending high-urgency deadlines.
-                </div>
-              ) : (
-                importantDeadlines.map(item => (
-                  <div
-                    key={item.id}
-                    className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 flex items-center justify-between"
-                  >
-                    <div>
-                      <div className="text-xs font-semibold text-slate-900 dark:text-slate-200 truncate max-w-[180px]">
-                        {item.title}
-                      </div>
-                      <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
-                        {item.dueDate ? formatDate(item.dueDate) : 'No date'} {item.dueTime ? `• ${item.dueTime}` : ''}
-                      </div>
+              let pillBg = 'bg-[#ffe600] text-black';
+              let pillLabel = 'FOR THE MILES AHEAD';
+              if (task.priority === 'high') {
+                pillLabel = 'HIGH PRIORITY';
+                pillBg = 'bg-[#ff4d00] text-white';
+              } else if (task.priority === 'medium') {
+                pillLabel = 'STAY A LITTLE LONGER';
+                pillBg = 'bg-[#00e5ff] text-black';
+              } else if (task.category) {
+                pillLabel = task.category.toUpperCase();
+                pillBg = 'bg-[#ccff00] text-black';
+              }
+
+              const metaTokens = [
+                task.category?.toUpperCase() || 'GENERAL',
+                task.dueTime || 'TODAY',
+                task.subtasks && task.subtasks.length > 0 
+                  ? `${task.subtasks.filter(s => s.completed).length}/${task.subtasks.length} ESSENTIALS`
+                  : 'TRAIL ESSENTIALS'
+              ];
+
+              return (
+                <motion.div
+                  key={task.id}
+                  variants={rowVariants}
+                  whileHover={{ backgroundColor: 'rgba(255, 230, 0, 0.08)' }}
+                  onClick={() => onSelectTab('tasks')}
+                  className="group py-5 sm:py-6 px-4 sm:px-6 flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer transition-colors"
+                >
+                  {/* Left: Index, Brutalist Checkbox & Chunky Task Title */}
+                  <div className="flex items-center gap-4 sm:gap-6 min-w-0">
+                    <span className="font-mono text-sm font-black text-[#888] dark:text-[#888] shrink-0 group-hover:text-[#ff4d00] transition-colors">
+                      {indexStr}
+                    </span>
+
+                    {/* Brutalist Hard-Border Checkbox */}
+                    <button
+                      type="button"
+                      onClick={(e) => handleTaskCheckbox(e, task)}
+                      className={`w-6 h-6 rounded-none border-[2.5px] border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] flex items-center justify-center shrink-0 transition-transform active:translate-x-0.5 active:translate-y-0.5 cursor-pointer ${
+                        isDone
+                          ? 'bg-[#ccff00] text-black'
+                          : 'bg-white dark:bg-[#202020] hover:bg-[#ffe600]'
+                      }`}
+                      title={isDone ? 'Mark pending' : 'Mark complete'}
+                    >
+                      <AnimatePresence>
+                        {isDone && (
+                          <motion.span
+                            initial={{ scale: 0, rotate: -45 }}
+                            animate={{ scale: 1, rotate: 0 }}
+                            exit={{ scale: 0 }}
+                            transition={{ duration: 0.15 }}
+                          >
+                            <Check className="w-4 h-4 stroke-[3.5] text-black" />
+                          </motion.span>
+                        )}
+                      </AnimatePresence>
+                    </button>
+
+                    {/* Bold Title */}
+                    <div className="min-w-0">
+                      <h3 
+                        className={`text-xl sm:text-2xl font-black tracking-tight truncate transition-colors uppercase ${
+                          isDone 
+                            ? 'line-through text-[#888] dark:text-[#777]' 
+                            : 'text-[#141514] dark:text-[#f4f3ef] group-hover:text-[#ff4d00]'
+                        }`}
+                      >
+                        {task.title}
+                      </h3>
+                      {task.description && (
+                        <p className="font-mono text-xs font-bold text-[#555] dark:text-[#aaa] truncate max-w-xl mt-0.5">
+                          {task.description}
+                        </p>
+                      )}
                     </div>
-                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-900/50">
-                      {item.dueDate ? getRelativeTimeString(item.dueDate) : 'Due soon'}
+                  </div>
+
+                  {/* Center & Right: Brutalist Sticker Pill Badge & Meta */}
+                  <div className="flex items-center justify-between md:justify-end gap-4 sm:gap-6 pl-10 md:pl-0 shrink-0 font-mono">
+                    <span 
+                      className={`px-3 py-1 border-2 border-black shadow-[2px_2px_0px_#000] text-xs font-black uppercase tracking-wider ${pillBg}`}
+                    >
+                      {pillLabel}
+                    </span>
+
+                    <span className="text-xs uppercase tracking-wider font-bold text-[#666] dark:text-[#aaa] hidden sm:inline">
+                      {metaTokens.join(' · ')}
+                    </span>
+
+                    {/* Diagonal Arrow Trigger ↗ */}
+                    <span 
+                      className="text-2xl font-black text-black dark:text-white group-hover:text-[#ff4d00] group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform inline-block"
+                    >
+                      ↗
                     </span>
                   </div>
-                ))
-              )}
-            </div>
-          </div>
+                </motion.div>
+              );
+            })
+          )}
         </div>
 
-        {/* Right 1 Column: Upcoming Reminders & Quick AI Chat */}
-        <div className="space-y-6">
-          {/* Upcoming Reminders Card */}
-          <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm p-5 sm:p-6 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
-              <div className="flex items-center gap-2">
-                <div className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400">
-                  <Bell className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">Upcoming Reminders</h3>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">Scheduled time alerts</p>
-                </div>
-              </div>
-              <button
-                onClick={onOpenNewReminder}
-                className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition text-xs flex items-center gap-1"
-                title="New reminder"
-              >
-                <Plus className="w-3.5 h-3.5" />
-              </button>
-            </div>
+        {/* View all tasks link */}
+        <div className="pt-2 flex items-center justify-between font-mono text-xs">
+          <span className="font-bold text-[#666] dark:text-[#aaa] uppercase tracking-widest">
+            DIFFERENT PATHS. THE SAME PULL.
+          </span>
+          <button
+            type="button"
+            onClick={() => onSelectTab('tasks')}
+            className="px-3 py-1 bg-[#ffe600] text-black border-2 border-black shadow-[2px_2px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 uppercase tracking-wider font-black flex items-center gap-1 transition-all cursor-pointer"
+          >
+            EXPLORE ALL FIELD TASKS ↗
+          </button>
+        </div>
+      </motion.section>
 
-            <div className="space-y-2">
-              {activeReminders.length === 0 ? (
-                <div className="text-center py-6 text-xs text-slate-500 dark:text-slate-400">
-                  No active reminders scheduled.
-                </div>
-              ) : (
-                activeReminders.map(rem => (
-                  <div
-                    key={rem.id}
-                    className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 group"
-                  >
-                    <div className="min-w-0 pr-2">
-                      <div className="text-xs font-semibold text-slate-900 dark:text-slate-200 truncate">
-                        {rem.title}
-                      </div>
-                      <div className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-0.5">
-                        <Clock className="w-3 h-3 text-slate-400" />
-                        <span>{formatDate(rem.dateTime)} at {formatTime(rem.dateTime)}</span>
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={() => onToggleReminderComplete(rem)}
-                      className="px-2 py-1 rounded-lg text-[10px] font-medium bg-white dark:bg-slate-900 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 text-slate-600 dark:text-slate-400 hover:text-emerald-700 dark:hover:text-emerald-300 border border-slate-200 dark:border-slate-800 transition"
-                      title="Dismiss reminder"
-                    >
-                      Dismiss
-                    </button>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-
-          {/* Quick AI Assistant Card */}
-          <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm p-5 sm:p-6 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
-              <div className="flex items-center gap-2">
-                <div className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400">
-                  <Sparkles className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">LifeOS Copilot</h3>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">Natural language assistant</p>
-                </div>
-              </div>
-              <button
-                onClick={() => onSelectTab('ai')}
-                className="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
-              >
-                Full Chat <ArrowUpRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-            {/* Quick Sample Prompts */}
-            <div className="space-y-1.5">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                Quick Prompts
+      {/* 4. EXPEDITION ALERTS & COPILOT DISPATCH */}
+      <motion.section variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Left: Upcoming Expedition Reminders */}
+        <div className="border-[3px] border-black dark:border-white shadow-[5px_5px_0px_#000] dark:shadow-[5px_5px_0px_#fff] bg-[#fffdf0] dark:bg-[#181a18] p-6 space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b-2 border-black dark:border-white">
+            <div className="space-y-1">
+              <span className="bg-[#00e5ff] text-black px-2 py-0.5 border-2 border-black shadow-[1.5px_1.5px_0px_#000] font-mono text-xs font-black uppercase tracking-widest inline-block">
+                02 // CRITICAL ALERTS
               </span>
-              <div className="flex flex-wrap gap-1.5">
-                {samplePrompts.slice(0, 4).map((prompt, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => onSendQuickAIChat(prompt)}
-                    className="text-left px-2.5 py-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/80 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/60 text-[11px] text-slate-700 dark:text-slate-300 transition"
-                  >
-                    {prompt}
-                  </button>
-                ))}
-              </div>
+              <h3 className="text-xl font-black uppercase tracking-tight text-[#141514] dark:text-[#f4f3ef] font-display-heavy">
+                Active Field Reminders
+              </h3>
             </div>
+            <motion.button
+              whileTap={{ scale: 0.92 }}
+              onClick={onOpenNewReminder}
+              className="p-2 border-2 border-black dark:border-white bg-[#ffe600] text-black shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition cursor-pointer"
+              title="Add reminder"
+            >
+              <Plus className="w-4 h-4 stroke-[3]" />
+            </motion.button>
+          </div>
 
-            {/* Inline Quick Chat Input */}
-            <form onSubmit={handleQuickSubmit} className="pt-2">
-              <div className="relative flex items-center">
-                <input
-                  type="text"
-                  value={quickPrompt}
-                  onChange={e => setQuickPrompt(e.target.value)}
-                  placeholder="e.g. Remind me to finish assignment tomorrow at 10 AM..."
-                  className="w-full pl-3 pr-9 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-indigo-600 focus:bg-white dark:focus:bg-slate-950 transition"
-                />
-                <button
-                  type="submit"
-                  disabled={!quickPrompt.trim()}
-                  className="absolute right-1.5 p-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white disabled:opacity-40 transition"
-                >
-                  <Send className="w-3 h-3" />
-                </button>
+          <div className="space-y-2.5">
+            {activeReminders.length === 0 ? (
+              <div className="py-8 text-center text-xs font-mono font-black text-[#666] dark:text-[#aaa] uppercase tracking-wider border-2 border-dashed border-black/30 dark:border-white/30 p-4">
+                NO PENDING TIME ALERTS
               </div>
-              <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1.5">
-                Automatic time, date, & task detection.
-              </p>
-            </form>
+            ) : (
+              activeReminders.map(rem => (
+                <div key={rem.id} className="p-3 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] bg-white dark:bg-[#202220] flex items-center justify-between gap-4 font-mono">
+                  <div className="min-w-0">
+                    <div className="text-sm font-black text-[#141514] dark:text-[#f4f3ef] uppercase truncate">
+                      {rem.title}
+                    </div>
+                    <div className="text-xs font-bold text-[#555] dark:text-[#bbb] flex items-center gap-2 mt-0.5 uppercase">
+                      <Clock className="w-3.5 h-3.5 text-[#ff4d00] stroke-[2.5]" />
+                      <span>{formatDate(rem.dateTime)} // {formatTime(rem.dateTime)}</span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => onToggleReminderComplete(rem)}
+                    className="px-3 py-1 text-xs font-black uppercase tracking-wider bg-[#ff4d00] text-white border-2 border-black shadow-[1.5px_1.5px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition shrink-0 cursor-pointer"
+                  >
+                    DISMISS
+                  </button>
+                </div>
+              ))
+            )}
           </div>
         </div>
-      </div>
-    </div>
+
+        {/* Right: Quick Copilot Natural Language Dispatch */}
+        <div className="border-[3px] border-black dark:border-white shadow-[5px_5px_0px_#000] dark:shadow-[5px_5px_0px_#fff] bg-[#fffbf0] dark:bg-[#181a18] p-6 space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b-2 border-black dark:border-white">
+            <div className="space-y-1">
+              <span className="bg-[#ffe600] text-black px-2 py-0.5 border-2 border-black shadow-[1.5px_1.5px_0px_#000] font-mono text-xs font-black uppercase tracking-widest inline-block">
+                03 // COPILOT DISPATCH
+              </span>
+              <h3 className="text-xl font-black uppercase tracking-tight text-[#141514] dark:text-[#f4f3ef] font-display-heavy">
+                Field Intelligence
+              </h3>
+            </div>
+            <button
+              type="button"
+              onClick={() => onSelectTab('ai')}
+              className="px-3 py-1 bg-[#ccff00] text-black border-2 border-black shadow-[2px_2px_0px_#000] font-mono text-xs uppercase tracking-wider font-black hover:-translate-x-0.5 hover:-translate-y-0.5 transition cursor-pointer"
+            >
+              FULL CONSOLE ↗
+            </button>
+          </div>
+
+          <div className="space-y-2">
+            <span className="text-xs font-mono font-black text-[#141514] dark:text-[#f4f3ef] uppercase tracking-widest">
+              QUICK COMMANDS:
+            </span>
+            <div className="flex flex-wrap gap-2">
+              {samplePrompts.map((prompt, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => onSendQuickAIChat(prompt)}
+                  className="px-3 py-1.5 text-xs font-mono font-black uppercase tracking-wider border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] bg-white dark:bg-[#202220] hover:bg-[#ffe600] hover:text-black hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition cursor-pointer"
+                >
+                  {prompt}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Quick Chat Input */}
+          <form onSubmit={handleQuickSubmit} className="pt-2">
+            <div className="relative flex items-center">
+              <input
+                type="text"
+                value={quickPrompt}
+                onChange={e => setQuickPrompt(e.target.value)}
+                placeholder="ENTER INSTRUCTION (E.G. REMIND ME TO PACK GEAR AT 8 PM)..."
+                className="w-full pl-3 pr-12 py-3 bg-white dark:bg-[#121312] border-[2.5px] border-black dark:border-white shadow-[3px_3px_0px_#000] dark:shadow-[3px_3px_0px_#fff] text-xs font-black font-mono text-[#141514] dark:text-[#f4f3ef] placeholder-[#888] focus:outline-none focus:bg-[#fffdf0] dark:focus:bg-[#1a1c1a] transition"
+              />
+              <button
+                type="submit"
+                disabled={!quickPrompt.trim()}
+                className="absolute right-2 p-2 bg-[#ff4d00] hover:bg-[#e04400] text-white border-2 border-black shadow-[1.5px_1.5px_0px_#000] disabled:opacity-40 transition cursor-pointer"
+              >
+                <Send className="w-4 h-4 stroke-[2.5]" />
+              </button>
+            </div>
+          </form>
+        </div>
+      </motion.section>
+
+      {/* 5. GIGANTIC OUTLINE WATERMARK TYPOGRAPHY */}
+      <motion.section 
+        variants={itemVariants} 
+        className="relative pt-12 pb-6 overflow-hidden select-none pointer-events-auto"
+      >
+        <motion.div 
+          animate={{ y: [0, -6, 0] }}
+          transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+          className="text-center group cursor-pointer"
+          onClick={triggerScramble}
+          title="Click to trigger cipher scramble transition"
+        >
+          <span 
+            className="watermark-text text-6xl sm:text-8xl md:text-9xl lg:text-[11rem] uppercase leading-none block select-none font-black tracking-tighter"
+            style={{
+              WebkitTextStroke: '3px var(--border-main)',
+              color: 'transparent',
+              letterSpacing: '-0.04em',
+            }}
+          >
+            Trailhead.
+          </span>
+          <div className="flex items-center justify-center gap-2 mt-4">
+            <span className="text-xs font-mono font-black text-black bg-[#ffe600] border-2 border-black shadow-[3px_3px_0px_#000] uppercase tracking-widest flex items-center gap-2 px-4 py-1.5 hover:-translate-x-0.5 hover:-translate-y-0.5 transition cursor-pointer">
+              <Sparkles className="w-4 h-4 text-black animate-spin-slow stroke-[2.5]" />
+              CLICK TO SCRAMBLE CIPHER (ﾊﾐﾋｰｳｼﾅﾓﾆｻ012345789)
+            </span>
+          </div>
+        </motion.div>
+      </motion.section>
+
+      {/* 6. TECHNICAL METADATA FOOTER */}
+      <footer className="pt-6 border-t-[3px] border-black dark:border-white font-mono text-xs uppercase tracking-widest font-black text-[#555] dark:text-[#aaa] flex flex-col md:flex-row items-center justify-between gap-4">
+        <div>
+          © 2026 TRAILHEAD SUPPLY CO.
+        </div>
+        <div className="text-center">
+          DENVER, COLORADO // 39.7392° N, 104.9903° W
+        </div>
+        <div>
+          LEAVE IT BETTER THAN YOU FOUND IT.
+        </div>
+      </footer>
+    </motion.div>
   );
 }

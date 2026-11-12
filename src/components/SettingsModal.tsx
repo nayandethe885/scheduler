@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, User, Sliders, Database, Key, Sparkles, Check, Moon, Sun, Save } from 'lucide-react';
+import { X, User, Sliders, Database, Key, Sparkles, Check, Moon, Sun, Save, Compass, Type } from 'lucide-react';
 import { UserProfile } from '@/types';
-import { useTheme } from '@/context/ThemeContext';
+import { useTheme, FontStyle } from '@/context/ThemeContext';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -13,10 +13,10 @@ interface SettingsModalProps {
 }
 
 export default function SettingsModal({ isOpen, onClose, profile, onUpdateProfile }: SettingsModalProps) {
-  const { theme: currentTheme, setTheme: setAppTheme } = useTheme();
+  const { theme: currentTheme, setTheme: setAppTheme, fontStyle, setFontStyle } = useTheme();
   const [activeTab, setActiveTab] = useState<'profile' | 'ai' | 'database'>('profile');
   const [name, setName] = useState(profile.name || 'Nayan');
-  const [greetingTitle, setGreetingTitle] = useState(profile.greetingTitle || 'Productivity Architect');
+  const [greetingTitle, setGreetingTitle] = useState(profile.greetingTitle || 'Field Expedition Lead');
   const [email, setEmail] = useState(profile.email || '');
   const [dailyTaskGoal, setDailyTaskGoal] = useState(profile.dailyTaskGoal || 5);
   const [focusGoalMinutes, setFocusGoalMinutes] = useState(profile.focusGoalMinutes || 120);
@@ -30,7 +30,7 @@ export default function SettingsModal({ isOpen, onClose, profile, onUpdateProfil
 
   useEffect(() => {
     setName(profile.name || 'Nayan');
-    setGreetingTitle(profile.greetingTitle || 'Productivity Architect');
+    setGreetingTitle(profile.greetingTitle || 'Field Expedition Lead');
     setEmail(profile.email || '');
     setDailyTaskGoal(profile.dailyTaskGoal || 5);
     setFocusGoalMinutes(profile.focusGoalMinutes || 120);
@@ -75,58 +75,66 @@ export default function SettingsModal({ isOpen, onClose, profile, onUpdateProfil
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 dark:bg-black/70 backdrop-blur-sm animate-fadeIn">
-      <div className="relative w-full max-w-2xl max-h-[88vh] overflow-y-auto rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-6 text-slate-900 dark:text-slate-100 transition-colors duration-150">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-fadeIn font-mono">
+      <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto border-[3.5px] border-black dark:border-white bg-[#fffdf0] dark:bg-[#181a18] shadow-[8px_8px_0px_#000] dark:shadow-[8px_8px_0px_#fff] p-6 text-[#141514] dark:text-[#f4f3ef] transition-colors duration-200">
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
-          <div className="flex items-center gap-2.5">
-            <div className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400">
-              <Sliders className="w-5 h-5" />
+        <div className="flex items-center justify-between pb-4 border-b-2 border-black dark:border-white">
+          <div className="flex items-center gap-3">
+            <div className="p-1.5 border-2 border-black bg-[#ffe600] text-black shadow-[2px_2px_0px_#000]">
+              <Compass className="w-5 h-5 stroke-[2.5]" />
             </div>
             <div>
-              <h2 className="text-base font-bold tracking-tight text-slate-900 dark:text-white">LifeOS Preferences</h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Appearance, goals, and intelligence settings</p>
+              <span className="bg-[#ff4d00] text-white px-2 py-0.5 border-2 border-black shadow-[1.5px_1.5px_0px_#000] text-xs font-black uppercase tracking-widest inline-block">
+                // STATION PREFERENCES
+              </span>
+              <h2 className="text-base font-black uppercase tracking-tight text-[#141514] dark:text-[#f4f3ef] font-display-heavy mt-0.5">
+                Trailhead Configuration
+              </h2>
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            className="p-1.5 bg-[#ff4d00] text-white border-2 border-black shadow-[2px_2px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 transition cursor-pointer"
           >
-            <X className="w-4 h-4" />
+            <X className="w-4 h-4 stroke-[2.5]" />
           </button>
         </div>
 
         {/* Tab navigation */}
-        <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 mt-4 pb-2">
+        <div className="flex flex-wrap items-center gap-2 border-b-2 border-black dark:border-white mt-4 pb-3 text-xs uppercase font-black">
           <button
+            type="button"
             onClick={() => setActiveTab('profile')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition ${
+            className={`px-3 py-1.5 border-2 border-black dark:border-white transition cursor-pointer ${
               activeTab === 'profile'
-                ? 'bg-slate-900 text-white dark:bg-indigo-600 dark:text-white font-semibold'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+                ? 'bg-[#ffe600] text-black shadow-[2px_2px_0px_#000]'
+                : 'bg-white dark:bg-[#121312] text-[#555] dark:text-[#aaa]'
             }`}
           >
-            <User className="w-3.5 h-3.5" /> Appearance & Goals
+            01 // APPEARANCE & GOALS
           </button>
           <button
+            type="button"
             onClick={() => setActiveTab('ai')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition ${
+            className={`px-3 py-1.5 border-2 border-black dark:border-white transition cursor-pointer ${
               activeTab === 'ai'
-                ? 'bg-slate-900 text-white dark:bg-indigo-600 dark:text-white font-semibold'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+                ? 'bg-[#ffe600] text-black shadow-[2px_2px_0px_#000]'
+                : 'bg-white dark:bg-[#121312] text-[#555] dark:text-[#aaa]'
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5" /> AI Engine & Keys
+            02 // COPILOT AI
           </button>
           <button
+            type="button"
             onClick={() => setActiveTab('database')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition ${
+            className={`px-3 py-1.5 border-2 border-black dark:border-white transition cursor-pointer ${
               activeTab === 'database'
-                ? 'bg-slate-900 text-white dark:bg-indigo-600 dark:text-white font-semibold'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+                ? 'bg-[#ffe600] text-black shadow-[2px_2px_0px_#000]'
+                : 'bg-white dark:bg-[#121312] text-[#555] dark:text-[#aaa]'
             }`}
           >
-            <Database className="w-3.5 h-3.5" /> Storage & Sync
+            03 // STORAGE & SYNC
           </button>
         </div>
 
@@ -135,103 +143,148 @@ export default function SettingsModal({ isOpen, onClose, profile, onUpdateProfil
             <div className="space-y-4">
               {/* Theme Switcher in Settings */}
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
-                  Theme Appearance
+                <label className="block text-xs font-black uppercase tracking-widest text-[#555] dark:text-[#bbb] mb-2">
+                  EXPEDITION PALETTE
                 </label>
                 <div className="grid grid-cols-2 gap-3">
                   {/* Light Mode Card */}
                   <button
                     type="button"
                     onClick={() => handleSelectTheme('light')}
-                    className={`p-3.5 rounded-xl border text-left transition flex items-center gap-3 ${
+                    className={`p-3.5 border-2 border-black dark:border-white shadow-[2.5px_2.5px_0px_#000] dark:shadow-[2.5px_2.5px_0px_#fff] text-left transition flex items-center gap-3 cursor-pointer ${
                       theme === 'light'
-                        ? 'border-indigo-600 bg-indigo-50/50 dark:bg-indigo-950/30 ring-1 ring-indigo-600'
-                        : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-950'
+                        ? 'bg-[#ffe600] text-black font-black'
+                        : 'bg-white dark:bg-[#121312] text-[#666] dark:text-[#aaa]'
                     }`}
                   >
-                    <div className="p-2 rounded-lg bg-amber-50 text-amber-600 border border-amber-200">
-                      <Sun className="w-5 h-5" />
-                    </div>
+                    <Sun className="w-5 h-5 stroke-[2.5]" />
                     <div className="flex-1 min-w-0">
-                      <div className="text-xs font-semibold text-slate-900 dark:text-white">Light Mode</div>
-                      <div className="text-[10px] text-slate-500">Clean, crisp, high contrast</div>
+                      <div className="text-xs font-black uppercase">DAYLIGHT</div>
+                      <div className="text-[10px] text-[#555] font-bold">WARM SAND & CREAM</div>
                     </div>
-                    {theme === 'light' && (
-                      <Check className="w-4 h-4 text-indigo-600 shrink-0" />
-                    )}
+                    {theme === 'light' && <Check className="w-4 h-4 stroke-[3] shrink-0" />}
                   </button>
 
                   {/* Dark Mode Card */}
                   <button
                     type="button"
                     onClick={() => handleSelectTheme('dark')}
-                    className={`p-3.5 rounded-xl border text-left transition flex items-center gap-3 ${
+                    className={`p-3.5 border-2 border-black dark:border-white shadow-[2.5px_2.5px_0px_#000] dark:shadow-[2.5px_2.5px_0px_#fff] text-left transition flex items-center gap-3 cursor-pointer ${
                       theme === 'dark'
-                        ? 'border-indigo-600 bg-indigo-50/50 dark:bg-indigo-950/30 ring-1 ring-indigo-600'
-                        : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-950'
+                        ? 'bg-[#ff4d00] text-white font-black'
+                        : 'bg-white dark:bg-[#121312] text-[#666] dark:text-[#aaa]'
                     }`}
                   >
-                    <div className="p-2 rounded-lg bg-slate-900 text-indigo-400 border border-slate-700">
-                      <Moon className="w-5 h-5" />
-                    </div>
+                    <Moon className="w-5 h-5 stroke-[2.5]" />
                     <div className="flex-1 min-w-0">
-                      <div className="text-xs font-semibold text-slate-900 dark:text-white">Dark Mode</div>
-                      <div className="text-[10px] text-slate-500">Calm, deep, eye-friendly</div>
+                      <div className="text-xs font-black uppercase">OBSIDIAN NIGHT</div>
+                      <div className="text-[10px] text-white/80 font-bold">CHARCOAL & TERRA COTTA</div>
                     </div>
-                    {theme === 'dark' && (
-                      <Check className="w-4 h-4 text-indigo-600 shrink-0" />
-                    )}
+                    {theme === 'dark' && <Check className="w-4 h-4 stroke-[3] shrink-0" />}
                   </button>
+                </div>
+              </div>
+
+              {/* Station Typography Style */}
+              <div className="space-y-2">
+                <label className="block text-xs font-black uppercase tracking-widest text-[#555] dark:text-[#bbb] flex items-center gap-1.5">
+                  <Type className="w-4 h-4 text-[#ff4d00] stroke-[2.5]" />
+                  TYPOGRAPHY & FONT SYSTEM
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {[
+                    {
+                      id: 'editorial',
+                      title: 'Alpine Editorial',
+                      fonts: 'Bricolage + Plus Jakarta + JetBrains',
+                      desc: 'Rugged outdoor luxury & ink-trapped headers',
+                    },
+                    {
+                      id: 'minimal',
+                      title: 'Modern Minimalist',
+                      fonts: 'Plus Jakarta Sans + JetBrains Mono',
+                      desc: 'Clean geometric SaaS & high-legibility UI',
+                    },
+                    {
+                      id: 'mono',
+                      title: 'Technical Monospace',
+                      fonts: 'Pure JetBrains Mono',
+                      desc: 'All-screen telemetry & code density',
+                    },
+                    {
+                      id: 'space',
+                      title: 'Space Brutalist',
+                      fonts: 'Space Grotesk + Space Mono',
+                      desc: 'Retro-futuristic mission control display',
+                    },
+                  ].map(f => (
+                    <button
+                      key={f.id}
+                      type="button"
+                      onClick={() => setFontStyle(f.id as FontStyle)}
+                      className={`p-3 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] text-left transition flex items-start justify-between gap-2 cursor-pointer ${
+                        fontStyle === f.id
+                          ? 'bg-[#ffe600] text-black font-black'
+                          : 'bg-white dark:bg-[#121312] text-[#666] dark:text-[#aaa] hover:bg-[#fffdf0]'
+                      }`}
+                    >
+                      <div className="min-w-0">
+                        <div className="text-xs font-black uppercase tracking-wider">{f.title}</div>
+                        <div className="text-[10px] font-bold text-[#ff4d00] font-mono mt-0.5">{f.fonts}</div>
+                        <div className="text-[9px] font-bold text-[#666] dark:text-[#aaa] mt-1">{f.desc}</div>
+                      </div>
+                      {fontStyle === f.id && <Check className="w-4 h-4 stroke-[3] shrink-0 mt-0.5 text-black" />}
+                    </button>
+                  ))}
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Your Name</label>
+                  <label className="block text-xs font-black uppercase tracking-widest text-[#555] dark:text-[#bbb] mb-1">LEAD NAME</label>
                   <input
                     type="text"
                     value={name}
                     onChange={e => setName(e.target.value)}
-                    className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs sm:text-sm focus:border-indigo-600 focus:outline-none"
+                    className="w-full px-3.5 py-2 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] bg-white dark:bg-[#121312] text-xs font-black text-[#141514] dark:text-[#f4f3ef] uppercase focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Title / Designation</label>
+                  <label className="block text-xs font-black uppercase tracking-widest text-[#555] dark:text-[#bbb] mb-1">CALLSIGN / TITLE</label>
                   <input
                     type="text"
                     value={greetingTitle}
                     onChange={e => setGreetingTitle(e.target.value)}
-                    className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs sm:text-sm focus:border-indigo-600 focus:outline-none"
+                    className="w-full px-3.5 py-2 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] bg-white dark:bg-[#121312] text-xs font-black text-[#141514] dark:text-[#f4f3ef] uppercase focus:outline-none"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Email</label>
+                <label className="block text-xs font-black uppercase tracking-widest text-[#555] dark:text-[#bbb] mb-1">DISPATCH EMAIL</label>
                 <input
                   type="email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  placeholder="nayan@example.com"
-                  className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs sm:text-sm focus:border-indigo-600 focus:outline-none"
+                  placeholder="NAYAN@EXPEDITION.LOCAL"
+                  className="w-full px-3.5 py-2 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] bg-white dark:bg-[#121312] text-xs font-black text-[#141514] dark:text-[#f4f3ef] focus:outline-none"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Daily Task Target</label>
+                  <label className="block text-xs font-black uppercase tracking-widest text-[#555] dark:text-[#bbb] mb-1">DAILY TASK TARGET</label>
                   <input
                     type="number"
                     min={1}
                     max={30}
                     value={dailyTaskGoal}
                     onChange={e => setDailyTaskGoal(Number(e.target.value))}
-                    className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs sm:text-sm focus:border-indigo-600 focus:outline-none"
+                    className="w-full px-3.5 py-2 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] bg-white dark:bg-[#121312] text-xs font-black text-[#141514] dark:text-[#f4f3ef] focus:outline-none"
                   />
-                  <p className="text-[11px] text-slate-400 mt-1">Number of tasks you aim to finish each day</p>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Focus Target (Min/Day)</label>
+                  <label className="block text-xs font-black uppercase tracking-widest text-[#555] dark:text-[#bbb] mb-1">FOCUS TARGET (MIN/DAY)</label>
                   <input
                     type="number"
                     min={15}
@@ -239,72 +292,56 @@ export default function SettingsModal({ isOpen, onClose, profile, onUpdateProfil
                     step={15}
                     value={focusGoalMinutes}
                     onChange={e => setFocusGoalMinutes(Number(e.target.value))}
-                    className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs sm:text-sm focus:border-indigo-600 focus:outline-none"
+                    className="w-full px-3.5 py-2 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] bg-white dark:bg-[#121312] text-xs font-black text-[#141514] dark:text-[#f4f3ef] focus:outline-none"
                   />
-                  <p className="text-[11px] text-slate-400 mt-1">Pomodoro focus time goal per day</p>
                 </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">AI Assistant Tone</label>
-                <select
-                  value={aiTone}
-                  onChange={e => setAiTone(e.target.value as any)}
-                  className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 text-xs sm:text-sm focus:border-indigo-600 focus:outline-none"
-                >
-                  <option value="friendly">Friendly & Encouraging</option>
-                  <option value="concise">Concise & Action-First</option>
-                  <option value="executive">Executive & Strategic</option>
-                  <option value="motivational">High Energy / Motivational</option>
-                </select>
               </div>
             </div>
           )}
 
           {activeTab === 'ai' && (
             <div className="space-y-4">
-              <div className="p-3.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-900/40 text-xs text-indigo-800 dark:text-indigo-300">
-                <span className="font-semibold block mb-0.5">Dual AI Engine Architecture</span>
-                LifeOS works out of the box with its built-in Natural Language Understanding engine (supporting task creation, time detection, reminders, and study plans). Providing an OpenAI or Gemini API key enhances responses using cloud models.
+              <div className="p-3 border-2 border-black bg-[#ffe600] text-black shadow-[2px_2px_0px_#000] text-xs font-bold">
+                <span className="font-black block uppercase mb-1">// DUAL AI ENGINE ARCHITECTURE</span>
+                LifeOS works out of the box with its built-in Natural Language Understanding engine. Adding OpenAI or Gemini keys routes advanced queries to frontier models.
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
-                  OpenAI API Key (Optional)
+                <label className="block text-xs font-black uppercase tracking-widest text-[#555] dark:text-[#bbb] mb-1">
+                  OPENAI API KEY (OPTIONAL)
                 </label>
                 <div className="relative">
-                  <Key className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
+                  <Key className="w-4 h-4 absolute left-3 top-2.5 text-black stroke-[2.5]" />
                   <input
                     type="password"
                     value={openaiApiKey}
                     onChange={e => setOpenaiApiKey(e.target.value)}
                     placeholder="sk-..."
-                    className="w-full pl-9 pr-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs sm:text-sm focus:border-indigo-600 focus:outline-none"
+                    className="w-full pl-9 pr-3.5 py-2 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] bg-white dark:bg-[#121312] text-xs font-black text-[#141514] dark:text-[#f4f3ef] focus:outline-none"
                   />
                 </div>
-                <p className="text-[11px] text-slate-400 mt-1">Stored securely in your local instance storage</p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">AI Model</label>
+                  <label className="block text-xs font-black uppercase tracking-widest text-[#555] dark:text-[#bbb] mb-1">AI MODEL</label>
                   <select
                     value={aiModel}
                     onChange={e => setAiModel(e.target.value)}
-                    className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 text-xs sm:text-sm focus:border-indigo-600"
+                    className="w-full px-3.5 py-2 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] bg-white dark:bg-[#121312] text-xs font-black text-[#141514] dark:text-[#f4f3ef] uppercase focus:outline-none cursor-pointer"
                   >
-                    <option value="gpt-4o-mini">GPT-4o Mini (Fast & Cost Efficient)</option>
-                    <option value="gpt-4o">GPT-4o (Maximum Intelligence)</option>
+                    <option value="gpt-4o-mini">GPT-4O MINI (EXPEDITION)</option>
+                    <option value="gpt-4o">GPT-4O (FRONTIER)</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Gemini API Key (Optional)</label>
+                  <label className="block text-xs font-black uppercase tracking-widest text-[#555] dark:text-[#bbb] mb-1">GEMINI API KEY (OPTIONAL)</label>
                   <input
                     type="password"
                     value={geminiApiKey}
                     onChange={e => setGeminiApiKey(e.target.value)}
                     placeholder="AIza..."
-                    className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white text-xs sm:text-sm focus:border-indigo-600 focus:outline-none"
+                    className="w-full px-3.5 py-2 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] bg-white dark:bg-[#121312] text-xs font-black text-[#141514] dark:text-[#f4f3ef] focus:outline-none"
                   />
                 </div>
               </div>
@@ -312,57 +349,57 @@ export default function SettingsModal({ isOpen, onClose, profile, onUpdateProfil
           )}
 
           {activeTab === 'database' && (
-            <div className="space-y-4 text-xs text-slate-600 dark:text-slate-300">
-              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-2">
+            <div className="space-y-4 text-xs font-bold">
+              <div className="p-4 border-2 border-black dark:border-white shadow-[3px_3px_0px_#000] dark:shadow-[3px_3px_0px_#fff] bg-white dark:bg-[#121312] space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="font-semibold text-slate-900 dark:text-slate-200">Local Persistent Storage</span>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50">
-                    Active (data/lifeos_db.json)
+                  <span className="font-black uppercase text-[#141514] dark:text-[#f4f3ef]">LOCAL DISK STORAGE</span>
+                  <span className="text-[10px] border-2 border-black bg-[#ccff00] text-black px-2 py-0.5 font-black uppercase shadow-[1px_1px_0px_#000]">
+                    ACTIVE (DATA/LIFEOS_DB.JSON)
                   </span>
                 </div>
-                <p className="text-slate-500 dark:text-slate-400 text-[11px]">
-                  All tasks, subtasks, reminders, memories, and chat messages are saved to disk automatically.
+                <p className="text-[#666] dark:text-[#aaa] text-xs uppercase">
+                  All terrain tasks, subtasks, alerts, and field logs persist locally to disk.
                 </p>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-2">
+              <div className="p-4 border-2 border-black dark:border-white shadow-[3px_3px_0px_#000] dark:shadow-[3px_3px_0px_#fff] bg-white dark:bg-[#121312] space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="font-semibold text-slate-900 dark:text-slate-200">Supabase Cloud Sync</span>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
-                    Configurable via .env.local
+                  <span className="font-black uppercase text-[#141514] dark:text-[#f4f3ef]">SUPABASE CLOUD SYNC</span>
+                  <span className="text-[10px] border-2 border-black bg-[#ffe600] text-black px-2 py-0.5 font-black uppercase shadow-[1px_1px_0px_#000]">
+                    VIA .ENV.LOCAL
                   </span>
                 </div>
-                <p className="text-slate-500 dark:text-slate-400 text-[11px]">
-                  To connect Supabase, add your credentials to <code className="text-indigo-600 dark:text-indigo-400">.env.local</code>.
+                <p className="text-[#666] dark:text-[#aaa] text-xs uppercase">
+                  Add SUPABASE_URL and SUPABASE_ANON_KEY to enable remote database synchronization.
                 </p>
               </div>
             </div>
           )}
 
           {/* Action bar */}
-          <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-800">
+          <div className="flex items-center justify-between pt-4 border-t-2 border-black dark:border-white">
             {savedSuccess ? (
-              <span className="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                <Check className="w-3.5 h-3.5" /> Preferences saved!
+              <span className="text-xs text-[#ff4d00] font-black flex items-center gap-1 uppercase">
+                <Check className="w-4 h-4 stroke-[3]" /> PREFERENCES SAVED
               </span>
             ) : (
               <span />
             )}
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 rounded-xl text-xs font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                className="px-4 py-2 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] text-xs uppercase font-black text-[#141514] dark:text-[#f4f3ef] bg-white dark:bg-[#202020] hover:bg-[#fffdf0] transition cursor-pointer"
               >
-                Close
+                CLOSE
               </button>
               <button
                 type="submit"
                 disabled={isSaving}
-                className="px-5 py-2 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition shadow-sm flex items-center gap-1.5"
+                className="px-6 py-2.5 bg-[#ff4d00] hover:bg-[#e04400] text-white text-xs font-black uppercase tracking-wider border-2 border-black shadow-[3px_3px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition flex items-center gap-1.5 cursor-pointer"
               >
-                <Save className="w-3.5 h-3.5" /> {isSaving ? 'Saving...' : 'Save Changes'}
+                <Save className="w-4 h-4 stroke-[2.5]" /> {isSaving ? 'SAVING...' : 'SAVE SETTINGS'}
               </button>
             </div>
           </div>

@@ -91,16 +91,8 @@
         5,
         6
       ],
-      "completedDates": [
-        "2026-11-03",
-        "2026-11-04",
-        "2026-11-05",
-        "2026-10-30",
-        "2026-10-31",
-        "2026-11-01",
-        "2026-11-02"
-      ],
-      "streak": 9,
+      "completedDates": [],
+      "streak": 2,
       "color": "#06b6d4"
     },
     {
@@ -115,14 +107,8 @@
         4,
         5
       ],
-      "completedDates": [
-        "2026-10-30",
-        "2026-10-31",
-        "2026-11-01",
-        "2026-11-02",
-        "2026-11-03"
-      ],
-      "streak": 7,
+      "completedDates": [],
+      "streak": 2,
       "color": "#8b5cf6"
     },
     {
@@ -139,10 +125,8 @@
         5,
         6
       ],
-      "completedDates": [
-        "2026-11-04"
-      ],
-      "streak": 3,
+      "completedDates": [],
+      "streak": 2,
       "color": "#10b981"
     },
     {
@@ -159,10 +143,8 @@
         5,
         6
       ],
-      "completedDates": [
-        "2026-11-05"
-      ],
-      "streak": 2,
+      "completedDates": [],
+      "streak": 1,
       "color": "#f59e0b"
     }
   ],
@@ -172,6 +154,18 @@
       "sender": "assistant",
       "text": "Good day! I am **LifeOS Copilot**, your personal intelligence assistant. I am connected directly to your tasks, deadlines, and schedule. You can ask me to plan your day, schedule reminders, reschedule tasks, or generate customized study plans. What would you like to achieve today?",
       "timestamp": "2026-11-04T16:30:00.000Z"
+    },
+    {
+      "id": "usr-1794464101728",
+      "sender": "user",
+      "text": "What should I focus on right now?",
+      "timestamp": "2026-11-12T06:15:01.728Z"
+    },
+    {
+      "id": "ast-1794464101743",
+      "sender": "assistant",
+      "text": "🎯 **Here are your top 1 priorities to focus on today:**\n\n1. **meeting**\n   • Priority: `LOW` | Category: Work\n   • Target: Complete by 6:00 pm\n\n*Tip: Start with task #1 in a dedicated 45-minute focus block without distractions.*",
+      "timestamp": "2026-11-12T06:15:01.743Z"
     }
   ]
 }

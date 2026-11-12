@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Flame, Check, Sparkles, Droplet, Brain, BookOpen, Activity } from 'lucide-react';
 import { Habit } from '@/types';
 import { sound } from '@/lib/sound';
@@ -44,10 +45,10 @@ export default function HabitsView({ habits, onToggleHabitDay }: HabitsViewProps
       sound.playTaskComplete();
       try {
         confetti({
-          particleCount: 40,
-          spread: 50,
-          origin: { y: 0.8 },
-          colors: ['#4f46e5', '#10b981', '#f59e0b'],
+          particleCount: 45,
+          spread: 55,
+          origin: { y: 0.75 },
+          colors: ['#d95326', '#141514', '#f4f3ef'],
         });
       } catch {}
     } else {
@@ -57,85 +58,110 @@ export default function HabitsView({ habits, onToggleHabitDay }: HabitsViewProps
   };
 
   return (
-    <div className="space-y-6 pb-12 animate-fadeIn">
+    <motion.div 
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
+      className="space-y-8 pb-16 font-mono"
+    >
       {/* Header */}
-      <div className="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors duration-150">
-        <div>
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400">
-              <Flame className="w-5 h-5" />
-            </div>
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-              Habits & Routines
-            </h1>
-          </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Build consistency, track daily streaks, and reinforce positive habits.
+      <div className="border-[3px] border-black dark:border-white shadow-[6px_6px_0px_#000] dark:shadow-[6px_6px_0px_#fff] bg-white dark:bg-[#161816] p-6 sm:p-8 flex flex-col md:flex-row md:items-end justify-between gap-6 transition-colors duration-200">
+        <div className="space-y-2">
+          <span className="bg-[#ff4d00] text-white px-2.5 py-0.5 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] text-xs font-black uppercase tracking-widest inline-block">
+            04 // DISCIPLINE & ROUTINES
+          </span>
+          <h1 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-[#141514] dark:text-[#f4f3ef] font-display-heavy">
+            Habit Matrix
+          </h1>
+          <p className="text-xs uppercase tracking-wider font-bold text-[#555] dark:text-[#aaa]">
+            DAILY PROTOCOLS · REPEAT EXPEDITIONS · STREAK PERSISTENCE
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-500 dark:text-slate-400">
-            Active habits: <strong className="text-slate-900 dark:text-white font-semibold">{habits.length}</strong>
-          </span>
+        <div className="flex items-center gap-2 px-3 py-2 border-2 border-black dark:border-white bg-[#ffe600] text-black shadow-[3px_3px_0px_#000] text-xs font-black">
+          <span className="uppercase">ACTIVE PROTOCOLS:</span>
+          <span className="text-sm font-black">{habits.length}</span>
         </div>
       </div>
 
       {/* Habit Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {habits.map(habit => {
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {habits.map((habit, idx) => {
           const IconComponent = ICON_MAP[habit.icon] || Sparkles;
+          const indexStr = idx < 9 ? `0${idx + 1}` : `${idx + 1}`;
+
           return (
             <div
               key={habit.id}
-              className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-sm space-y-4 transition-colors duration-150"
+              className="border-[3px] border-black dark:border-white shadow-[5px_5px_0px_#000] dark:shadow-[5px_5px_0px_#fff] bg-[#fffdf0] dark:bg-[#181a18] p-6 space-y-6 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[7px_7px_0px_#000] transition-all group"
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div
-                    className="p-2.5 rounded-xl flex items-center justify-center text-slate-900 dark:text-white"
-                    style={{ backgroundColor: `${habit.color}15`, color: habit.color }}
-                  >
-                    <IconComponent className="w-5 h-5" />
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className="text-xs font-black text-[#777]">{indexStr}</span>
+                  <div className="p-2 border-2 border-black dark:border-white bg-[#ffe600] text-black shadow-[2px_2px_0px_#000] shrink-0">
+                    <IconComponent className="w-4 h-4 stroke-[2.5]" />
                   </div>
-                  <div>
-                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white">{habit.name}</h3>
-                    <span className="text-[11px] text-slate-500 dark:text-slate-400">{habit.category}</span>
+                  <div className="min-w-0">
+                    <h3 className="text-base sm:text-lg font-black uppercase tracking-tight text-[#141514] dark:text-[#f4f3ef] truncate group-hover:text-[#ff4d00] transition-colors font-display-heavy">
+                      {habit.name}
+                    </h3>
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#666] dark:text-[#aaa]">
+                      {habit.category}
+                    </span>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 text-amber-700 dark:text-amber-400 text-xs font-semibold">
-                  <Flame className="w-3.5 h-3.5 fill-current" />
-                  <span>{habit.streak} Day Streak</span>
+                {/* Animated Dancing Flame Streak */}
+                <div className="flex items-center gap-1.5 px-3 py-1 bg-[#ffe600] text-black border-2 border-black shadow-[2px_2px_0px_#000] text-xs font-black shrink-0">
+                  <motion.div
+                    animate={{ scale: [1, 1.25, 1], rotate: [0, -8, 8, 0] }}
+                    transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                  >
+                    <Flame className="w-4 h-4 fill-black stroke-black" />
+                  </motion.div>
+                  <span>{habit.streak}D STREAK</span>
                 </div>
               </div>
 
               {/* 7-Day Completion Grid */}
-              <div className="pt-1">
+              <div className="pt-2">
                 <div className="grid grid-cols-7 gap-2">
                   {daysOfWeek.map(day => {
                     const isDone = habit.completedDates.includes(day.dateStr);
                     return (
                       <div key={day.dateStr} className="flex flex-col items-center gap-1.5">
                         <span
-                          className={`text-[10px] font-semibold ${
-                            day.isToday ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500'
+                          className={`text-[10px] uppercase tracking-wider font-black ${
+                            day.isToday ? 'text-[#ff4d00]' : 'text-[#666] dark:text-[#aaa]'
                           }`}
                         >
                           {day.dayName}
                         </span>
                         <button
+                          type="button"
                           onClick={() => handleToggle(habit.id, day.dateStr, isDone)}
-                          className={`w-9 h-9 rounded-xl border flex flex-col items-center justify-center text-xs font-semibold transition active:scale-95 ${
+                          className={`w-9 h-9 sm:w-11 sm:h-11 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] flex flex-col items-center justify-center text-xs font-black transition-all active:translate-x-0.5 active:translate-y-0.5 cursor-pointer ${
                             isDone
-                              ? 'bg-emerald-600 border-emerald-600 text-white font-bold shadow-xs'
+                              ? 'bg-[#ccff00] text-black'
                               : day.isToday
-                              ? 'bg-indigo-50 dark:bg-indigo-950/40 border-indigo-300 dark:border-indigo-700/60 text-indigo-700 dark:text-indigo-300 hover:border-indigo-500'
-                              : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
+                              ? 'bg-[#ffe600] text-black'
+                              : 'bg-white dark:bg-[#202020] text-[#141514] dark:text-[#f4f3ef] hover:bg-[#ffe600] hover:text-black'
                           }`}
                           title={isDone ? `Completed on ${day.dateStr}` : `Mark completed for ${day.dateStr}`}
                         >
-                          {isDone ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : day.dateNumber}
+                          <AnimatePresence>
+                            {isDone ? (
+                              <motion.span
+                                initial={{ scale: 0, rotate: -45 }}
+                                animate={{ scale: 1, rotate: 0 }}
+                                exit={{ scale: 0 }}
+                              >
+                                <Check className="w-5 h-5 stroke-[3.5] text-black" />
+                              </motion.span>
+                            ) : (
+                              <span>{day.dateNumber}</span>
+                            )}
+                          </AnimatePresence>
                         </button>
                       </div>
                     );
@@ -146,6 +172,6 @@ export default function HabitsView({ habits, onToggleHabitDay }: HabitsViewProps
           );
         })}
       </div>
-    </div>
+    </motion.div>
   );
 }

@@ -10,7 +10,8 @@ import {
   VolumeX, 
   AlertTriangle, 
   CheckCircle2, 
-  User
+  User,
+  Compass
 } from 'lucide-react';
 import { ChatMessage } from '@/types';
 import { formatTime } from '@/lib/utils';
@@ -24,13 +25,11 @@ interface AIChatViewProps {
 }
 
 const SAMPLE_COMMANDS = [
-  'What are my tasks for today?',
-  'Remind me to complete assignment tomorrow at 10 AM',
-  'Schedule a meeting for Friday',
-  'Remind me to call friend at 8 PM',
-  'What important work is pending?',
-  'Create a study plan for next 7 days',
   'What should I focus on today?',
+  'Schedule deep work tomorrow at 9 AM',
+  'Remind me to check camp equipment at 7 PM',
+  'Summarize my pending tasks',
+  'Add task: Review trail navigation markers',
 ];
 
 export default function AIChatView({
@@ -46,12 +45,10 @@ export default function AIChatView({
   const chatBottomRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
 
-  // Auto-scroll on new message
   useEffect(() => {
     chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isThinking]);
 
-  // Read latest message if TTS enabled
   useEffect(() => {
     if (!ttsEnabled || messages.length === 0) return;
     const lastMsg = messages[messages.length - 1];
@@ -66,7 +63,6 @@ export default function AIChatView({
     }
   }, [messages, ttsEnabled]);
 
-  // Web Speech API Voice Recognition
   const toggleSpeechRecognition = () => {
     if (typeof window === 'undefined') return;
 
@@ -134,110 +130,114 @@ export default function AIChatView({
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-140px)] max-h-[850px] bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden animate-fadeIn transition-colors duration-150">
-      {/* Copilot Header */}
-      <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/70">
+    <div className="flex flex-col h-[calc(100dvh-175px)] sm:h-[calc(100vh-140px)] max-h-[850px] border-[3px] border-black dark:border-white shadow-[6px_6px_0px_#000] dark:shadow-[6px_6px_0px_#fff] bg-[#fffdf0] dark:bg-[#181a18] overflow-hidden animate-fadeIn font-mono transition-colors duration-200">
+      {/* Console Header */}
+      <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b-2 border-black dark:border-white bg-[#ffe600] text-black">
         <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-indigo-600 text-white shadow-xs">
-            <Sparkles className="w-4 h-4 text-white" />
+          <div className="p-1.5 border-2 border-black bg-black text-[#ffe600] shadow-[2px_2px_0px_#000]">
+            <Compass className="w-5 h-5 stroke-[2.5]" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-sm font-bold text-slate-900 dark:text-white tracking-tight">LifeOS Copilot</h2>
-              <span className="px-2 py-0.2 rounded-full text-[9px] font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50">
-                Connected
+              <h2 className="text-base font-black uppercase tracking-tight text-black font-display-heavy">
+                Trailhead Copilot
+              </h2>
+              <span className="text-[10px] font-black uppercase tracking-wider border-2 border-black bg-black text-[#ccff00] px-2 py-0.5 shadow-[1px_1px_0px_#000]">
+                ONLINE
               </span>
             </div>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400">Natural language productivity assistant</p>
+            <p className="text-xs text-black font-bold uppercase tracking-wider">
+              FIELD NATURAL LANGUAGE DISPATCH
+            </p>
           </div>
         </div>
 
         {/* Audio / Voice readout toggle */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setTtsEnabled(!ttsEnabled)}
-            className={`p-1.5 px-2.5 rounded-lg border text-xs flex items-center gap-1.5 transition ${
-              ttsEnabled
-                ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800/50 font-semibold'
-                : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:text-slate-900 dark:hover:text-white'
-            }`}
-            title={ttsEnabled ? 'Disable voice readout' : 'Enable voice readout'}
-          >
-            {ttsEnabled ? <Volume2 className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" /> : <VolumeX className="w-3.5 h-3.5" />}
-            <span className="hidden sm:inline">{ttsEnabled ? 'Voice On' : 'Voice Off'}</span>
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => setTtsEnabled(!ttsEnabled)}
+          className={`p-2 px-3 border-2 border-black shadow-[2px_2px_0px_#000] text-xs font-black uppercase tracking-wider flex items-center gap-1.5 transition active:translate-x-0.5 active:translate-y-0.5 cursor-pointer ${
+            ttsEnabled
+              ? 'bg-[#ff4d00] text-white'
+              : 'bg-white text-black hover:bg-[#ccff00]'
+          }`}
+          title={ttsEnabled ? 'Disable audio synthesis' : 'Enable audio synthesis'}
+        >
+          {ttsEnabled ? <Volume2 className="w-4 h-4 text-white stroke-[2.5]" /> : <VolumeX className="w-4 h-4 stroke-[2.5]" />}
+          <span className="hidden sm:inline">{ttsEnabled ? 'VOICE ON' : 'VOICE OFF'}</span>
+        </button>
       </div>
 
-      {/* Chat Messages Log */}
+      {/* Messages Log */}
       <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
         {messages.map((msg, index) => {
           const isUser = msg.sender === 'user';
           return (
             <div
               key={msg.id || index}
-              className={`flex items-start gap-2.5 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}
+              className={`flex items-start gap-3 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}
             >
-              {/* Avatar */}
+              {/* Avatar Stamp */}
               <div
-                className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-xs font-bold ${
+                className={`w-8 h-8 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] flex items-center justify-center shrink-0 text-xs font-black ${
                   isUser
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
+                    ? 'bg-[#ffe600] text-black'
+                    : 'bg-[#ff4d00] text-white'
                 }`}
               >
-                {isUser ? <User className="w-3.5 h-3.5" /> : <Bot className="w-3.5 h-3.5" />}
+                {isUser ? 'YOU' : 'AI'}
               </div>
 
               {/* Message Bubble */}
               <div className="max-w-[85%] sm:max-w-[75%] space-y-1">
                 <div
-                  className={`p-3.5 rounded-2xl text-xs sm:text-sm leading-relaxed ${
+                  className={`p-4 border-2 border-black dark:border-white shadow-[3px_3px_0px_#000] dark:shadow-[3px_3px_0px_#fff] text-xs sm:text-sm font-bold leading-relaxed ${
                     isUser
-                      ? 'bg-indigo-600 text-white rounded-tr-none shadow-xs'
-                      : 'bg-slate-100 dark:bg-slate-800/90 text-slate-900 dark:text-slate-100 border border-slate-200/80 dark:border-slate-700/60 rounded-tl-none shadow-xs'
+                      ? 'bg-[#ffe600] text-black'
+                      : 'bg-white dark:bg-[#202220] text-[#141514] dark:text-[#f4f3ef]'
                   }`}
                 >
                   <div className="whitespace-pre-wrap">{msg.text}</div>
 
                   {/* Confirmation Request Card */}
                   {msg.receipt && msg.receipt.requiresConfirmation && msg.receipt.confirmationPayload && (
-                    <div className="mt-3 p-3 rounded-xl bg-white dark:bg-slate-950 border border-amber-300 dark:border-amber-900/60 space-y-2 text-xs">
-                      <div className="flex items-center gap-1.5 text-amber-700 dark:text-amber-400 font-semibold">
-                        <AlertTriangle className="w-4 h-4 text-amber-500" />
-                        Confirmation Required
+                    <div className="mt-3 p-3 border-2 border-black bg-[#ff4d00] text-white shadow-[2px_2px_0px_#000] space-y-2 text-xs font-black">
+                      <div className="flex items-center gap-1.5 uppercase tracking-wider">
+                        <AlertTriangle className="w-4 h-4 stroke-[2.5]" />
+                        CONFIRMATION REQUIRED
                       </div>
-                      <p className="text-slate-600 dark:text-slate-300">
-                        Target: <strong className="text-slate-900 dark:text-white">&quot;{msg.receipt.confirmationPayload.targetTitle}&quot;</strong>
+                      <p className="font-bold">
+                        TARGET: &quot;{msg.receipt.confirmationPayload.targetTitle}&quot;
                       </p>
                       <div className="flex items-center gap-2 pt-1">
                         <button
+                          type="button"
                           onClick={() =>
                             onConfirmAction(
                               msg.receipt!.confirmationPayload!.action,
                               msg.receipt!.confirmationPayload!.targetId
                             )
                           }
-                          className="px-3 py-1 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold shadow transition"
+                          className="px-3 py-1 bg-black text-[#ffe600] border-2 border-black shadow-[1.5px_1.5px_0px_#000] text-xs font-black uppercase tracking-wider hover:-translate-x-0.5 hover:-translate-y-0.5 transition cursor-pointer"
                         >
-                          Confirm
+                          CONFIRM ACTION
                         </button>
-                        <span className="text-[11px] text-slate-400">or ignore to cancel</span>
+                        <span className="text-[10px] text-white/90">OR IGNORE TO ABORT</span>
                       </div>
                     </div>
                   )}
 
                   {/* Verified Action Receipt */}
                   {msg.receipt && !msg.receipt.requiresConfirmation && msg.receipt.success && (
-                    <div className="mt-2.5 pt-2 border-t border-slate-200 dark:border-slate-700 flex items-center gap-1.5 text-xs text-emerald-700 dark:text-emerald-400">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                      <span className="font-medium">{msg.receipt.summary}</span>
+                    <div className="mt-3 pt-2 border-t-2 border-black dark:border-white flex items-center gap-1.5 text-xs text-[#ff4d00] font-black">
+                      <CheckCircle2 className="w-4 h-4 stroke-[2.5] shrink-0" />
+                      <span className="uppercase tracking-wider">{msg.receipt.summary}</span>
                     </div>
                   )}
                 </div>
 
                 <div
-                  className={`text-[10px] text-slate-400 dark:text-slate-500 px-1 ${
+                  className={`text-[10px] font-black uppercase tracking-wider text-[#666] dark:text-[#aaa] px-1 ${
                     isUser ? 'text-right' : 'text-left'
                   }`}
                 >
@@ -248,19 +248,14 @@ export default function AIChatView({
           );
         })}
 
-        {/* Typing indicator */}
         {isThinking && (
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex items-center justify-center">
-              <Bot className="w-3.5 h-3.5" />
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 border-2 border-black bg-[#ff4d00] text-white shadow-[2px_2px_0px_#000] flex items-center justify-center text-xs font-black">
+              AI
             </div>
-            <div className="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
-              <div className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 dark:bg-indigo-400 animate-bounce" />
-                <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 dark:bg-indigo-400 animate-bounce [animation-delay:0.2s]" />
-                <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 dark:bg-indigo-400 animate-bounce [animation-delay:0.4s]" />
-              </div>
-              <span>Processing request...</span>
+            <div className="p-3 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] bg-[#ffe600] text-black text-xs font-black uppercase tracking-wider flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#ff4d00] animate-ping" />
+              <span>PARSING ROUTE & EXECUTING...</span>
             </div>
           </div>
         )}
@@ -268,17 +263,18 @@ export default function AIChatView({
         <div ref={chatBottomRef} />
       </div>
 
-      {/* Sample Commands Pills */}
-      <div className="px-4 sm:px-6 py-2 border-t border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/70 overflow-x-auto">
-        <div className="flex items-center gap-1.5 whitespace-nowrap">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1">
-            Try:
+      {/* Suggested Command Pills */}
+      <div className="px-4 py-2.5 border-t-2 border-black dark:border-white bg-[#ece9df] dark:bg-[#121312] overflow-x-auto">
+        <div className="flex items-center gap-2 whitespace-nowrap">
+          <span className="text-xs font-black uppercase tracking-widest text-[#555] dark:text-[#aaa]">
+            SUGGESTED:
           </span>
           {SAMPLE_COMMANDS.map((cmd, idx) => (
             <button
               key={idx}
+              type="button"
               onClick={() => handlePromptClick(cmd)}
-              className="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-700 dark:text-slate-300 transition shrink-0"
+              className="px-3 py-1 text-xs uppercase tracking-wider font-black border-2 border-black dark:border-white shadow-[1.5px_1.5px_0px_#000] dark:shadow-[1.5px_1.5px_0px_#fff] bg-white dark:bg-[#202220] text-black dark:text-white hover:bg-[#ffe600] hover:text-black transition shrink-0 cursor-pointer"
             >
               {cmd}
             </button>
@@ -286,42 +282,37 @@ export default function AIChatView({
         </div>
       </div>
 
-      {/* Chat Input Bar */}
-      <form onSubmit={handleSend} className="p-3 sm:p-4 bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800">
+      {/* Input Form */}
+      <form onSubmit={handleSend} className="p-3 sm:p-4 border-t-2 border-black dark:border-white bg-white dark:bg-[#121312]">
         <div className="flex items-center gap-2">
-          {/* Voice Input Mic */}
           <button
             type="button"
             onClick={toggleSpeechRecognition}
-            className={`p-2 rounded-xl border transition ${
+            className={`p-3 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] transition cursor-pointer ${
               isListening
-                ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 border-rose-300 dark:border-rose-800 animate-pulse'
-                : 'bg-slate-50 dark:bg-slate-900 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white border-slate-200 dark:border-slate-800'
+                ? 'bg-[#ff4d00] text-white animate-pulse'
+                : 'bg-white dark:bg-[#202020] text-black dark:text-white hover:bg-[#ffe600] hover:text-black'
             }`}
-            title={isListening ? 'Listening... click to stop' : 'Voice input (Speak command)'}
+            title={isListening ? 'Listening...' : 'Voice command'}
           >
-            <Mic className="w-4 h-4" />
+            <Mic className="w-4 h-4 stroke-[2.5]" />
           </button>
 
-          {/* Text Input */}
-          <div className="relative flex-1">
-            <input
-              type="text"
-              value={inputText}
-              onChange={e => setInputText(e.target.value)}
-              placeholder={isListening ? 'Listening...' : 'Type a command or message (e.g. Schedule meeting for tomorrow 3 PM)...'}
-              className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-indigo-600 focus:bg-white dark:focus:bg-slate-900 transition"
-            />
-          </div>
+          <input
+            type="text"
+            value={inputText}
+            onChange={e => setInputText(e.target.value)}
+            placeholder={isListening ? 'LISTENING TO FIELD AUDIO...' : 'ENTER DISPATCH COMMAND (E.G. SCHEDULE RUN TOMORROW 8 AM)...'}
+            className="flex-1 px-4 py-3 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] bg-[#fffdf0] dark:bg-[#181a18] text-xs font-black text-[#141514] dark:text-[#f4f3ef] placeholder-[#777] uppercase tracking-wider focus:outline-none"
+          />
 
-          {/* Send Button */}
           <button
             type="submit"
             disabled={!inputText.trim() || isThinking}
-            className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs shadow-xs disabled:opacity-40 transition flex items-center gap-1.5"
+            className="px-5 py-3 bg-[#ff4d00] hover:bg-[#e04400] text-white border-2 border-black shadow-[2px_2px_0px_#000] text-xs font-black uppercase tracking-wider transition disabled:opacity-40 flex items-center gap-1.5 cursor-pointer"
           >
-            <Send className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Send</span>
+            <Send className="w-4 h-4 stroke-[2.5]" />
+            <span className="hidden sm:inline">DISPATCH</span>
           </button>
         </div>
       </form>

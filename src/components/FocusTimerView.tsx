@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Play, 
   Pause, 
@@ -9,8 +10,8 @@ import {
   CloudRain, 
   Wind, 
   Radio, 
-  Target, 
-  Flame
+  Flame,
+  Compass
 } from 'lucide-react';
 import { Task } from '@/types';
 import { ambientSound } from '@/lib/ambient-sound';
@@ -32,7 +33,6 @@ export default function FocusTimerView({ tasks, onCompleteTask }: FocusTimerView
 
   const pendingTasks = tasks.filter(t => t.status !== 'completed');
 
-  // Change modes
   const handleSelectMode = (newMode: 'focus' | 'shortBreak' | 'longBreak') => {
     setIsRunning(false);
     setMode(newMode);
@@ -41,7 +41,6 @@ export default function FocusTimerView({ tasks, onCompleteTask }: FocusTimerView
     setTimeLeft(secs);
   };
 
-  // Timer tick
   useEffect(() => {
     let timer: any;
     if (isRunning && timeLeft > 0) {
@@ -55,9 +54,10 @@ export default function FocusTimerView({ tasks, onCompleteTask }: FocusTimerView
         setCompletedSessions(prev => prev + 1);
         try {
           confetti({
-            particleCount: 70,
-            spread: 70,
-            origin: { y: 0.6 },
+            particleCount: 50,
+            spread: 60,
+            origin: { y: 0.65 },
+            colors: ['#d95326', '#141514', '#f4f3ef'],
           });
         } catch {}
       }
@@ -65,7 +65,6 @@ export default function FocusTimerView({ tasks, onCompleteTask }: FocusTimerView
     return () => clearInterval(timer);
   }, [isRunning, timeLeft, mode]);
 
-  // Ambient sound handler
   const handleToggleAmbient = (type: 'rain' | 'whitenoise' | 'drone') => {
     if (ambientTrack === type) {
       ambientSound.stop();
@@ -96,239 +95,230 @@ export default function FocusTimerView({ tasks, onCompleteTask }: FocusTimerView
   const progressPct = Math.round(((duration - timeLeft) / duration) * 100);
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 pb-12 animate-fadeIn">
-      {/* Header */}
-      <div className="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors duration-150">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-            Focus & Pomodoro
+    <motion.div 
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
+      className="max-w-5xl mx-auto space-y-8 pb-16 font-mono"
+    >
+      {/* 1. Header */}
+      <div className="border-[3px] border-black dark:border-white shadow-[6px_6px_0px_#000] dark:shadow-[6px_6px_0px_#fff] bg-white dark:bg-[#161816] p-6 sm:p-8 flex flex-col md:flex-row md:items-end justify-between gap-6 transition-colors duration-200">
+        <div className="space-y-2">
+          <span className="bg-[#ff4d00] text-white px-2.5 py-0.5 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] text-xs font-black uppercase tracking-widest inline-block">
+            03 // EXPEDITION CHRONOMETER
+          </span>
+          <h1 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-[#141514] dark:text-[#f4f3ef] font-display-heavy">
+            Focus Lab
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Deep focus intervals paired with calm procedural ambient soundscapes.
+          <p className="text-xs uppercase tracking-wider font-bold text-[#555] dark:text-[#aaa]">
+            HIGH-ALTITUDE CONCENTRATION · AMBIENT FREQUENCIES
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 text-xs text-slate-700 dark:text-slate-300 flex items-center gap-2">
-            <Flame className="w-4 h-4 text-amber-500" />
-            <span>Completed Sessions:</span>
-            <span className="font-bold text-slate-900 dark:text-white">{completedSessions}</span>
-          </div>
+        <div className="flex items-center gap-2 px-3 py-2 border-2 border-black dark:border-white bg-[#ffe600] text-black shadow-[3px_3px_0px_#000] text-xs font-black">
+          <Flame className="w-4 h-4 fill-black stroke-black" />
+          <span className="uppercase">EXPEDITION BLOCKS:</span>
+          <span className="text-sm font-black">{completedSessions}</span>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left 2 Cols: Timer Display */}
-        <div className="lg:col-span-2 bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center justify-center space-y-6 relative transition-colors duration-150">
-          {/* Mode switch pills */}
-          <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-950 p-1 rounded-xl border border-slate-200 dark:border-slate-800">
-            <button
-              onClick={() => handleSelectMode('focus')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition ${
-                mode === 'focus'
-                  ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs font-semibold'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-              }`}
-            >
-              25m Focus
-            </button>
-            <button
-              onClick={() => handleSelectMode('shortBreak')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition ${
-                mode === 'shortBreak'
-                  ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs font-semibold'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-              }`}
-            >
-              5m Break
-            </button>
-            <button
-              onClick={() => handleSelectMode('longBreak')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition ${
-                mode === 'longBreak'
-                  ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs font-semibold'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-              }`}
-            >
-              15m Rest
-            </button>
+        {/* Left 2 Cols: Stopwatch Readout */}
+        <div className="lg:col-span-2 border-[3px] border-black dark:border-white shadow-[6px_6px_0px_#000] dark:shadow-[6px_6px_0px_#fff] bg-[#fffdf0] dark:bg-[#181a18] p-6 sm:p-10 flex flex-col items-center justify-center space-y-8 text-center relative overflow-hidden">
+          {/* Background Ambient Pulse when timer is running */}
+          {isRunning && (
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: [1, 1.4, 1], opacity: [0.04, 0.12, 0.04] }}
+              transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
+              className="absolute inset-0 bg-[#ff4d00] pointer-events-none rounded-full"
+            />
+          )}
+
+          {/* Mode switch buttons */}
+          <div className="flex items-center gap-2 p-1 border-2 border-black dark:border-white bg-[#ece9df] dark:bg-[#121312] text-xs uppercase shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff]">
+            {[
+              { id: 'focus', label: '25M FOCUS' },
+              { id: 'shortBreak', label: '05M BREAK' },
+              { id: 'longBreak', label: '15M REST' },
+            ].map(m => {
+              const isSelected = mode === m.id;
+              return (
+                <button
+                  key={m.id}
+                  type="button"
+                  onClick={() => handleSelectMode(m.id as any)}
+                  className={`px-4 py-2 font-black transition-all cursor-pointer ${
+                    isSelected
+                      ? 'bg-[#ffe600] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
+                      : 'text-[#666] dark:text-[#aaa] hover:text-black dark:hover:text-white'
+                  }`}
+                >
+                  {m.label}
+                </button>
+              );
+            })}
           </div>
 
-          {/* Large Circular / Digital Timer */}
-          <div className="relative w-60 h-60 sm:w-64 sm:h-64 flex items-center justify-center my-2">
-            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-              <path
-                className="text-slate-100 dark:text-slate-800"
-                strokeWidth="2.5"
-                stroke="currentColor"
-                fill="none"
-                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-              />
-              <path
-                className={mode === 'focus' ? 'text-indigo-600 dark:text-indigo-500' : 'text-emerald-600 dark:text-emerald-400'}
-                strokeDasharray={`${progressPct}, 100`}
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                stroke="currentColor"
-                fill="none"
-                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-              />
-            </svg>
+          {/* Huge Monospace Digital Chronometer Display */}
+          <div className="relative py-4 flex flex-col items-center justify-center">
+            <div className="text-7xl sm:text-9xl font-black tracking-tight text-[#141514] dark:text-[#f4f3ef] leading-none select-none font-mono">
+              {formatSeconds(timeLeft)}
+            </div>
+            
+            <div className="text-xs uppercase tracking-widest text-[#555] dark:text-[#bbb] font-black mt-4 flex items-center gap-2">
+              <span className={`w-2.5 h-2.5 rounded-full ${isRunning ? 'bg-[#ff4d00] animate-ping' : 'bg-[#989a91]'}`} />
+              <span>{mode === 'focus' ? '// ACTIVE WORK BLOCK' : '// TRAIL RECUPERATION'} — {progressPct}% ELAPSED</span>
+            </div>
 
-            <div className="absolute flex flex-col items-center">
-              <span className="text-4xl sm:text-5xl font-mono font-bold text-slate-900 dark:text-white tracking-wider">
-                {formatSeconds(timeLeft)}
-              </span>
-              <span className="text-xs uppercase tracking-wider text-slate-400 dark:text-slate-500 mt-1 font-medium">
-                {mode === 'focus' ? 'Focus Interval' : 'Rest Interval'}
-              </span>
+            {/* Brutalist Hard Border Progress Bar */}
+            <div className="w-64 sm:w-96 h-4 border-2 border-black dark:border-white bg-white dark:bg-[#121312] mt-4 overflow-hidden shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff]">
+              <motion.div
+                className="h-full bg-[#ff4d00]"
+                animate={{ width: `${progressPct}%` }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              />
             </div>
           </div>
 
-          {/* Timer Controls */}
-          <div className="flex items-center gap-3">
+          {/* Action Buttons */}
+          <div className="flex items-center gap-4">
             <button
+              type="button"
               onClick={handleToggleTimer}
-              className={`px-6 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-white shadow-sm transition active:scale-95 flex items-center gap-2 ${
+              className={`px-8 py-3.5 text-xs uppercase tracking-widest font-black border-2 border-black dark:border-white shadow-[4px_4px_0px_#000] dark:shadow-[4px_4px_0px_#fff] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all flex items-center gap-2 cursor-pointer ${
                 isRunning
-                  ? 'bg-amber-600 hover:bg-amber-700'
-                  : 'bg-indigo-600 hover:bg-indigo-700'
+                  ? 'bg-black text-[#ffe600] dark:bg-white dark:text-black'
+                  : 'bg-[#ff4d00] text-white hover:bg-[#e04400]'
               }`}
             >
               {isRunning ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current" />}
-              {isRunning ? 'Pause' : 'Start Focus'}
+              {isRunning ? 'HOLD' : 'COMMENCE FOCUS'}
             </button>
 
             <button
+              type="button"
               onClick={handleResetTimer}
-              className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+              className="p-3.5 border-2 border-black dark:border-white bg-white dark:bg-[#202020] text-black dark:text-white shadow-[3px_3px_0px_#000] dark:shadow-[3px_3px_0px_#fff] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition cursor-pointer"
               title="Reset Timer"
             >
-              <RotateCcw className="w-4 h-4" />
+              <RotateCcw className="w-4 h-4 stroke-[2.5]" />
             </button>
           </div>
         </div>
 
-        {/* Right 1 Col: Ambient Soundscapes & Task Linking */}
+        {/* Right 1 Col: Ambient Audio with Equalizer Bars & Task Sync */}
         <div className="space-y-6">
-          {/* Ambient Soundscapes */}
-          <div className="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-3 transition-colors duration-150">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
-              <div className="flex items-center gap-2">
-                <Radio className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white">Ambient Sound</h3>
+          {/* Ambient Frequencies */}
+          <div className="border-[3px] border-black dark:border-white shadow-[5px_5px_0px_#000] dark:shadow-[5px_5px_0px_#fff] bg-[#fffbf0] dark:bg-[#181a18] p-6 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b-2 border-black dark:border-white">
+              <div>
+                <span className="bg-[#ccff00] text-black px-2 py-0.5 border-2 border-black shadow-[1.5px_1.5px_0px_#000] text-xs font-black uppercase tracking-widest inline-block">
+                  AUDIO SYNTH
+                </span>
+                <h3 className="text-base font-black uppercase tracking-tight text-[#141514] dark:text-[#f4f3ef] font-display-heavy mt-1">
+                  Expedition Soundscapes
+                </h3>
               </div>
-              <span className="text-[10px] text-slate-400">Audio Synth</span>
+
+              {/* Animated Audio Equalizer Visualizer Bars */}
+              {ambientTrack !== 'none' ? (
+                <div className="flex items-end gap-1 h-5">
+                  {[0.4, 0.8, 0.3, 0.9, 0.5].map((val, i) => (
+                    <motion.div
+                      key={i}
+                      className="w-1.5 bg-[#ff4d00]"
+                      animate={{ height: ['20%', '100%', '30%'] }}
+                      transition={{
+                        repeat: Infinity,
+                        duration: 0.5 + i * 0.12,
+                        repeatType: 'reverse',
+                        ease: 'easeInOut',
+                      }}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <Radio className="w-4 h-4 text-[#888]" />
+              )}
             </div>
 
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Procedural white/brown noise and calm drone sounds.
+            <p className="text-xs font-bold text-[#555] dark:text-[#aaa] uppercase tracking-wider">
+              Procedural wind, storm, and drone noise to mask environmental distraction.
             </p>
 
-            <div className="space-y-2">
+            <div className="space-y-2.5 text-xs uppercase font-black">
               <button
+                type="button"
                 onClick={() => handleToggleAmbient('rain')}
-                className={`w-full flex items-center justify-between p-2.5 rounded-xl border text-xs font-medium transition ${
+                className={`w-full flex items-center justify-between p-3 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] hover:-translate-x-0.5 hover:-translate-y-0.5 transition cursor-pointer ${
                   ambientTrack === 'rain'
-                    ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border-indigo-300 dark:border-indigo-700'
-                    : 'bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+                    ? 'bg-[#ffe600] text-black font-black'
+                    : 'bg-white dark:bg-[#202020] text-[#141514] dark:text-[#f4f3ef]'
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <CloudRain className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-                  <span>Rain & Storm</span>
+                  <CloudRain className="w-4 h-4 stroke-[2.5]" />
+                  <span>ALPINE RAIN & STORM</span>
                 </div>
-                <span className="text-[11px] font-semibold">{ambientTrack === 'rain' ? 'Playing' : 'Play'}</span>
+                <span className="text-[10px] bg-black text-white px-2 py-0.5">{ambientTrack === 'rain' ? 'ACTIVE' : 'START'}</span>
               </button>
 
               <button
+                type="button"
                 onClick={() => handleToggleAmbient('whitenoise')}
-                className={`w-full flex items-center justify-between p-2.5 rounded-xl border text-xs font-medium transition ${
+                className={`w-full flex items-center justify-between p-3 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] hover:-translate-x-0.5 hover:-translate-y-0.5 transition cursor-pointer ${
                   ambientTrack === 'whitenoise'
-                    ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border-indigo-300 dark:border-indigo-700'
-                    : 'bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+                    ? 'bg-[#00e5ff] text-black font-black'
+                    : 'bg-white dark:bg-[#202020] text-[#141514] dark:text-[#f4f3ef]'
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <Wind className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-                  <span>Deep Brown Noise</span>
+                  <Wind className="w-4 h-4 stroke-[2.5]" />
+                  <span>HIGH-PASS WHITE NOISE</span>
                 </div>
-                <span className="text-[11px] font-semibold">{ambientTrack === 'whitenoise' ? 'Playing' : 'Play'}</span>
+                <span className="text-[10px] bg-black text-white px-2 py-0.5">{ambientTrack === 'whitenoise' ? 'ACTIVE' : 'START'}</span>
               </button>
 
               <button
+                type="button"
                 onClick={() => handleToggleAmbient('drone')}
-                className={`w-full flex items-center justify-between p-2.5 rounded-xl border text-xs font-medium transition ${
+                className={`w-full flex items-center justify-between p-3 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] hover:-translate-x-0.5 hover:-translate-y-0.5 transition cursor-pointer ${
                   ambientTrack === 'drone'
-                    ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border-indigo-300 dark:border-indigo-700'
-                    : 'bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+                    ? 'bg-[#ccff00] text-black font-black'
+                    : 'bg-white dark:bg-[#202020] text-[#141514] dark:text-[#f4f3ef]'
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <Radio className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-                  <span>Calm Ambient Drone</span>
+                  <Compass className="w-4 h-4 stroke-[2.5]" />
+                  <span>DEEP CANYON DRONE</span>
                 </div>
-                <span className="text-[11px] font-semibold">{ambientTrack === 'drone' ? 'Playing' : 'Play'}</span>
+                <span className="text-[10px] bg-black text-white px-2 py-0.5">{ambientTrack === 'drone' ? 'ACTIVE' : 'START'}</span>
               </button>
             </div>
-
-            {ambientTrack !== 'none' && (
-              <button
-                onClick={() => {
-                  ambientSound.stop();
-                  setAmbientTrack('none');
-                }}
-                className="w-full py-1.5 rounded-lg text-xs text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40 transition"
-              >
-                Stop Audio
-              </button>
-            )}
           </div>
 
-          {/* Active Task Link */}
-          <div className="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-3 transition-colors duration-150">
-            <div className="flex items-center gap-2 pb-2 border-b border-slate-200 dark:border-slate-800">
-              <Target className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white">Focus Target Task</h3>
-            </div>
-
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Anchor this sprint to a single objective:
-            </p>
-
+          {/* Target Task Link */}
+          <div className="border-[3px] border-black dark:border-white shadow-[5px_5px_0px_#000] dark:shadow-[5px_5px_0px_#fff] bg-[#fffdf0] dark:bg-[#181a18] p-6 space-y-3 font-mono">
+            <span className="bg-[#ff4d00] text-white px-2 py-0.5 border-2 border-black shadow-[1.5px_1.5px_0px_#000] text-xs font-black uppercase tracking-widest inline-block">
+              EXPEDITION TARGET
+            </span>
+            <h4 className="text-sm font-black uppercase tracking-tight text-[#141514] dark:text-[#f4f3ef] font-display-heavy">
+              Link Focus to Task
+            </h4>
             <select
               value={selectedTaskId}
               onChange={e => setSelectedTaskId(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-900 dark:text-slate-200 focus:outline-none focus:border-indigo-600"
+              className="w-full p-2.5 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] bg-white dark:bg-[#121312] text-xs font-black text-[#141514] dark:text-[#f4f3ef] uppercase tracking-wider focus:outline-none cursor-pointer"
             >
-              <option value="">Select a task...</option>
+              <option value="">SELECT TERRAIN TASK...</option>
               {pendingTasks.map(t => (
-                <option key={t.id} value={t.id}>
-                  [{t.priority.toUpperCase()}] {t.title}
-                </option>
+                <option key={t.id} value={t.id}>{t.title.toUpperCase()}</option>
               ))}
             </select>
-
-            {selectedTaskId && (
-              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-300 flex items-center justify-between">
-                <span>Task finished?</span>
-                <button
-                  onClick={async () => {
-                    const task = tasks.find(t => t.id === selectedTaskId);
-                    if (task) {
-                      await onCompleteTask(task);
-                      setSelectedTaskId('');
-                    }
-                  }}
-                  className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold transition"
-                >
-                  Mark Done
-                </button>
-              </div>
-            )}
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

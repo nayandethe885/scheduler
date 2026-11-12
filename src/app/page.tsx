@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import Sidebar from '@/components/Sidebar';
+import MobileNav from '@/components/MobileNav';
 import DashboardView from '@/components/DashboardView';
 import TaskManagerView from '@/components/TaskManagerView';
 import AIChatView from '@/components/AIChatView';
@@ -12,6 +14,7 @@ import HabitsView from '@/components/HabitsView';
 import TaskModal from '@/components/TaskModal';
 import ReminderModal from '@/components/ReminderModal';
 import SettingsModal from '@/components/SettingsModal';
+import AestheticSpotlight from '@/components/AestheticSpotlight';
 import { Task, Reminder, Habit, UserProfile, ChatMessage } from '@/types';
 import { sound } from '@/lib/sound';
 import { useTheme } from '@/context/ThemeContext';
@@ -40,12 +43,46 @@ export default function LifeOSApp() {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isQuickAIOpen, setIsQuickAIOpen] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isThinking, setIsThinking] = useState(false);
 
-  // Initialize today date client-side
+  // Initialize today date client-side and restore sidebar state
   useEffect(() => {
     setTodayStr(new Date().toISOString().split('T')[0]);
+    try {
+      const saved = localStorage.getItem('lifeos_sidebar_open');
+      if (saved !== null) {
+        setIsSidebarOpen(saved === 'true');
+      }
+    } catch {}
   }, []);
+
+  // Universal sidebar toggle for desktop & mobile
+  const handleToggleSidebar = useCallback(() => {
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      setIsMobileSidebarOpen(prev => !prev);
+    } else {
+      setIsSidebarOpen(prev => {
+        const next = !prev;
+        try {
+          localStorage.setItem('lifeos_sidebar_open', String(next));
+        } catch {}
+        return next;
+      });
+    }
+  }, []);
+
+  // Keyboard shortcut Ctrl+\ or Cmd+\ to toggle sidebar
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === '\\') {
+        e.preventDefault();
+        handleToggleSidebar();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleToggleSidebar]);
 
   // Initial Data Fetch
   const loadInitialData = useCallback(async () => {
@@ -342,10 +379,15 @@ export default function LifeOSApp() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-[#0b0f19] text-slate-800 dark:text-slate-100 transition-colors duration-150">
+    <div className="min-h-screen flex flex-col aesthetic-bg text-[#141514] dark:text-[#f4f3ef] transition-colors duration-200 relative">
+      {/* Global Interactive GSAP Mouse Spotlight */}
+      <AestheticSpotlight />
+
       <div className="flex flex-1">
         {/* Navigation Sidebar */}
         <Sidebar
+          isOpen={isSidebarOpen}
+          onToggle={handleToggleSidebar}
           activeTab={activeTab}
           onSelectTab={setActiveTab}
           isMobileOpen={isMobileSidebarOpen}
@@ -358,6 +400,9 @@ export default function LifeOSApp() {
         <div className="flex-1 flex flex-col min-w-0">
           <Navbar
             profile={profile}
+            activeTab={activeTab}
+            isSidebarOpen={isSidebarOpen}
+            onToggleSidebar={handleToggleSidebar}
             onOpenNewTask={() => {
               setEditingTask(null);
               setIsTaskModalOpen(true);
@@ -370,84 +415,94 @@ export default function LifeOSApp() {
             completionRate={completionRate}
           />
 
-          <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
-            {activeTab === 'dashboard' && (
-              <DashboardView
-                tasks={tasks}
-                reminders={reminders}
-                profile={profile}
-                onToggleTaskComplete={handleToggleTaskComplete}
-                onDeleteTask={handleDeleteTask}
-                onOpenNewTask={() => {
-                  setEditingTask(null);
-                  setIsTaskModalOpen(true);
-                }}
-                onOpenNewReminder={() => setIsReminderModalOpen(true)}
-                onSelectTab={setActiveTab}
-                onSendQuickAIChat={handleSendQuickAIChat}
-                onToggleReminderComplete={handleToggleReminderComplete}
-                completionRate={completionRate}
-              />
-            )}
+          <main className="flex-1 p-3.5 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full pb-24 lg:pb-8">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+              >
+                {activeTab === 'dashboard' && (
+                  <DashboardView
+                    tasks={tasks}
+                    reminders={reminders}
+                    profile={profile}
+                    onToggleTaskComplete={handleToggleTaskComplete}
+                    onDeleteTask={handleDeleteTask}
+                    onOpenNewTask={() => {
+                      setEditingTask(null);
+                      setIsTaskModalOpen(true);
+                    }}
+                    onOpenNewReminder={() => setIsReminderModalOpen(true)}
+                    onSelectTab={setActiveTab}
+                    onSendQuickAIChat={handleSendQuickAIChat}
+                    onToggleReminderComplete={handleToggleReminderComplete}
+                    completionRate={completionRate}
+                  />
+                )}
 
-            {activeTab === 'tasks' && (
-              <TaskManagerView
-                tasks={tasks}
-                onOpenNewTask={() => {
-                  setEditingTask(null);
-                  setIsTaskModalOpen(true);
-                }}
-                onOpenEditTask={task => {
-                  setEditingTask(task);
-                  setIsTaskModalOpen(true);
-                }}
-                onToggleTaskComplete={handleToggleTaskComplete}
-                onUpdateTask={handleUpdateTask}
-                onDeleteTask={handleDeleteTask}
-              />
-            )}
+                {activeTab === 'tasks' && (
+                  <TaskManagerView
+                    tasks={tasks}
+                    onOpenNewTask={() => {
+                      setEditingTask(null);
+                      setIsTaskModalOpen(true);
+                    }}
+                    onOpenEditTask={task => {
+                      setEditingTask(task);
+                      setIsTaskModalOpen(true);
+                    }}
+                    onToggleTaskComplete={handleToggleTaskComplete}
+                    onUpdateTask={handleUpdateTask}
+                    onDeleteTask={handleDeleteTask}
+                  />
+                )}
 
-            {activeTab === 'calendar' && (
-              <TaskManagerView
-                tasks={tasks}
-                onOpenNewTask={() => {
-                  setEditingTask(null);
-                  setIsTaskModalOpen(true);
-                }}
-                onOpenEditTask={task => {
-                  setEditingTask(task);
-                  setIsTaskModalOpen(true);
-                }}
-                onToggleTaskComplete={handleToggleTaskComplete}
-                onUpdateTask={handleUpdateTask}
-                onDeleteTask={handleDeleteTask}
-              />
-            )}
+                {activeTab === 'calendar' && (
+                  <TaskManagerView
+                    tasks={tasks}
+                    onOpenNewTask={() => {
+                      setEditingTask(null);
+                      setIsTaskModalOpen(true);
+                    }}
+                    onOpenEditTask={task => {
+                      setEditingTask(task);
+                      setIsTaskModalOpen(true);
+                    }}
+                    onToggleTaskComplete={handleToggleTaskComplete}
+                    onUpdateTask={handleUpdateTask}
+                    onDeleteTask={handleDeleteTask}
+                  />
+                )}
 
-            {activeTab === 'habits' && (
-              <HabitsView
-                habits={habits}
-                onToggleHabitDay={handleToggleHabitDay}
-              />
-            )}
+                {activeTab === 'habits' && (
+                  <HabitsView
+                    habits={habits}
+                    onToggleHabitDay={handleToggleHabitDay}
+                  />
+                )}
 
-            {activeTab === 'focus' && (
-              <FocusTimerView
-                tasks={tasks}
-                onCompleteTask={handleToggleTaskComplete}
-              />
-            )}
+                {activeTab === 'focus' && (
+                  <FocusTimerView
+                    tasks={tasks}
+                    onCompleteTask={handleToggleTaskComplete}
+                  />
+                )}
 
-            {activeTab === 'ai' && (
-              <div className="max-w-4xl mx-auto">
-                <AIChatView
-                  messages={chatMessages}
-                  onSendMessage={handleSendMessage}
-                  onConfirmAction={handleConfirmAction}
-                  isThinking={isThinking}
-                />
-              </div>
-            )}
+                {activeTab === 'ai' && (
+                  <div className="max-w-4xl mx-auto">
+                    <AIChatView
+                      messages={chatMessages}
+                      onSendMessage={handleSendMessage}
+                      onConfirmAction={handleConfirmAction}
+                      isThinking={isThinking}
+                    />
+                  </div>
+                )}
+              </motion.div>
+            </AnimatePresence>
           </main>
         </div>
       </div>
@@ -463,6 +518,13 @@ export default function LifeOSApp() {
           isThinking={isThinking}
         />
       )}
+
+      {/* Mobile Bottom Navigation (Smartphones & Tablets) */}
+      <MobileNav
+        activeTab={activeTab}
+        onSelectTab={setActiveTab}
+        pendingTasksCount={pendingTasksCount}
+      />
 
       {/* Modals */}
       <TaskModal

@@ -3,11 +3,14 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 
 type Theme = 'light' | 'dark';
+export type FontStyle = 'editorial' | 'minimal' | 'mono' | 'space';
 
 interface ThemeContextType {
   theme: Theme;
   toggleTheme: () => void;
   setTheme: (theme: Theme) => void;
+  fontStyle: FontStyle;
+  setFontStyle: (font: FontStyle) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -20,6 +23,7 @@ export function ThemeProvider({
   initialTheme?: Theme;
 }) {
   const [theme, setThemeState] = useState<Theme>('dark');
+  const [fontStyle, setFontStyleState] = useState<FontStyle>('editorial');
 
   const applyTheme = useCallback((t: Theme) => {
     if (typeof document === 'undefined') return;
@@ -29,6 +33,11 @@ export function ThemeProvider({
     } else {
       root.classList.remove('dark');
     }
+  }, []);
+
+  const applyFont = useCallback((f: FontStyle) => {
+    if (typeof document === 'undefined') return;
+    document.documentElement.setAttribute('data-font', f);
   }, []);
 
   useEffect(() => {
@@ -46,10 +55,19 @@ export function ThemeProvider({
         setThemeState(defaultTheme);
         applyTheme(defaultTheme);
       }
+
+      const storedFont = localStorage.getItem('lifeos_font') as FontStyle | null;
+      if (storedFont) {
+        setFontStyleState(storedFont);
+        applyFont(storedFont);
+      } else {
+        applyFont('editorial');
+      }
     } catch {
       applyTheme('dark');
+      applyFont('editorial');
     }
-  }, [initialTheme, applyTheme]);
+  }, [initialTheme, applyTheme, applyFont]);
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
@@ -59,13 +77,21 @@ export function ThemeProvider({
     applyTheme(newTheme);
   };
 
+  const setFontStyle = (newFont: FontStyle) => {
+    setFontStyleState(newFont);
+    try {
+      localStorage.setItem('lifeos_font', newFont);
+    } catch {}
+    applyFont(newFont);
+  };
+
   const toggleTheme = () => {
     const next = theme === 'dark' ? 'light' : 'dark';
     setTheme(next);
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme, fontStyle, setFontStyle }}>
       {children}
     </ThemeContext.Provider>
   );

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, Bell, AlertCircle } from 'lucide-react';
+import { X, Bell, AlertCircle, Compass } from 'lucide-react';
 import { Reminder, Priority } from '@/types';
 
 interface ReminderModalProps {
@@ -54,73 +54,82 @@ export default function ReminderModal({ isOpen, onClose, onSave }: ReminderModal
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 dark:bg-black/70 backdrop-blur-sm animate-fadeIn">
-      <div className="relative w-full max-w-md rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-6 text-slate-900 dark:text-slate-100 transition-colors duration-150">
-        <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400">
-              <Bell className="w-5 h-5" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-fadeIn font-mono">
+      <div className="relative w-full max-w-md border-[3.5px] border-black dark:border-white bg-[#fffdf0] dark:bg-[#181a18] shadow-[8px_8px_0px_#000] dark:shadow-[8px_8px_0px_#fff] p-6 text-[#141514] dark:text-[#f4f3ef] transition-colors duration-200">
+        <div className="flex items-center justify-between pb-4 border-b-2 border-black dark:border-white">
+          <div className="flex items-center gap-3">
+            <div className="p-1.5 border-2 border-black bg-[#00e5ff] text-black shadow-[2px_2px_0px_#000]">
+              <Bell className="w-5 h-5 stroke-[2.5]" />
             </div>
-            <h2 className="text-base font-bold text-slate-900 dark:text-white">New Reminder</h2>
+            <div>
+              <span className="bg-[#00e5ff] text-black px-2 py-0.5 border-2 border-black shadow-[1.5px_1.5px_0px_#000] text-xs font-black uppercase tracking-widest inline-block">
+                // TIME ALERT DISPATCH
+              </span>
+              <h2 className="text-base font-black uppercase tracking-tight text-[#141514] dark:text-[#f4f3ef] font-display-heavy mt-0.5">
+                New Field Reminder
+              </h2>
+            </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            className="p-1.5 bg-[#ff4d00] text-white border-2 border-black shadow-[2px_2px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 transition cursor-pointer"
           >
-            <X className="w-4 h-4" />
+            <X className="w-4 h-4 stroke-[2.5]" />
           </button>
         </div>
 
         {error && (
-          <div className="mt-3 p-2.5 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 text-rose-700 dark:text-rose-300 text-xs flex items-center gap-1.5">
-            <AlertCircle className="w-4 h-4 shrink-0" />
+          <div className="mt-3 p-2.5 border-2 border-black bg-[#ff4d00] text-white text-xs flex items-center gap-1.5 uppercase font-black shadow-[2px_2px_0px_#000]">
+            <AlertCircle className="w-4 h-4 stroke-[2.5] shrink-0" />
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
-              Reminder Title *
+            <label className="block text-xs font-black uppercase tracking-widest text-[#555] dark:text-[#bbb] mb-1">
+              REMINDER INSTRUCTION *
             </label>
             <input
               type="text"
               value={title}
               onChange={e => setTitle(e.target.value)}
-              placeholder="e.g. Call friend Alex at 8 PM"
-              className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-indigo-600 text-xs sm:text-sm"
+              placeholder="E.G. CHECK CABIN PROVISIONS AT 8 PM"
+              className="w-full px-3.5 py-2.5 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] bg-white dark:bg-[#121312] text-xs font-black text-[#141514] dark:text-[#f4f3ef] placeholder-[#888] focus:outline-none focus:bg-[#fffdf0] uppercase tracking-wider"
               autoFocus
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
-                Date
+              <label className="block text-xs font-black uppercase tracking-widest text-[#555] dark:text-[#bbb] mb-1">
+                DATE
               </label>
               <input
                 type="date"
                 value={date}
                 onChange={e => setDate(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 text-xs sm:text-sm focus:outline-none focus:border-indigo-600"
+                className="w-full px-3 py-2 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] bg-white dark:bg-[#121312] text-xs font-black text-[#141514] dark:text-[#f4f3ef] focus:outline-none cursor-pointer"
               />
             </div>
+
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
-                Time
+              <label className="block text-xs font-black uppercase tracking-widest text-[#555] dark:text-[#bbb] mb-1">
+                TIME
               </label>
               <input
                 type="time"
                 value={time}
                 onChange={e => setTime(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 text-xs sm:text-sm focus:outline-none focus:border-indigo-600"
+                className="w-full px-3 py-2 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] bg-white dark:bg-[#121312] text-xs font-black text-[#141514] dark:text-[#f4f3ef] focus:outline-none cursor-pointer"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
-              Priority
+            <label className="block text-xs font-black uppercase tracking-widest text-[#555] dark:text-[#bbb] mb-1">
+              PRIORITY LEVEL
             </label>
             <div className="grid grid-cols-3 gap-2">
               {(['low', 'medium', 'high'] as Priority[]).map(p => (
@@ -128,14 +137,10 @@ export default function ReminderModal({ isOpen, onClose, onSave }: ReminderModal
                   key={p}
                   type="button"
                   onClick={() => setPriority(p)}
-                  className={`py-1.5 text-xs font-semibold rounded-lg border capitalize transition ${
+                  className={`py-2 text-xs uppercase font-black border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] transition cursor-pointer ${
                     priority === p
-                      ? p === 'high'
-                        ? 'border-rose-300 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300'
-                        : p === 'medium'
-                        ? 'border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300'
-                        : 'border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300'
-                      : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
+                      ? 'bg-[#ffe600] text-black'
+                      : 'bg-white dark:bg-[#121312] text-[#555] dark:text-[#aaa] hover:bg-[#fffdf0]'
                   }`}
                 >
                   {p}
@@ -144,20 +149,20 @@ export default function ReminderModal({ isOpen, onClose, onSave }: ReminderModal
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t-2 border-black dark:border-white">
             <button
               type="button"
               onClick={onClose}
-              className="px-3.5 py-1.5 rounded-xl text-xs font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+              className="px-4 py-2 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] text-xs uppercase tracking-wider font-black text-[#141514] dark:text-[#f4f3ef] bg-white dark:bg-[#202020] hover:bg-[#fffdf0] transition cursor-pointer"
             >
-              Cancel
+              CANCEL
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-4 py-1.5 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition shadow-sm"
+              className="px-6 py-2.5 bg-[#00e5ff] hover:bg-[#00c8e0] text-black border-2 border-black shadow-[3px_3px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 text-xs font-black uppercase tracking-wider transition disabled:opacity-50 cursor-pointer"
             >
-              {isSubmitting ? 'Saving...' : 'Set Reminder'}
+              {isSubmitting ? 'SCHEDULING...' : 'DISPATCH ALERT'}
             </button>
           </div>
         </form>

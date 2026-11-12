@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, Plus, Trash2, Tag, CheckSquare, Sparkles } from 'lucide-react';
+import { X, Plus, Trash2, Tag, Compass, Sparkles } from 'lucide-react';
 import { Task, Priority, Category, Recurrence, Subtask } from '@/types';
 
 interface TaskModalProps {
@@ -12,10 +12,10 @@ interface TaskModalProps {
 }
 
 const CATEGORIES: Category[] = ['Work', 'Personal', 'Study', 'Health', 'Finance', 'Meeting', 'Creative', 'Other'];
-const PRIORITIES: { value: Priority; label: string; activeStyle: string }[] = [
-  { value: 'high', label: 'HIGH', activeStyle: 'border-rose-300 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 font-bold' },
-  { value: 'medium', label: 'MEDIUM', activeStyle: 'border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 font-bold' },
-  { value: 'low', label: 'LOW', activeStyle: 'border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 font-bold' },
+const PRIORITIES: { value: Priority; label: string }[] = [
+  { value: 'high', label: 'TAKE THE HIGH ROAD' },
+  { value: 'medium', label: 'STAY A LITTLE LONGER' },
+  { value: 'low', label: 'FOR THE MILES AHEAD' },
 ];
 
 export default function TaskModal({ isOpen, onClose, onSave, initialTask }: TaskModalProps) {
@@ -121,28 +121,34 @@ export default function TaskModal({ isOpen, onClose, onSave, initialTask }: Task
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 dark:bg-black/70 backdrop-blur-sm animate-fadeIn">
-      <div className="relative w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-6 text-slate-900 dark:text-slate-100 transition-colors duration-150">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-fadeIn font-mono">
+      <div className="relative w-full max-w-xl max-h-[90vh] overflow-y-auto border-[3.5px] border-black dark:border-white bg-[#fffdf0] dark:bg-[#181a18] shadow-[8px_8px_0px_#000] dark:shadow-[8px_8px_0px_#fff] p-6 text-[#141514] dark:text-[#f4f3ef] transition-colors duration-200">
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400">
-              <CheckSquare className="w-5 h-5" />
+        <div className="flex items-center justify-between pb-4 border-b-2 border-black dark:border-white">
+          <div className="flex items-center gap-3">
+            <div className="p-1.5 border-2 border-black bg-[#ffe600] text-black shadow-[2px_2px_0px_#000]">
+              <Compass className="w-5 h-5 stroke-[2.5]" />
             </div>
-            <h2 className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
-              {initialTask ? 'Edit Task' : 'New Task'}
-            </h2>
+            <div>
+              <span className="bg-[#ff4d00] text-white px-2 py-0.5 border-2 border-black shadow-[1.5px_1.5px_0px_#000] text-xs font-black uppercase tracking-widest inline-block">
+                // TERRAIN SPECIFICATION
+              </span>
+              <h2 className="text-lg font-black uppercase tracking-tight text-[#141514] dark:text-[#f4f3ef] font-display-heavy mt-0.5">
+                {initialTask ? 'EDIT TRAIL TASK' : 'NEW TRAIL TASK'}
+              </h2>
+            </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            className="p-1.5 bg-[#ff4d00] text-white border-2 border-black shadow-[2px_2px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 transition cursor-pointer"
           >
-            <X className="w-4 h-4" />
+            <X className="w-4 h-4 stroke-[2.5]" />
           </button>
         </div>
 
         {error && (
-          <div className="mt-4 p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 text-rose-700 dark:text-rose-300 text-xs">
+          <div className="mt-4 p-3 border-2 border-black bg-[#ff4d00] text-white text-xs font-black uppercase tracking-wider shadow-[2px_2px_0px_#000]">
             {error}
           </div>
         )}
@@ -150,125 +156,78 @@ export default function TaskModal({ isOpen, onClose, onSave, initialTask }: Task
         <form onSubmit={handleSubmit} className="mt-5 space-y-4">
           {/* Title */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-              Task Title *
+            <label className="block text-xs font-black uppercase tracking-widest text-[#555] dark:text-[#bbb] mb-1">
+              TASK TITLE *
             </label>
             <input
               type="text"
               value={title}
               onChange={e => setTitle(e.target.value)}
-              placeholder="e.g. Prepare meeting presentation slides"
-              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-indigo-600 focus:bg-white dark:focus:bg-slate-950 transition text-sm"
+              placeholder="E.G. PACK BACKPACKING GEAR & CHECKLIST"
+              className="w-full px-3.5 py-2.5 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] bg-white dark:bg-[#121312] text-xs text-[#141514] dark:text-[#f4f3ef] placeholder-[#888] focus:outline-none focus:bg-[#fffdf0] uppercase tracking-wider font-black"
               autoFocus
             />
           </div>
 
           {/* Description */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-              Description / Notes
+            <label className="block text-xs font-black uppercase tracking-widest text-[#555] dark:text-[#bbb] mb-1">
+              FIELD NOTES / DETAILS
             </label>
             <textarea
               rows={3}
               value={description}
               onChange={e => setDescription(e.target.value)}
-              placeholder="Add key context, links, or notes..."
-              className="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-indigo-600 focus:bg-white dark:focus:bg-slate-950 transition text-xs sm:text-sm resize-none"
+              placeholder="ADD CONTEXT, ROUTE DETAILS, OR NOTES..."
+              className="w-full px-3.5 py-2 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] bg-white dark:bg-[#121312] text-xs font-bold text-[#141514] dark:text-[#f4f3ef] placeholder-[#888] focus:outline-none focus:bg-[#fffdf0] resize-none"
             />
           </div>
 
-          {/* Priority & Category */}
+          {/* Priority Pills */}
+          <div>
+            <label className="block text-xs font-black uppercase tracking-widest text-[#555] dark:text-[#bbb] mb-1.5">
+              PRIORITY TERRAIN TIER
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              {PRIORITIES.map(p => (
+                <button
+                  key={p.value}
+                  type="button"
+                  onClick={() => setPriority(p.value)}
+                  className={`py-2 px-2 text-xs uppercase tracking-wider border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] transition text-center font-black cursor-pointer ${
+                    priority === p.value
+                      ? 'bg-[#ffe600] text-black'
+                      : 'bg-white dark:bg-[#121312] text-[#555] dark:text-[#aaa] hover:bg-[#fff5f0]'
+                  }`}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Category & Recurrence */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-                Priority
-              </label>
-              <div className="grid grid-cols-3 gap-2">
-                {PRIORITIES.map(p => (
-                  <button
-                    key={p.value}
-                    type="button"
-                    onClick={() => setPriority(p.value)}
-                    className={`py-2 text-xs font-medium rounded-lg border transition text-center ${
-                      priority === p.value
-                        ? p.activeStyle
-                        : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700'
-                    }`}
-                  >
-                    {p.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-                Category
+              <label className="block text-xs font-black uppercase tracking-widest text-[#555] dark:text-[#bbb] mb-1">
+                TERRAIN CATEGORY
               </label>
               <select
                 value={category}
                 onChange={e => setCategory(e.target.value as Category)}
-                className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 text-xs sm:text-sm focus:outline-none focus:border-indigo-600"
+                className="w-full px-3 py-2 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] bg-white dark:bg-[#121312] text-xs font-black text-[#141514] dark:text-[#f4f3ef] uppercase tracking-wider focus:outline-none cursor-pointer"
               >
                 {CATEGORIES.map(cat => (
                   <option key={cat} value={cat}>
-                    {cat}
+                    {cat.toUpperCase()}
                   </option>
                 ))}
               </select>
             </div>
-          </div>
-
-          {/* Due Date & Due Time */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-                Due Date
-              </label>
-              <input
-                type="date"
-                value={dueDate}
-                onChange={e => setDueDate(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 text-xs sm:text-sm focus:outline-none focus:border-indigo-600"
-              />
-            </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-                Time (e.g., 10:00 AM)
-              </label>
-              <input
-                type="text"
-                value={dueTime}
-                onChange={e => setDueTime(e.target.value)}
-                placeholder="10:00 AM"
-                className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 text-xs sm:text-sm focus:outline-none focus:border-indigo-600"
-              />
-            </div>
-          </div>
-
-          {/* Recurrence & Est Minutes */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-                Repeat
-              </label>
-              <select
-                value={recurrence}
-                onChange={e => setRecurrence(e.target.value as Recurrence)}
-                className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 text-xs sm:text-sm focus:outline-none focus:border-indigo-600"
-              >
-                <option value="none">Does not repeat</option>
-                <option value="daily">Daily</option>
-                <option value="weekdays">Every Weekday (Mon-Fri)</option>
-                <option value="weekly">Weekly</option>
-                <option value="monthly">Monthly</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-                Estimated Focus (Minutes)
+              <label className="block text-xs font-black uppercase tracking-widest text-[#555] dark:text-[#bbb] mb-1">
+                ESTIMATED FOCUS (MINUTES)
               </label>
               <input
                 type="number"
@@ -277,39 +236,67 @@ export default function TaskModal({ isOpen, onClose, onSave, initialTask }: Task
                 step={5}
                 value={estimatedMinutes}
                 onChange={e => setEstimatedMinutes(Number(e.target.value))}
-                className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 text-xs sm:text-sm focus:outline-none focus:border-indigo-600"
+                className="w-full px-3 py-2 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] bg-white dark:bg-[#121312] text-xs font-black text-[#141514] dark:text-[#f4f3ef] focus:outline-none"
+              />
+            </div>
+          </div>
+
+          {/* Due Date & Due Time */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-black uppercase tracking-widest text-[#555] dark:text-[#bbb] mb-1">
+                DUE DATE
+              </label>
+              <input
+                type="date"
+                value={dueDate}
+                onChange={e => setDueDate(e.target.value)}
+                className="w-full px-3 py-2 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] bg-white dark:bg-[#121312] text-xs font-black text-[#141514] dark:text-[#f4f3ef] focus:outline-none cursor-pointer"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-black uppercase tracking-widest text-[#555] dark:text-[#bbb] mb-1">
+                TIME (E.G. 10:00 AM)
+              </label>
+              <input
+                type="text"
+                value={dueTime}
+                onChange={e => setDueTime(e.target.value)}
+                placeholder="10:00 AM"
+                className="w-full px-3 py-2 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] bg-white dark:bg-[#121312] text-xs font-black text-[#141514] dark:text-[#f4f3ef] uppercase tracking-wider focus:outline-none"
               />
             </div>
           </div>
 
           {/* Subtasks Checklist */}
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-              Checklist / Subtasks ({subtasks.filter(s => s.completed).length}/{subtasks.length})
+            <label className="block text-xs font-black uppercase tracking-widest text-[#555] dark:text-[#bbb] mb-1">
+              TRAIL ESSENTIALS CHECKLIST ({subtasks.filter(s => s.completed).length}/{subtasks.length})
             </label>
-            <div className="space-y-1.5 mb-2 max-h-36 overflow-y-auto">
+            <div className="space-y-2 mb-2 max-h-36 overflow-y-auto">
               {subtasks.map(sub => (
                 <div
                   key={sub.id}
-                  className="flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs group"
+                  className="flex items-center justify-between p-2.5 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] bg-white dark:bg-[#121312] text-xs font-bold"
                 >
-                  <label className="flex items-center gap-2 cursor-pointer flex-1">
+                  <label className="flex items-center gap-2.5 cursor-pointer flex-1">
                     <input
                       type="checkbox"
                       checked={sub.completed}
                       onChange={() => handleToggleSubtask(sub.id)}
-                      className="rounded border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-0 w-3.5 h-3.5"
+                      className="w-4 h-4 rounded-none border-2 border-black accent-[#ff4d00] cursor-pointer"
                     />
-                    <span className={sub.completed ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-800 dark:text-slate-200'}>
+                    <span className={sub.completed ? 'line-through text-[#888]' : ''}>
                       {sub.title}
                     </span>
                   </label>
                   <button
                     type="button"
                     onClick={() => handleRemoveSubtask(sub.id)}
-                    className="text-slate-400 hover:text-rose-600 p-1"
+                    className="p-1 border border-black bg-[#ff4d00] text-white hover:bg-black transition cursor-pointer"
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
+                    <Trash2 className="w-3.5 h-3.5 stroke-[2.5]" />
                   </button>
                 </div>
               ))}
@@ -326,56 +313,34 @@ export default function TaskModal({ isOpen, onClose, onSave, initialTask }: Task
                     handleAddSubtask();
                   }
                 }}
-                placeholder="Add subtask step and press Enter..."
-                className="flex-1 px-3 py-1.5 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-indigo-600"
+                placeholder="ADD STEP AND PRESS ENTER..."
+                className="flex-1 px-3 py-2 text-xs border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] bg-white dark:bg-[#121312] text-[#141514] dark:text-[#f4f3ef] uppercase tracking-wider font-bold focus:outline-none"
               />
               <button
                 type="button"
                 onClick={handleAddSubtask}
-                className="px-3 py-1.5 text-xs font-medium rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 flex items-center gap-1 transition"
+                className="px-4 py-2 text-xs font-black uppercase tracking-wider border-2 border-black shadow-[2px_2px_0px_#000] bg-[#ffe600] text-black hover:-translate-x-0.5 hover:-translate-y-0.5 transition cursor-pointer"
               >
-                <Plus className="w-3.5 h-3.5" /> Add
+                + ADD
               </button>
             </div>
           </div>
 
-          {/* Tags */}
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-              Tags (comma separated)
-            </label>
-            <div className="relative">
-              <Tag className="w-3.5 h-3.5 absolute left-3 top-3 text-slate-400" />
-              <input
-                type="text"
-                value={tagsInput}
-                onChange={e => setTagsInput(e.target.value)}
-                placeholder="Work, Q4, Priority"
-                className="w-full pl-8 pr-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 text-xs sm:text-sm focus:outline-none focus:border-indigo-600"
-              />
-            </div>
-          </div>
-
           {/* Modal Actions */}
-          <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-200 dark:border-slate-800">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t-2 border-black dark:border-white">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+              className="px-4 py-2 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] text-xs uppercase tracking-wider font-black text-[#141514] dark:text-[#f4f3ef] bg-white dark:bg-[#202020] hover:bg-[#fffdf0] transition cursor-pointer"
             >
-              Cancel
+              CANCEL
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition shadow-sm disabled:opacity-50 flex items-center gap-1.5"
+              className="px-6 py-2.5 bg-[#ff4d00] hover:bg-[#e04400] text-white border-2 border-black shadow-[3px_3px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 text-xs font-black uppercase tracking-wider transition disabled:opacity-50 cursor-pointer"
             >
-              {isSubmitting ? (
-                <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : (
-                <Sparkles className="w-3.5 h-3.5" />
-              )}
-              {initialTask ? 'Update Task' : 'Save Task'}
+              {isSubmitting ? 'SAVING...' : initialTask ? 'UPDATE TASK' : 'SAVE TO BACKLOG'}
             </button>
           </div>
         </form>

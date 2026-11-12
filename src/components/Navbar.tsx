@@ -1,25 +1,26 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { 
-  Clock, 
-  Calendar as CalendarIcon, 
-  Sparkles, 
+  Search, 
   Plus, 
   Bell, 
-  Timer, 
-  Sliders, 
   Menu, 
-  Zap,
-  Sun,
-  Moon
+  Sun, 
+  Moon,
+  Sliders,
+  PanelLeft,
+  PanelLeftClose,
 } from 'lucide-react';
-import { getGreeting } from '@/lib/utils';
 import { UserProfile } from '@/types';
 import { useTheme } from '@/context/ThemeContext';
 
 interface NavbarProps {
   profile: UserProfile;
+  activeTab?: string;
+  isSidebarOpen?: boolean;
+  onToggleSidebar?: () => void;
   onOpenNewTask: () => void;
   onOpenNewReminder: () => void;
   onOpenSettings: () => void;
@@ -31,6 +32,9 @@ interface NavbarProps {
 
 export default function Navbar({
   profile,
+  activeTab = 'dashboard',
+  isSidebarOpen = true,
+  onToggleSidebar,
   onOpenNewTask,
   onOpenNewReminder,
   onOpenSettings,
@@ -40,8 +44,6 @@ export default function Navbar({
   completionRate,
 }: NavbarProps) {
   const [time, setTime] = useState<string>('');
-  const [dateStr, setDateStr] = useState<string>('');
-  const [greeting, setGreeting] = useState<string>('Good Morning');
   const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
@@ -52,18 +54,9 @@ export default function Navbar({
           hour: '2-digit',
           minute: '2-digit',
           second: '2-digit',
-          hour12: true,
+          hour12: false,
         })
       );
-      setDateStr(
-        now.toLocaleDateString('en-US', {
-          weekday: 'short',
-          month: 'short',
-          day: 'numeric',
-          year: 'numeric',
-        })
-      );
-      setGreeting(getGreeting());
     };
 
     updateDateTime();
@@ -71,120 +64,159 @@ export default function Navbar({
     return () => clearInterval(interval);
   }, []);
 
+  const navLinks = [
+    { id: 'dashboard', label: '01 / DASHBOARD' },
+    { id: 'tasks', label: '02 / TASKS' },
+    { id: 'focus', label: '03 / FOCUS LAB' },
+    { id: 'habits', label: '04 / HABITS' },
+    { id: 'ai', label: 'THE COPILOT ↗' },
+  ];
+
   return (
-    <header className="sticky top-0 z-40 w-full bg-white/85 dark:bg-[#0b0f19]/85 border-b border-slate-200 dark:border-slate-800/80 px-4 sm:px-6 py-3 backdrop-blur-md transition-colors duration-150">
-      <div className="flex items-center justify-between gap-4">
-        {/* Left: Mobile Toggle & Greeting */}
+    <header className="sticky top-0 z-40 w-full bg-[#f7f4eb] dark:bg-[#0e0f0e] border-b-[3px] border-black dark:border-white px-4 sm:px-8 py-3 transition-colors duration-200 shadow-[0_4px_0_0_#000] dark:shadow-[0_4px_0_0_#fff]">
+      <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 font-mono">
+        {/* Left: Brand / Mountain Contour Logo */}
         <div className="flex items-center gap-3">
-          <button
-            onClick={onToggleSidebarMobile}
-            className="p-2 rounded-xl text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 lg:hidden transition"
-            aria-label="Toggle menu"
+          {/* Universal Sidebar Toggle Button (Desktop & Mobile) */}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.92 }}
+            onClick={onToggleSidebar || onToggleSidebarMobile}
+            className="p-2 bg-white dark:bg-[#1c1e1c] border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition text-[#141514] dark:text-[#f4f3ef]"
+            aria-label={isSidebarOpen ? 'Collapse sidebar' : 'Open sidebar'}
+            title={isSidebarOpen ? 'Collapse sidebar (Ctrl+\\)' : 'Open sidebar (Ctrl+\\)'}
           >
-            <Menu className="w-5 h-5" />
-          </button>
-
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                {greeting}, <span className="text-indigo-600 dark:text-indigo-400">{profile.name}</span>
-              </span>
-              <span className="hidden sm:inline-block px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700/60">
-                {profile.greetingTitle}
-              </span>
-            </div>
-            <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              <span className="flex items-center gap-1">
-                <CalendarIcon className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
-                {dateStr || 'Loading...'}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Center: Live Clock & Progress Badge */}
-        <div className="hidden md:flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-100/80 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800">
-            <Clock className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
-            <span className="font-mono text-xs font-medium tracking-wider text-slate-700 dark:text-slate-200">
-              {time || '00:00:00 AM'}
-            </span>
-          </div>
+            {isSidebarOpen ? (
+              <PanelLeftClose className="w-5 h-5 text-[#ff4d00]" />
+            ) : (
+              <PanelLeft className="w-5 h-5 text-[#141514] dark:text-[#f4f3ef]" />
+            )}
+          </motion.button>
 
           <button 
-            onClick={() => onSelectTab('tasks')}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700 transition"
-            title="Today's task completion"
+            onClick={() => onSelectTab('dashboard')}
+            className="flex items-center gap-3 group text-left cursor-pointer"
           >
-            <Zap className="w-3.5 h-3.5 text-amber-500" />
-            <span>Progress:</span>
-            <span className="font-bold text-emerald-600 dark:text-emerald-400">{completionRate}%</span>
+            {/* Trailhead Mountain Peak Glyph with Hover Tilt */}
+            <motion.div 
+              whileHover={{ scale: 1.1, rotate: -4 }}
+              transition={{ type: "spring", stiffness: 450, damping: 20 }}
+              className="p-1.5 bg-[#ffe600] border-2 border-black shadow-[2px_2px_0px_#000]"
+            >
+              <svg 
+                className="w-5 h-5 text-black" 
+                viewBox="0 0 32 28" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2.5" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              >
+                <path d="M2 24 L10 6 L16 16 L20 10 L30 24 Z" />
+              </svg>
+            </motion.div>
+
+            <div>
+              <div className="flex items-center gap-1.5">
+                <span className="font-extrabold text-base tracking-tighter uppercase text-[#141514] dark:text-[#f4f3ef] font-display-heavy">
+                  TRAILHEAD
+                </span>
+              </div>
+              <p className="font-bold text-[10px] tracking-widest text-[#141514] dark:text-[#f4f3ef] uppercase">
+                SUPPLY CO. / DENVER
+              </p>
+            </div>
           </button>
         </div>
 
-        {/* Right: Actions & Theme Switcher */}
-        <div className="flex items-center gap-1.5 sm:gap-2">
-          {/* Dark / Light Mode Switcher */}
-          <button
+        {/* Center: Technical Navigation with Neo-Brutalist Badges */}
+        <nav className="hidden lg:flex items-center gap-2 xl:gap-3">
+          {navLinks.map(link => {
+            const isActive = activeTab === link.id;
+            return (
+              <button
+                key={link.id}
+                onClick={() => onSelectTab(link.id)}
+                className={`relative text-xs tracking-wider uppercase px-3 py-1.5 font-bold transition-all cursor-pointer ${
+                  isActive
+                    ? 'bg-[#ffe600] text-black border-2 border-black shadow-[3px_3px_0px_#000] -rotate-1 scale-105'
+                    : 'text-[#141514] dark:text-[#f4f3ef] border-2 border-transparent hover:border-black dark:hover:border-white hover:bg-white dark:hover:bg-[#1a1b1a]'
+                }`}
+              >
+                {link.label}
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* Right: Technical Stats, Clock, Switcher, Action Button */}
+        <div className="flex items-center gap-2 sm:gap-2.5">
+          {/* Live MST Technical Clock Stamp */}
+          <div className="hidden md:flex items-center gap-1.5 px-3 py-1 text-[11px] font-bold text-black border-2 border-black shadow-[2px_2px_0px_#000] bg-[#ffe600]">
+            <span className="w-2 h-2 rounded-full bg-[#ff4d00] animate-pulse" />
+            <span className="tracking-widest font-black">{time ? `${time} MST` : 'DENVER'}</span>
+          </div>
+
+          {/* Search / Copilot Quick Trigger */}
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={onOpenQuickAI}
+            className="p-2 bg-white dark:bg-[#1c1e1c] border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition text-black dark:text-white"
+            title="Search or Dispatch Copilot"
+            aria-label="Search"
+          >
+            <Search className="w-4 h-4 stroke-[2.5]" />
+          </motion.button>
+
+          {/* Dark / Light Mode Switcher with Smooth Rotation Motion */}
+          <motion.button
+            whileTap={{ scale: 0.85, rotate: 180 }}
+            transition={{ duration: 0.25 }}
             onClick={toggleTheme}
-            className="p-2 rounded-xl text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/80 border border-transparent hover:border-slate-200 dark:hover:border-slate-700/60 transition"
+            className="p-2 bg-white dark:bg-[#1c1e1c] border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition text-black dark:text-white"
             aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
             title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
           >
             {theme === 'dark' ? (
-              <Sun className="w-4 h-4 text-amber-400 transition-transform hover:rotate-45" />
+              <Sun className="w-4 h-4 text-[#ffe600] stroke-[2.5]" />
             ) : (
-              <Moon className="w-4 h-4 text-slate-700 transition-transform hover:-rotate-12" />
+              <Moon className="w-4 h-4 text-[#ff4d00] stroke-[2.5]" />
             )}
-          </button>
-
-          {/* Quick AI Trigger */}
-          <button
-            onClick={onOpenQuickAI}
-            className="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm flex items-center gap-1.5 transition active:scale-95"
-            title="Ask LifeOS Copilot"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-indigo-200" />
-            <span className="hidden sm:inline">Ask AI</span>
-          </button>
-
-          {/* Quick Add Task */}
-          <button
-            onClick={onOpenNewTask}
-            className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-medium border border-slate-200 dark:border-slate-700 transition flex items-center gap-1 active:scale-95"
-            title="Add new task"
-          >
-            <Plus className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300" />
-            <span className="hidden sm:inline">New Task</span>
-          </button>
+          </motion.button>
 
           {/* Quick Add Reminder */}
-          <button
+          <motion.button
+            whileTap={{ scale: 0.9 }}
             onClick={onOpenNewReminder}
-            className="p-2 rounded-xl text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-            title="Set Reminder"
+            className="hidden sm:flex p-2 bg-white dark:bg-[#1c1e1c] border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition text-black dark:text-white"
+            title="Add field reminder"
+            aria-label="Add reminder"
           >
-            <Bell className="w-4 h-4" />
-          </button>
+            <Bell className="w-4 h-4 stroke-[2.5]" />
+          </motion.button>
 
-          {/* Focus Timer Shortcut */}
-          <button
-            onClick={() => onSelectTab('focus')}
-            className="p-2 rounded-xl text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-            title="Pomodoro Focus Timer"
-          >
-            <Timer className="w-4 h-4" />
-          </button>
-
-          {/* Settings Trigger */}
-          <button
+          {/* Settings / Configuration */}
+          <motion.button
+            whileTap={{ scale: 0.9 }}
             onClick={onOpenSettings}
-            className="p-2 rounded-xl text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            className="p-2 bg-white dark:bg-[#1c1e1c] border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition text-black dark:text-white"
             title="Settings & Profile"
+            aria-label="Settings"
           >
-            <Sliders className="w-4 h-4" />
-          </button>
+            <Sliders className="w-4 h-4 stroke-[2.5]" />
+          </motion.button>
+
+          {/* Signature Burnt Orange Action Button with Spring Bounce */}
+          <motion.button
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.96 }}
+            onClick={onOpenNewTask}
+            className="flex items-center gap-1.5 px-3.5 sm:px-4 py-2 bg-[#ff4d00] hover:bg-[#e04400] text-white border-2 border-black dark:border-white shadow-[3px_3px_0px_#000] dark:shadow-[3px_3px_0px_#fff] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none font-mono text-xs uppercase tracking-wider font-extrabold transition cursor-pointer"
+            title="Create new task"
+          >
+            <Plus className="w-4 h-4 stroke-[3]" />
+            <span className="hidden xs:inline">NEW TASK</span>
+          </motion.button>
         </div>
       </div>
     </header>
