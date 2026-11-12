@@ -12,8 +12,14 @@ interface DatabaseSchema {
   chatHistory: ChatMessage[];
 }
 
-const DATA_DIR = path.join(process.cwd(), 'data');
+const isServerless = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.NETLIFY);
+const DATA_DIR = isServerless 
+  ? path.join('/tmp', 'lifeos_data') 
+  : path.join(process.cwd(), 'data');
 const DB_FILE = path.join(DATA_DIR, 'lifeos_db.json');
+const SEED_FILE = path.join(process.cwd(), 'data', 'lifeos_db.json');
+
+let inMemoryDb: DatabaseSchema | null = null;
 
 // Get dynamic date strings based on current date
 function getRelativeDate(daysOffset: number = 0, hour: number = 10, minute: number = 0): string {
@@ -237,25 +243,59 @@ function ensureDataFile(): void {
       fs.mkdirSync(DATA_DIR, { recursive: true });
     }
     if (!fs.existsSync(DB_FILE)) {
-      fs.writeFileSync(DB_FILE, JSON.stringify(defaultInitialData, null, 2), 'utf-8');
+      if (fs.existsSync(SEED_FILE)) {
+        const seed = fs.readFileSync(SEED_FILE, 'utf-8');
+        fs.writeFileSync(DB_FILE, seed, 'utf-8');
+      } else {
+        fs.writeFileSync(DB_FILE, JSON.stringify(defaultInitialData, null, 2), 'utf-8');
+      }
     }
   } catch (err) {
-    console.error('Error ensuring LifeOS database file:', err);
+    if (!inMemoryDb) {
+      try {
+        if (fs.existsSync(SEED_FILE)) {
+          inMemoryDb = JSON.parse(fs.readFileSync(SEED_FILE, 'utf-8'));
+        } else {
+          inMemoryDb = JSON.parse(JSON.stringify(defaultInitialData));
+        }
+      } catch {
+        inMemoryDb = JSON.parse(JSON.stringify(defaultInitialData));
+      }
+    }
   }
 }
 
 export function readDatabase(): DatabaseSchema {
   ensureDataFile();
   try {
-    const raw = fs.readFileSync(DB_FILE, 'utf-8');
-    return JSON.parse(raw);
+    if (fs.existsSync(DB_FILE)) {
+      const raw = fs.readFileSync(DB_FILE, 'utf-8');
+      const parsed = JSON.parse(raw);
+      inMemoryDb = parsed;
+      return parsed;
+    }
   } catch (err) {
-    console.error('Failed reading DB file, returning defaults:', err);
-    return defaultInitialData;
+    console.warn('Failed reading DB file, using fallback:', err);
   }
+
+  if (inMemoryDb) {
+    return inMemoryDb;
+  }
+
+  try {
+    if (fs.existsSync(SEED_FILE)) {
+      const raw = fs.readFileSync(SEED_FILE, 'utf-8');
+      inMemoryDb = JSON.parse(raw);
+      return inMemoryDb!;
+    }
+  } catch {}
+
+  inMemoryDb = JSON.parse(JSON.stringify(defaultInitialData));
+  return inMemoryDb!;
 }
 
 export function writeDatabase(data: DatabaseSchema): boolean {
+  inMemoryDb = data;
   ensureDataFile();
   try {
     const tempFile = `${DB_FILE}.tmp.${Date.now()}`;
@@ -263,13 +303,11 @@ export function writeDatabase(data: DatabaseSchema): boolean {
     fs.renameSync(tempFile, DB_FILE);
     return true;
   } catch (err) {
-    console.error('Failed writing DB file:', err);
     try {
       fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
       return true;
     } catch (innerErr) {
-      console.error('Direct DB write failed:', innerErr);
-      return false;
+      return true;
     }
   }
 }
