@@ -148,45 +148,279 @@ body {
   box-shadow: 2px 2px 0px 0px var(--shadow-main);
 }
 
-/* Neo-Brutalist Tactile Buttons */
+/* =========================================================
+   UIVERSE.IO LIQUID WAVE BUTTON (by satyamchaudharydev)
+   Applied across all buttons on the website
+   ========================================================= */
+
+/* Default button styling for all action & interactive buttons */
+button:not(.btn-raw):not(.checkbox-btn):not(.habit-day-btn):not(.btn-tab),
+.uiverse-btn,
 .brutal-btn {
-  border: 2.5px solid var(--border-main);
-  box-shadow: 3px 3px 0px 0px var(--shadow-main);
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.1s ease;
+  border: 2px solid var(--border-main, #000);
+  width: auto;
+  min-width: 140px;
+  min-height: 48px;
+  color: #fff !important;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #000 !important;
+  position: relative;
   cursor: pointer;
+  overflow: hidden;
+  isolation: isolate;
+  font-family: var(--font-mono, monospace);
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.5rem 1.25rem;
+  box-shadow: 3px 3px 0px 0px var(--shadow-main, #000);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  user-select: none;
+  text-decoration: none;
 }
 
-.brutal-btn:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 5px 5px 0px 0px var(--shadow-main);
+/* Ensure text and icons remain crisp and layered above liquid waves */
+button:not(.btn-raw):not(.checkbox-btn):not(.habit-day-btn):not(.btn-tab) > *,
+.uiverse-btn > *,
+.brutal-btn > * {
+  position: relative;
+  z-index: 2;
+  color: inherit !important;
 }
 
+button:not(.btn-raw):not(.checkbox-btn):not(.habit-day-btn):not(.btn-tab) svg,
+.uiverse-btn svg,
+.brutal-btn svg {
+  color: #fff !important;
+  stroke: currentColor;
+}
+
+/* Paragraph styling inside button (from Uiverse.io snippet) */
+button:not(.btn-raw):not(.checkbox-btn):not(.habit-day-btn):not(.btn-tab) p,
+.uiverse-btn p,
+.brutal-btn p {
+  margin: 0 auto;
+  align-self: center;
+  font-size: 15px;
+  font-weight: bold;
+  text-align: center;
+  color: #fff !important;
+  position: relative;
+  z-index: 2;
+}
+
+/* Compact / Icon-only buttons retain square or inline dimensions with full wave effect */
+button:not(.btn-raw):not(.checkbox-btn):not(.habit-day-btn):not(.btn-tab).btn-icon,
+button:not(.btn-raw):not(.checkbox-btn):not(.habit-day-btn):not(.btn-tab)[class*="p-1"],
+button:not(.btn-raw):not(.checkbox-btn):not(.habit-day-btn):not(.btn-tab)[class*="p-1.5"],
+button:not(.btn-raw):not(.checkbox-btn):not(.habit-day-btn):not(.btn-tab)[class*="p-2"],
+button:not(.btn-raw):not(.checkbox-btn):not(.habit-day-btn):not(.btn-tab)[class*="aspect-square"],
+button:not(.btn-raw):not(.checkbox-btn):not(.habit-day-btn):not(.btn-tab)[class*="w-5"],
+button:not(.btn-raw):not(.checkbox-btn):not(.habit-day-btn):not(.btn-tab)[class*="w-6"],
+button:not(.btn-raw):not(.checkbox-btn):not(.habit-day-btn):not(.btn-tab)[class*="w-7"],
+button:not(.btn-raw):not(.checkbox-btn):not(.habit-day-btn):not(.btn-tab)[class*="w-8"],
+button:not(.btn-raw):not(.checkbox-btn):not(.habit-day-btn):not(.btn-tab)[class*="w-9"],
+button:not(.btn-raw):not(.checkbox-btn):not(.habit-day-btn):not(.btn-tab)[class*="w-10"] {
+  min-width: unset;
+  min-height: unset;
+  padding: inherit;
+}
+
+/* Full-width buttons inside forms/drawers/modals */
+button:not(.btn-raw):not(.checkbox-btn):not(.habit-day-btn):not(.btn-tab)[class*="w-full"] {
+  width: 100% !important;
+}
+
+/* Wavy liquid bottom sludge */
+button:not(.btn-raw):not(.checkbox-btn):not(.habit-day-btn):not(.btn-tab)::after,
+.uiverse-btn::after,
+.brutal-btn::after {
+  position: absolute;
+  content: "";
+  width: 100%;
+  left: 0;
+  right: 0;
+  z-index: -1;
+  height: 10%;
+  bottom: 0;
+  clip-path: polygon(
+    0% 74%,
+    4% 75%,
+    8% 76%,
+    11% 77%,
+    15% 78%,
+    20% 78%,
+    25% 77%,
+    32% 77%,
+    37% 75%,
+    40% 74%,
+    43% 74%,
+    46% 73%,
+    52% 72%,
+    57% 72%,
+    65% 74%,
+    66% 75%,
+    71% 78%,
+    75% 82%,
+    81% 86%,
+    83% 88%,
+    88% 91%,
+    90% 94%,
+    94% 96%,
+    98% 98%,
+    100% 100%,
+    82% 100%,
+    0 100%
+  );
+  background: var(--wave-color, #8792eb);
+  transition: 0.25s ease;
+  pointer-events: none;
+}
+
+/* Wavy liquid top sludge (rotated 180 degrees) */
+button:not(.btn-raw):not(.checkbox-btn):not(.habit-day-btn):not(.btn-tab)::before,
+.uiverse-btn::before,
+.brutal-btn::before {
+  position: absolute;
+  content: "";
+  top: 0;
+  left: 0;
+  right: 0;
+  transform: rotate(180deg);
+  width: 100%;
+  height: 10%;
+  transition: 0.25s ease;
+  z-index: -1;
+  clip-path: polygon(
+    0% 74%,
+    4% 75%,
+    8% 76%,
+    11% 77%,
+    15% 78%,
+    20% 78%,
+    25% 77%,
+    32% 77%,
+    37% 75%,
+    40% 74%,
+    43% 74%,
+    46% 73%,
+    52% 72%,
+    57% 72%,
+    65% 74%,
+    66% 75%,
+    71% 78%,
+    75% 82%,
+    81% 86%,
+    83% 88%,
+    88% 91%,
+    90% 94%,
+    94% 96%,
+    98% 98%,
+    100% 100%,
+    82% 100%,
+    0 100%
+  );
+  background: var(--wave-color, #8792eb);
+  pointer-events: none;
+}
+
+/* Hover & Focus state: wave height expands to 80% with agitated polygon */
+button:not(.btn-raw):not(.checkbox-btn):not(.habit-day-btn):not(.btn-tab):hover::after,
+button:not(.btn-raw):not(.checkbox-btn):not(.habit-day-btn):not(.btn-tab):focus-visible::after,
+.uiverse-btn:hover::after,
+.brutal-btn:hover::after {
+  clip-path: polygon(
+    0 30%,
+    9% 34%,
+    7% 39%,
+    11% 43%,
+    13% 33%,
+    17% 30%,
+    24% 34%,
+    25% 35%,
+    30% 31%,
+    30% 38%,
+    39% 33%,
+    35% 43%,
+    43% 45%,
+    55% 46%,
+    65% 74%,
+    67% 66%,
+    81% 57%,
+    75% 82%,
+    81% 86%,
+    83% 88%,
+    88% 91%,
+    90% 94%,
+    94% 96%,
+    98% 98%,
+    100% 100%,
+    82% 100%,
+    0 100%
+  );
+  height: 80%;
+}
+
+button:not(.btn-raw):not(.checkbox-btn):not(.habit-day-btn):not(.btn-tab):hover::before,
+button:not(.btn-raw):not(.checkbox-btn):not(.habit-day-btn):not(.btn-tab):focus-visible::before,
+.uiverse-btn:hover::before,
+.brutal-btn:hover::before {
+  clip-path: polygon(
+    0 30%,
+    9% 34%,
+    7% 39%,
+    11% 43%,
+    13% 33%,
+    17% 30%,
+    24% 34%,
+    25% 35%,
+    30% 31%,
+    30% 38%,
+    39% 33%,
+    35% 43%,
+    43% 45%,
+    55% 46%,
+    65% 74%,
+    67% 66%,
+    81% 57%,
+    75% 82%,
+    81% 86%,
+    83% 88%,
+    88% 91%,
+    90% 94%,
+    94% 96%,
+    98% 98%,
+    100% 100%,
+    82% 100%,
+    0 100%
+  );
+  height: 80%;
+}
+
+/* Active click tactile feedback */
+button:not(.btn-raw):not(.checkbox-btn):not(.habit-day-btn):not(.btn-tab):active,
+.uiverse-btn:active,
 .brutal-btn:active {
   transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0px 0px var(--shadow-main);
+  box-shadow: 1px 1px 0px 0px var(--shadow-main, #000);
 }
 
-.brutal-btn-primary {
-  background-color: var(--accent-orange);
-  color: #ffffff;
+/* Dark mode adjustments */
+.dark button:not(.btn-raw):not(.checkbox-btn):not(.habit-day-btn):not(.btn-tab),
+.dark .uiverse-btn,
+.dark .brutal-btn {
+  border-color: #ffffff;
+  box-shadow: 3px 3px 0px 0px #ffffff;
 }
 
-.brutal-btn-yellow {
-  background-color: var(--accent-yellow);
-  color: #000000;
-}
-
-.brutal-btn-lime {
-  background-color: var(--accent-lime);
-  color: #000000;
-}
-
-.brutal-btn-cyan {
-  background-color: var(--accent-cyan);
-  color: #000000;
+.dark button:not(.btn-raw):not(.checkbox-btn):not(.habit-day-btn):not(.btn-tab):active,
+.dark .uiverse-btn:active,
+.dark .brutal-btn:active {
+  box-shadow: 1px 1px 0px 0px #ffffff;
 }
 
 /* Neo-Brutalist Sticker Badges */

@@ -349,7 +349,7 @@ export default function TaskManagerView({
                       <button
                         type="button"
                         onClick={() => handleCheckbox(task)}
-                        className={`w-5 h-5 sm:w-6 sm:h-6 rounded-none border-[2.5px] border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] flex items-center justify-center shrink-0 transition-transform active:translate-x-0.5 active:translate-y-0.5 cursor-pointer ${
+                        className={`checkbox-btn w-5 h-5 sm:w-6 sm:h-6 rounded-none border-[2.5px] border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] flex items-center justify-center shrink-0 transition-transform active:translate-x-0.5 active:translate-y-0.5 cursor-pointer ${
                           isDone
                             ? 'bg-[#ccff00] text-black'
                             : 'bg-white dark:bg-[#202020] hover:bg-[#ffe600]'

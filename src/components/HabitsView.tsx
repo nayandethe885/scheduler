@@ -141,7 +141,7 @@ export default function HabitsView({ habits, onToggleHabitDay }: HabitsViewProps
                         <button
                           type="button"
                           onClick={() => handleToggle(habit.id, day.dateStr, isDone)}
-                          className={`w-full aspect-square max-w-[42px] max-h-[42px] min-w-[28px] min-h-[28px] border-2 border-black dark:border-white shadow-[1.5px_1.5px_0px_#000] sm:shadow-[2px_2px_0px_#000] dark:shadow-[1.5px_1.5px_0px_#fff] flex flex-col items-center justify-center text-[10px] xs:text-xs font-black transition-all active:translate-x-0.5 active:translate-y-0.5 cursor-pointer ${
+                          className={`habit-day-btn w-full aspect-square max-w-[42px] max-h-[42px] min-w-[28px] min-h-[28px] border-2 border-black dark:border-white shadow-[1.5px_1.5px_0px_#000] sm:shadow-[2px_2px_0px_#000] dark:shadow-[1.5px_1.5px_0px_#fff] flex flex-col items-center justify-center text-[10px] xs:text-xs font-black transition-all active:translate-x-0.5 active:translate-y-0.5 cursor-pointer ${
                             isDone
                               ? 'bg-[#ccff00] text-black'
                               : day.isToday

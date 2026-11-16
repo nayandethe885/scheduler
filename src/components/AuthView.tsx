@@ -336,7 +336,7 @@ export default function AuthView({ onSuccess }: AuthViewProps) {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#666] hover:text-black dark:hover:text-white transition cursor-pointer"
+                    className="btn-raw absolute inset-y-0 right-0 pr-3 flex items-center text-[#666] hover:text-black dark:hover:text-white transition cursor-pointer"
                   >
                     {showPassword ? (
                       <EyeOff className="w-4 h-4 stroke-[2.5]" />

@@ -167,7 +167,7 @@ export default function Sidebar({
               key={item.id}
               whileTap={{ scale: 0.98 }}
               onClick={() => handleTabClick(item.id)}
-              className={`w-full flex items-center justify-between px-3 py-2.5 text-xs font-bold transition-all cursor-pointer ${
+              className={`btn-tab w-full flex items-center justify-between px-3 py-2.5 text-xs font-bold transition-all cursor-pointer ${
                 isActive
                   ? 'bg-[#ffe600] text-black border-2 border-black shadow-[3px_3px_0px_#000] font-black'
                   : 'text-[#141514] dark:text-[#f4f3ef] border-2 border-transparent hover:border-black dark:hover:border-white hover:bg-white dark:hover:bg-[#1c1e1c] hover:shadow-[3px_3px_0px_#000] dark:hover:shadow-[3px_3px_0px_#fff]'

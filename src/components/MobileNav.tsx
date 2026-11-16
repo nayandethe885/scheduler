@@ -65,7 +65,7 @@ export default function MobileNav({
               key={item.id}
               type="button"
               onClick={() => onSelectTab(item.id)}
-              className={`flex flex-col items-center justify-center flex-1 py-1 xs:py-1.5 px-0.5 xs:px-1 transition-all cursor-pointer min-w-0 ${
+              className={`btn-tab flex flex-col items-center justify-center flex-1 py-1 xs:py-1.5 px-0.5 xs:px-1 transition-all cursor-pointer min-w-0 ${
                 isActive
                   ? 'bg-[#ffe600] text-black border-2 border-black shadow-[2px_2px_0px_#000] -translate-y-1 font-black'
                   : 'text-[#666] dark:text-[#aaa] hover:text-black dark:hover:text-white font-bold'

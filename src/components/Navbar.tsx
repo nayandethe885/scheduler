@@ -102,7 +102,7 @@ export default function Navbar({
 
           <button 
             onClick={() => onSelectTab('dashboard')}
-            className="flex items-center gap-1.5 xs:gap-2.5 group text-left cursor-pointer"
+            className="btn-raw flex items-center gap-1.5 xs:gap-2.5 group text-left cursor-pointer"
           >
             {/* Trailhead Mountain Peak Glyph with Hover Tilt */}
             <motion.div 
@@ -144,7 +144,7 @@ export default function Navbar({
               <button
                 key={link.id}
                 onClick={() => onSelectTab(link.id)}
-                className={`relative text-[11px] 2xl:text-xs tracking-wider uppercase px-2.5 2xl:px-3 py-1.5 font-bold transition-all cursor-pointer ${
+                className={`btn-tab relative text-[11px] 2xl:text-xs tracking-wider uppercase px-2.5 2xl:px-3 py-1.5 font-bold transition-all cursor-pointer ${
                   isActive
                     ? 'bg-[#ffe600] text-black border-2 border-black shadow-[3px_3px_0px_#000] -rotate-1 scale-105'
                     : 'text-[#141514] dark:text-[#f4f3ef] border-2 border-transparent hover:border-black dark:hover:border-white hover:bg-white dark:hover:bg-[#1a1b1a]'
