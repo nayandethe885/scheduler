@@ -92,6 +92,58 @@ class SoundEffects {
     osc.start();
     osc.stop(ctx.currentTime + 0.05);
   }
+
+  /**
+   * Playful mascot vocal chirp / bleep
+   */
+  playMascotChirp() {
+    const ctx = this.getContext();
+    if (!ctx) return;
+
+    const freqs = [587.33, 880, 1174.66]; // D5, A5, D6
+    freqs.forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.05);
+
+      gain.gain.setValueAtTime(0.08, ctx.currentTime + idx * 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.05 + 0.12);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(ctx.currentTime + idx * 0.05);
+      osc.stop(ctx.currentTime + idx * 0.05 + 0.14);
+    });
+  }
+
+  /**
+   * Cheerful celebratory arpeggio when user logs in or completes milestone
+   */
+  playMascotCheer() {
+    const ctx = this.getContext();
+    if (!ctx) return;
+
+    const chord = [523.25, 659.25, 783.99, 1046.5, 1318.51]; // C5, E5, G5, C6, E6
+    chord.forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.06);
+
+      gain.gain.setValueAtTime(0.12, ctx.currentTime + idx * 0.06);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.06 + 0.3);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(ctx.currentTime + idx * 0.06);
+      osc.stop(ctx.currentTime + idx * 0.06 + 0.35);
+    });
+  }
 }
 
 export const sound = new SoundEffects();

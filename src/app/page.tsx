@@ -15,12 +15,16 @@ import TaskModal from '@/components/TaskModal';
 import ReminderModal from '@/components/ReminderModal';
 import SettingsModal from '@/components/SettingsModal';
 import AestheticSpotlight from '@/components/AestheticSpotlight';
+import AuthView from '@/components/AuthView';
+import CartoonMascot from '@/components/CartoonMascot';
 import { Task, Reminder, Habit, UserProfile, ChatMessage } from '@/types';
 import { sound } from '@/lib/sound';
 import { useTheme } from '@/context/ThemeContext';
+import { useAuth } from '@/context/AuthContext';
 
 export default function LifeOSApp() {
   const { theme, setTheme } = useTheme();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [tasks, setTasks] = useState<Task[]>([]);
   const [reminders, setReminders] = useState<Reminder[]>([]);
@@ -56,6 +60,18 @@ export default function LifeOSApp() {
       }
     } catch {}
   }, []);
+
+  // Sync profile when authenticated user is loaded
+  useEffect(() => {
+    if (user?.name) {
+      setProfile(prev => ({
+        ...prev,
+        name: user.name,
+        email: user.email,
+        greetingTitle: user.title || prev.greetingTitle,
+      }));
+    }
+  }, [user]);
 
   // Universal sidebar toggle for desktop & mobile
   const handleToggleSidebar = useCallback(() => {
@@ -106,8 +122,10 @@ export default function LifeOSApp() {
   }, []);
 
   useEffect(() => {
-    loadInitialData();
-  }, [loadInitialData]);
+    if (isAuthenticated) {
+      loadInitialData();
+    }
+  }, [loadInitialData, isAuthenticated]);
 
   // Refresh tasks and reminders
   const refreshTasks = async () => {
@@ -378,6 +396,21 @@ export default function LifeOSApp() {
     handleSendMessage(promptText);
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center aesthetic-bg font-mono p-4 text-center select-none">
+        <div className="w-12 h-12 border-4 border-black dark:border-white border-t-[#ff4d00] animate-spin mb-4 shadow-[4px_4px_0px_#000]" />
+        <div className="text-sm font-extrabold uppercase tracking-widest text-[#141514] dark:text-[#f4f3ef]">
+          INITIALIZING BASE STATION TELEMETRY...
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <AuthView onSuccess={loadInitialData} />;
+  }
+
   return (
     <div className="min-h-screen flex flex-col aesthetic-bg text-[#141514] dark:text-[#f4f3ef] transition-colors duration-200 relative">
       {/* Global Interactive GSAP Mouse Spotlight */}
@@ -518,6 +551,15 @@ export default function LifeOSApp() {
           isThinking={isThinking}
         />
       )}
+
+      {/* Floating Interactive Cartoon Companion (Pipo) across whole portal */}
+      <div className="fixed bottom-20 left-3 sm:bottom-6 sm:left-8 z-40">
+        <CartoonMascot
+          mode="portal"
+          activeTab={activeTab}
+          userName={user?.name || profile.name}
+        />
+      </div>
 
       {/* Mobile Bottom Navigation (Smartphones & Tablets) */}
       <MobileNav

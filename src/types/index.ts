@@ -68,6 +68,16 @@ export interface Habit {
   color: string;
 }
 
+export interface AuthUser {
+  id: string;
+  email: string;
+  name: string;
+  title?: string;
+  avatarUrl?: string;
+  isGuest?: boolean;
+  createdAt: string;
+}
+
 export interface UserProfile {
   name: string;
   greetingTitle: string;

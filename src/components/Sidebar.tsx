@@ -13,9 +13,12 @@ import {
   Sun, 
   Moon, 
   Compass,
-  PanelLeftClose
+  PanelLeftClose,
+  LogOut,
+  UserCheck
 } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
+import { useAuth } from '@/context/AuthContext';
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -38,6 +41,7 @@ export default function Sidebar({
   pendingTasksCount,
 }: SidebarProps) {
   const { theme, toggleTheme } = useTheme();
+  const { user, signOut } = useAuth();
 
   const navItems = [
     {
@@ -232,6 +236,33 @@ export default function Sidebar({
             )}
           </motion.div>
         </motion.button>
+
+        {/* Authenticated Explorer Card & Sign Out */}
+        {user && (
+          <div className="pt-3 border-t-2 border-black/15 dark:border-white/15">
+            <div className="flex items-center justify-between p-2 bg-[#f7f4eb] dark:bg-[#161816] border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff]">
+              <div className="min-w-0 pr-2">
+                <div className="flex items-center gap-1.5 text-[10px] font-black uppercase text-black dark:text-white truncate">
+                  <UserCheck className="w-3.5 h-3.5 text-[#ff4d00] shrink-0" />
+                  <span className="truncate">{user.name}</span>
+                </div>
+                <div className="text-[9px] font-bold text-[#666] dark:text-[#999] truncate">
+                  {user.title || 'Productivity Architect'}
+                </div>
+              </div>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => signOut()}
+                className="p-1.5 bg-red-100 dark:bg-red-950/80 hover:bg-red-500 hover:text-white border border-black dark:border-white text-red-700 dark:text-red-300 transition cursor-pointer shrink-0"
+                title="Sign out from Base Station"
+                aria-label="Sign out"
+              >
+                <LogOut className="w-3.5 h-3.5 stroke-[2.5]" />
+              </motion.button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

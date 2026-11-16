@@ -12,9 +12,12 @@ import {
   Sliders,
   PanelLeft,
   PanelLeftClose,
+  LogOut,
+  User,
 } from 'lucide-react';
 import { UserProfile } from '@/types';
 import { useTheme } from '@/context/ThemeContext';
+import { useAuth } from '@/context/AuthContext';
 
 interface NavbarProps {
   profile: UserProfile;
@@ -45,6 +48,7 @@ export default function Navbar({
 }: NavbarProps) {
   const [time, setTime] = useState<string>('');
   const { theme, toggleTheme } = useTheme();
+  const { user, signOut } = useAuth();
 
   useEffect(() => {
     const updateDateTime = () => {
@@ -205,6 +209,29 @@ export default function Navbar({
           >
             <Sliders className="w-4 h-4 stroke-[2.5]" />
           </motion.button>
+
+          {/* Authenticated Explorer Callsign Badge & Sign Out */}
+          {user && (
+            <div className="hidden lg:flex items-center gap-1.5 pl-1 border-l-2 border-black/30 dark:border-white/30">
+              <div 
+                className="flex items-center gap-1.5 px-2.5 py-1 bg-[#ffe600] text-black border-2 border-black shadow-[2px_2px_0px_#000] text-[11px] font-black uppercase tracking-wider"
+                title={`Signed in as ${user.email}`}
+              >
+                <span className="w-2 h-2 rounded-full bg-[#ff4d00] animate-pulse" />
+                <span className="max-w-[100px] truncate">{user.name}</span>
+              </div>
+
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={() => signOut()}
+                className="p-2 bg-red-100 dark:bg-red-950/80 hover:bg-red-500 hover:text-white border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition text-red-700 dark:text-red-300 cursor-pointer"
+                title="Sign out from Base Station"
+                aria-label="Sign out"
+              >
+                <LogOut className="w-4 h-4 stroke-[2.5]" />
+              </motion.button>
+            </div>
+          )}
 
           {/* Signature Burnt Orange Action Button with Spring Bounce */}
           <motion.button

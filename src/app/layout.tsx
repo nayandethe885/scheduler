@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { ThemeProvider } from '@/context/ThemeContext';
+import { AuthProvider } from '@/context/AuthContext';
 
 export const metadata: Metadata = {
   title: 'TRAILHEAD // Personal Productivity & Schedule OS',
@@ -53,9 +54,11 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen aesthetic-bg text-[#141514] dark:text-[#f4f3ef] antialiased selection:bg-[#d95326] selection:text-white transition-colors duration-200">
-        <ThemeProvider>
-          {children}
-        </ThemeProvider>
+        <AuthProvider>
+          <ThemeProvider>
+            {children}
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );
