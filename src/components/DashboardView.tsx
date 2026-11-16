@@ -18,13 +18,16 @@ import {
   Compass, 
   Send,
   Calendar as CalendarIcon,
-  Sparkles
+  Sparkles,
+  Smartphone,
 } from 'lucide-react';
 import { Task, Reminder, UserProfile } from '@/types';
 import { formatDate, formatTime, getGreeting } from '@/lib/utils';
 import { sound } from '@/lib/sound';
 import TerrainCanvas from '@/components/TerrainCanvas';
 import CompassHUD from '@/components/CompassHUD';
+import PhoneReminderSetupModal from '@/components/PhoneReminderSetupModal';
+import { downloadIcsFile } from '@/lib/phoneReminders';
 
 interface DashboardViewProps {
   tasks: Task[];
@@ -88,6 +91,7 @@ export default function DashboardView({
   const [currentDateStr, setCurrentDateStr] = useState('');
   const [todayStr, setTodayStr] = useState('');
   const [filterTodayOnly, setFilterTodayOnly] = useState(true);
+  const [isPhoneSetupOpen, setIsPhoneSetupOpen] = useState(false);
 
   useEffect(() => {
     setTodayStr(new Date().toISOString().split('T')[0]);
@@ -641,14 +645,28 @@ export default function DashboardView({
                 Active Field Reminders
               </h3>
             </div>
-            <motion.button
-              whileTap={{ scale: 0.92 }}
-              onClick={onOpenNewReminder}
-              className="p-2 border-2 border-black dark:border-white bg-[#ffe600] text-black shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition cursor-pointer"
-              title="Add reminder"
-            >
-              <Plus className="w-4 h-4 stroke-[3]" />
-            </motion.button>
+            <div className="flex items-center gap-2">
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.95 }}
+                type="button"
+                onClick={() => setIsPhoneSetupOpen(true)}
+                className="px-2.5 py-1.5 border-2 border-black dark:border-white bg-[#ffe600] text-black shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 hover:-translate-x-0.5 hover:-translate-y-0.5 transition cursor-pointer"
+                title="Phone Reminder Notifications Setup & Test"
+              >
+                <Smartphone className="w-3.5 h-3.5 stroke-[2.5]" />
+                <span className="hidden xs:inline">PHONE ALERTS</span>
+              </motion.button>
+
+              <motion.button
+                whileTap={{ scale: 0.92 }}
+                onClick={onOpenNewReminder}
+                className="p-2 border-2 border-black dark:border-white bg-[#00e5ff] text-black shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition cursor-pointer"
+                title="Add reminder"
+              >
+                <Plus className="w-4 h-4 stroke-[3]" />
+              </motion.button>
+            </div>
           </div>
 
           <div className="space-y-2.5">
@@ -669,13 +687,28 @@ export default function DashboardView({
                     </div>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => onToggleReminderComplete(rem)}
-                    className="px-3 py-1 text-xs font-black uppercase tracking-wider bg-[#ff4d00] text-white border-2 border-black shadow-[1.5px_1.5px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition shrink-0 cursor-pointer"
-                  >
-                    DISMISS
-                  </button>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        sound.playClick();
+                        downloadIcsFile(rem.title, rem.dateTime);
+                      }}
+                      className="px-2 py-1 text-[10px] font-black uppercase tracking-wider bg-white dark:bg-[#161816] text-[#141514] dark:text-[#f4f3ef] border-2 border-black dark:border-white shadow-[1.5px_1.5px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 transition cursor-pointer flex items-center gap-1"
+                      title="Sync to Apple / iPhone Calendar with Alarm (.ics)"
+                    >
+                      <Smartphone className="w-3 h-3 stroke-[2.5]" />
+                      <span className="hidden sm:inline">PHONE SYNC</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => onToggleReminderComplete(rem)}
+                      className="px-2.5 py-1 text-xs font-black uppercase tracking-wider bg-[#ff4d00] text-white border-2 border-black shadow-[1.5px_1.5px_0px_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition cursor-pointer"
+                    >
+                      DISMISS
+                    </button>
+                  </div>
                 </div>
               ))
             )}
@@ -785,6 +818,12 @@ export default function DashboardView({
           LEAVE IT BETTER THAN YOU FOUND IT.
         </div>
       </footer>
+
+      {/* Phone Reminders Setup & Test Modal */}
+      <PhoneReminderSetupModal
+        isOpen={isPhoneSetupOpen}
+        onClose={() => setIsPhoneSetupOpen(false)}
+      />
     </motion.div>
   );
 }

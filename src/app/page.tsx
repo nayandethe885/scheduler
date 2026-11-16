@@ -17,6 +17,14 @@ import SettingsModal from '@/components/SettingsModal';
 import AestheticSpotlight from '@/components/AestheticSpotlight';
 import AuthView from '@/components/AuthView';
 import CartoonMascot from '@/components/CartoonMascot';
+import PhoneReminderTriggerBanner from '@/components/PhoneReminderTriggerBanner';
+import { 
+  registerServiceWorker, 
+  sendPhoneNotification, 
+  getNotifiedReminderIds, 
+  markReminderAsNotified 
+} from '@/lib/phoneReminders';
+import { speakMascot } from '@/lib/speech';
 import { Task, Reminder, Habit, UserProfile, ChatMessage } from '@/types';
 import { sound } from '@/lib/sound';
 import { useTheme } from '@/context/ThemeContext';
@@ -49,6 +57,12 @@ export default function LifeOSApp() {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isThinking, setIsThinking] = useState(false);
+  const [activePhoneAlert, setActivePhoneAlert] = useState<Reminder | null>(null);
+
+  // Register service worker for background phone push & reminders
+  useEffect(() => {
+    registerServiceWorker();
+  }, []);
 
   // Initialize today date client-side and restore sidebar state
   useEffect(() => {
@@ -293,6 +307,69 @@ export default function LifeOSApp() {
     } catch (err) {
       console.error('Failed toggling reminder:', err);
     }
+  };
+
+  // Real-time phone reminder check loop
+  useEffect(() => {
+    if (!isAuthenticated || reminders.length === 0) return;
+
+    const checkDueReminders = () => {
+      const now = Date.now();
+      const notifiedIds = getNotifiedReminderIds();
+
+      reminders.forEach(rem => {
+        if (rem.isCompleted) return;
+        const dueTime = new Date(rem.dateTime).getTime();
+        const diffSeconds = (dueTime - now) / 1000;
+
+        // Trigger if due in upcoming 20 seconds or overdue within 3 minutes
+        if (diffSeconds <= 20 && diffSeconds >= -180 && !notifiedIds.includes(rem.id)) {
+          markReminderAsNotified(rem.id);
+
+          // 1. Phone Lock-screen Push + Vibration + Sound
+          sendPhoneNotification({
+            title: `🚨 TRAILHEAD ALERT: ${rem.title}`,
+            body: `Expedition reminder due! Tap to view details.`,
+            tag: `reminder-${rem.id}`,
+          });
+
+          // 2. Vocalize with Pipo the mascot
+          speakMascot(`Explorer Alert! Your reminder: ${rem.title} is due right now!`);
+
+          // 3. Show in-app banner modal
+          setActivePhoneAlert(rem);
+        }
+      });
+    };
+
+    checkDueReminders();
+    const interval = setInterval(checkDueReminders, 12000);
+    return () => clearInterval(interval);
+  }, [reminders, isAuthenticated]);
+
+  const handleSnoozeReminder = async (rem: Reminder, minutes: number) => {
+    try {
+      const newTime = new Date(Date.now() + minutes * 60 * 1000).toISOString();
+      const res = await fetch(`/api/reminders/${rem.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dateTime: newTime }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setReminders(prev => prev.map(r => (r.id === rem.id ? data.reminder : r)));
+        setActivePhoneAlert(null);
+        sound.playClick();
+        speakMascot(`Snoozed for ${minutes} minutes!`);
+      }
+    } catch (err) {
+      console.error('Failed snoozing reminder:', err);
+    }
+  };
+
+  const handleDismissPhoneAlert = async (rem: Reminder) => {
+    await handleToggleReminderComplete(rem);
+    setActivePhoneAlert(null);
   };
 
   // Habit Operations
@@ -560,6 +637,13 @@ export default function LifeOSApp() {
           userName={user?.name || profile.name}
         />
       </div>
+
+      {/* Real-time Phone Reminder Alert Banner */}
+      <PhoneReminderTriggerBanner
+        activeAlert={activePhoneAlert}
+        onDismiss={handleDismissPhoneAlert}
+        onSnooze={handleSnoozeReminder}
+      />
 
       {/* Mobile Bottom Navigation (Smartphones & Tablets) */}
       <MobileNav

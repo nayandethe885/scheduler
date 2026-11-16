@@ -1,8 +1,15 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, Bell, AlertCircle, Compass } from 'lucide-react';
+import { X, Bell, AlertCircle, Compass, Smartphone, Calendar, CheckCircle2 } from 'lucide-react';
 import { Reminder, Priority } from '@/types';
+import { 
+  getNotificationPermission, 
+  requestNotificationPermission, 
+  createGoogleCalendarUrl, 
+  downloadIcsFile 
+} from '@/lib/phoneReminders';
+import { sound } from '@/lib/sound';
 
 interface ReminderModalProps {
   isOpen: boolean;
@@ -147,6 +154,22 @@ export default function ReminderModal({ isOpen, onClose, onSave }: ReminderModal
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Phone Alert Features Card */}
+          <div className="p-3 bg-[#f7f4eb] dark:bg-[#121312] border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5 text-xs font-black uppercase text-[#141514] dark:text-[#f4f3ef]">
+                <Smartphone className="w-4 h-4 text-[#ff4d00] stroke-[2.5]" />
+                <span>PHONE LOCK-SCREEN ALERT</span>
+              </div>
+              <span className="text-[10px] font-black bg-emerald-400 text-black px-1.5 py-0.5 border border-black uppercase">
+                ENABLED
+              </span>
+            </div>
+            <p className="text-[10px] font-bold text-[#666] dark:text-[#aaa] leading-snug">
+              When due, this reminder will vibrate your phone, play an alert sound, and display a lock-screen push notification.
+            </p>
           </div>
 
           <div className="flex items-center justify-end gap-3 pt-4 border-t-2 border-black dark:border-white">
