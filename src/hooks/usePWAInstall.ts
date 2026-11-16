@@ -110,3 +110,4 @@ export function usePWAInstall(): PWAInstallState {
     promptInstall,
   };
 }
+

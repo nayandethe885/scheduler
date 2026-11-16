@@ -252,3 +252,4 @@ export default function InstallAppModal({ isOpen, onClose }: InstallAppModalProp
     </div>
   );
 }
+
