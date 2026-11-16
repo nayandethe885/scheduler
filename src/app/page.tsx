@@ -18,6 +18,7 @@ import AestheticSpotlight from '@/components/AestheticSpotlight';
 import AuthView from '@/components/AuthView';
 import CartoonMascot from '@/components/CartoonMascot';
 import PhoneReminderTriggerBanner from '@/components/PhoneReminderTriggerBanner';
+import InstallAppModal from '@/components/InstallAppModal';
 import { 
   registerServiceWorker, 
   sendPhoneNotification, 
@@ -58,6 +59,7 @@ export default function LifeOSApp() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isThinking, setIsThinking] = useState(false);
   const [activePhoneAlert, setActivePhoneAlert] = useState<Reminder | null>(null);
+  const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
 
   // Register service worker for background phone push & reminders
   useEffect(() => {
@@ -504,6 +506,7 @@ export default function LifeOSApp() {
           onCloseMobile={() => setIsMobileSidebarOpen(false)}
           pendingTasksCount={pendingTasksCount}
           upcomingRemindersCount={upcomingRemindersCount}
+          onOpenInstallModal={() => setIsInstallModalOpen(true)}
         />
 
         {/* Main Content Area */}
@@ -519,6 +522,7 @@ export default function LifeOSApp() {
             }}
             onOpenNewReminder={() => setIsReminderModalOpen(true)}
             onOpenSettings={() => setIsSettingsModalOpen(true)}
+            onOpenInstallModal={() => setIsInstallModalOpen(true)}
             onToggleSidebarMobile={() => setIsMobileSidebarOpen(true)}
             onOpenQuickAI={() => setIsQuickAIOpen(true)}
             onSelectTab={setActiveTab}
@@ -674,6 +678,12 @@ export default function LifeOSApp() {
         onClose={() => setIsSettingsModalOpen(false)}
         profile={profile}
         onUpdateProfile={handleUpdateProfile}
+      />
+
+      {/* Standalone Application Installation Modal */}
+      <InstallAppModal
+        isOpen={isInstallModalOpen}
+        onClose={() => setIsInstallModalOpen(false)}
       />
     </div>
   );

@@ -14,12 +14,14 @@ import {
   Compass, 
   AlertCircle,
   Zap,
-  Mountain
+  Mountain,
+  Download
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useAuth } from '@/context/AuthContext';
 import CartoonMascot from '@/components/CartoonMascot';
 import TerrainCanvas from '@/components/TerrainCanvas';
+import InstallAppModal from '@/components/InstallAppModal';
 import { sound } from '@/lib/sound';
 
 interface AuthViewProps {
@@ -41,6 +43,7 @@ export default function AuthView({ onSuccess }: AuthViewProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+  const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,9 +122,23 @@ export default function AuthView({ onSuccess }: AuthViewProps) {
           </div>
         </div>
 
-        <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-[#ffe600] text-black border-2 border-black shadow-[2px_2px_0px_#000] text-[11px] font-black uppercase tracking-wider">
-          <span className="w-2 h-2 rounded-full bg-[#ff4d00] animate-pulse" />
-          <span>SECURITY PROTOCOL ONLINE</span>
+        <div className="flex items-center gap-2 pointer-events-auto">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            type="button"
+            onClick={() => setIsInstallModalOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1 bg-[#ccff00] text-black border-2 border-black shadow-[2px_2px_0px_#000] text-[11px] font-black uppercase tracking-wider cursor-pointer hover:-translate-x-0.5 hover:-translate-y-0.5 transition"
+            title="Install Trailhead as Native Application"
+          >
+            <Download className="w-3.5 h-3.5 stroke-[3] animate-bounce" />
+            <span>INSTALL APP</span>
+          </motion.button>
+
+          <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-[#ffe600] text-black border-2 border-black shadow-[2px_2px_0px_#000] text-[11px] font-black uppercase tracking-wider">
+            <span className="w-2 h-2 rounded-full bg-[#ff4d00] animate-pulse" />
+            <span>SECURITY ONLINE</span>
+          </div>
         </div>
       </div>
 
@@ -375,6 +392,12 @@ export default function AuthView({ onSuccess }: AuthViewProps) {
           </div>
         </div>
       </div>
+
+      {/* Standalone Application Installation Modal */}
+      <InstallAppModal
+        isOpen={isInstallModalOpen}
+        onClose={() => setIsInstallModalOpen(false)}
+      />
     </div>
   );
 }

@@ -14,6 +14,7 @@ import {
   PanelLeftClose,
   LogOut,
   User,
+  Download,
 } from 'lucide-react';
 import { UserProfile } from '@/types';
 import { useTheme } from '@/context/ThemeContext';
@@ -27,6 +28,7 @@ interface NavbarProps {
   onOpenNewTask: () => void;
   onOpenNewReminder: () => void;
   onOpenSettings: () => void;
+  onOpenInstallModal?: () => void;
   onToggleSidebarMobile: () => void;
   onOpenQuickAI: () => void;
   onSelectTab: (tab: string) => void;
@@ -41,6 +43,7 @@ export default function Navbar({
   onOpenNewTask,
   onOpenNewReminder,
   onOpenSettings,
+  onOpenInstallModal,
   onToggleSidebarMobile,
   onOpenQuickAI,
   onSelectTab,
@@ -197,6 +200,19 @@ export default function Navbar({
             aria-label="Add reminder"
           >
             <Bell className="w-4 h-4 stroke-[2.5]" />
+          </motion.button>
+
+          {/* Download / Install Application Button */}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.94 }}
+            onClick={onOpenInstallModal}
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-[#ccff00] hover:bg-[#b8e600] text-black border-2 border-black shadow-[2px_2px_0px_#000] text-xs font-black uppercase tracking-wider transition cursor-pointer"
+            title="Download & Install Trailhead as Desktop or Mobile App"
+            aria-label="Install App"
+          >
+            <Download className="w-3.5 h-3.5 stroke-[3] animate-bounce" />
+            <span className="hidden xs:inline">INSTALL APP</span>
           </motion.button>
 
           {/* Settings / Configuration */}

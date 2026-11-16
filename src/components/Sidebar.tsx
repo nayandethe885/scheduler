@@ -15,7 +15,8 @@ import {
   Compass,
   PanelLeftClose,
   LogOut,
-  UserCheck
+  UserCheck,
+  Download
 } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
 import { useAuth } from '@/context/AuthContext';
@@ -29,6 +30,7 @@ interface SidebarProps {
   onCloseMobile: () => void;
   pendingTasksCount: number;
   upcomingRemindersCount: number;
+  onOpenInstallModal?: () => void;
 }
 
 export default function Sidebar({
@@ -39,6 +41,7 @@ export default function Sidebar({
   isMobileOpen,
   onCloseMobile,
   pendingTasksCount,
+  onOpenInstallModal,
 }: SidebarProps) {
   const { theme, toggleTheme } = useTheme();
   const { user, signOut } = useAuth();
@@ -212,6 +215,23 @@ export default function Sidebar({
             39.7392° N, 104.9903° W
           </div>
         </div>
+
+        {/* Install Application Button in Sidebar */}
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.97 }}
+          onClick={onOpenInstallModal}
+          className="w-full flex items-center justify-between p-2.5 bg-[#ccff00] hover:bg-[#b8e600] text-black border-2 border-black shadow-[3px_3px_0px_#000] font-black cursor-pointer uppercase text-[10px] tracking-wider transition hover:-translate-x-0.5 hover:-translate-y-0.5"
+          title="Install Trailhead as Standalone App"
+        >
+          <span className="flex items-center gap-1.5 font-black">
+            <Download className="w-3.5 h-3.5 stroke-[3] animate-bounce" />
+            <span>INSTALL AS APP</span>
+          </span>
+          <span className="text-[9px] bg-black text-[#ccff00] px-1.5 py-0.5 border border-black font-black">
+            DOWNLOAD
+          </span>
+        </motion.button>
 
         {/* Mode Toggle Button with Flip Motion */}
         <motion.button
