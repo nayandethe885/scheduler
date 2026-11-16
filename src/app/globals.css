@@ -7,6 +7,8 @@
   --font-sans: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
   --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  --breakpoint-xs: 440px;
+  --breakpoint-2xs: 360px;
 }
 
 :root {
@@ -53,6 +55,8 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -61,6 +65,7 @@ body {
   font-family: var(--font-sans);
   font-weight: 700;
   overflow-x: hidden;
+  max-width: 100vw;
   min-height: 100vh;
   min-height: 100dvh;
   -webkit-font-smoothing: antialiased;

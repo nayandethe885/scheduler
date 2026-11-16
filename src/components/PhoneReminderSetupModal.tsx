@@ -58,19 +58,19 @@ export default function PhoneReminderSetupModal({ isOpen, onClose }: PhoneRemind
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs font-mono animate-fadeIn">
-      <div className="relative w-full max-w-lg border-[3.5px] border-black dark:border-white bg-[#fffdf0] dark:bg-[#181a18] shadow-[8px_8px_0px_#000] dark:shadow-[8px_8px_0px_#fff] p-5 sm:p-7 text-[#141514] dark:text-[#f4f3ef] max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2.5 xs:p-4 bg-black/75 backdrop-blur-xs font-mono animate-fadeIn">
+      <div className="relative w-full max-w-lg border-[3px] sm:border-[3.5px] border-black dark:border-white bg-[#fffdf0] dark:bg-[#181a18] shadow-[6px_6px_0px_#000] sm:shadow-[8px_8px_0px_#000] dark:shadow-[6px_6px_0px_#fff] p-4 xs:p-5 sm:p-7 text-[#141514] dark:text-[#f4f3ef] max-h-[92dvh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b-2 border-black dark:border-white">
-          <div className="flex items-center gap-3">
-            <div className="p-2 border-2 border-black bg-[#ff4d00] text-white shadow-[2px_2px_0px_#000]">
-              <Smartphone className="w-5 h-5 stroke-[2.5]" />
+        <div className="flex items-center justify-between pb-3 xs:pb-4 border-b-2 border-black dark:border-white">
+          <div className="flex items-center gap-2.5 xs:gap-3">
+            <div className="p-1.5 xs:p-2 border-2 border-black bg-[#ff4d00] text-white shadow-[2px_2px_0px_#000] shrink-0">
+              <Smartphone className="w-4 h-4 xs:w-5 xs:h-5 stroke-[2.5]" />
             </div>
             <div>
-              <span className="bg-[#ffe600] text-black px-2 py-0.5 border border-black text-[10px] font-black uppercase tracking-widest inline-block shadow-[1px_1px_0px_#000]">
+              <span className="bg-[#ffe600] text-black px-2 py-0.5 border border-black text-[9px] xs:text-[10px] font-black uppercase tracking-widest inline-block shadow-[1px_1px_0px_#000]">
                 MOBILE TELEMETRY SYNC
               </span>
-              <h2 className="text-base sm:text-lg font-black uppercase tracking-tight text-[#141514] dark:text-[#f4f3ef] font-display-heavy mt-0.5">
+              <h2 className="text-sm xs:text-base sm:text-lg font-black uppercase tracking-tight text-[#141514] dark:text-[#f4f3ef] font-display-heavy mt-0.5">
                 Phone Reminders Setup
               </h2>
             </div>

@@ -217,18 +217,18 @@ export default function CartoonMascot({
             transition={{ type: "spring", stiffness: 450, damping: 28 }}
             className={`absolute z-30 ${
               mode === 'auth'
-                ? 'bottom-[105%] left-1/2 -translate-x-1/2 sm:left-auto sm:right-0 sm:translate-x-0 w-[300px] sm:w-[360px]'
-                : 'bottom-[115%] right-0 w-[290px] sm:w-[340px]'
+                ? 'bottom-[105%] left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0 w-[280px] xs:w-[320px] sm:w-[360px] max-w-[calc(100vw-32px)]'
+                : 'bottom-[115%] left-0 w-[280px] xs:w-[310px] sm:w-[340px] max-w-[calc(100vw-24px)]'
             }`}
           >
-            <div className="bg-[#ffe600] text-black border-[3px] border-black shadow-[4px_4px_0px_#000] p-3.5 relative">
+            <div className="bg-[#ffe600] text-black border-[3px] border-black shadow-[4px_4px_0px_#000] p-3 sm:p-3.5 relative">
               {/* Header Bar */}
               <div className="flex items-center justify-between pb-2 mb-2 border-b-2 border-black/80 text-[10px] font-black tracking-wider uppercase">
                 <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-[#ff4d00] animate-pulse" />
-                  <span>PIPO // SCOUT MASCOT</span>
+                  <span className="w-2 h-2 rounded-full bg-[#ff4d00] animate-pulse shrink-0" />
+                  <span className="truncate">PIPO // SCOUT MASCOT</span>
                   {isSpeaking && (
-                    <span className="inline-flex gap-0.5 ml-1">
+                    <span className="inline-flex gap-0.5 ml-1 shrink-0">
                       <span className="w-1 h-2.5 bg-black animate-bounce" style={{ animationDelay: '0ms' }} />
                       <span className="w-1 h-3.5 bg-black animate-bounce" style={{ animationDelay: '150ms' }} />
                       <span className="w-1 h-2 bg-black animate-bounce" style={{ animationDelay: '300ms' }} />
@@ -236,7 +236,7 @@ export default function CartoonMascot({
                   )}
                 </div>
 
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 shrink-0">
                   {/* Re-play audio button */}
                   <button
                     type="button"
@@ -284,21 +284,25 @@ export default function CartoonMascot({
 
               {/* Quick Tap Trigger */}
               <div className="mt-2.5 pt-2 border-t border-black/20 flex items-center justify-between text-[10px] font-bold text-black/80">
-                <span className="flex items-center gap-1">
-                  <Sparkles className="w-3 h-3 text-[#ff4d00]" />
-                  <span>Tap Pipo for field tips</span>
+                <span className="flex items-center gap-1 truncate">
+                  <Sparkles className="w-3 h-3 text-[#ff4d00] shrink-0" />
+                  <span className="truncate">Tap Pipo for field tips</span>
                 </span>
-                <span className="text-[9px] bg-black text-[#ffe600] px-1.5 py-0.5 border border-black uppercase font-black">
+                <span className="text-[9px] bg-black text-[#ffe600] px-1.5 py-0.5 border border-black uppercase font-black shrink-0">
                   {isMuted ? 'VOICE: OFF' : 'VOICE: ON'}
                 </span>
               </div>
 
               {/* Cartoon Speech Bubble Pointer Tail */}
               <div 
-                className="absolute -bottom-3 right-12 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[12px] border-t-black"
+                className={`absolute -bottom-3 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[12px] border-t-black ${
+                  mode === 'auth' ? 'left-1/2 -translate-x-1/2 sm:left-12 sm:translate-x-0' : 'left-8 sm:left-12'
+                }`}
               />
               <div 
-                className="absolute -bottom-[9px] right-[50px] w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[10px] border-t-[#ffe600]"
+                className={`absolute -bottom-[9px] w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[10px] border-t-[#ffe600] ${
+                  mode === 'auth' ? 'left-1/2 -translate-x-1/2 sm:left-[50px] sm:translate-x-0' : 'left-[34px] sm:left-[50px]'
+                }`}
               />
             </div>
           </motion.div>
@@ -320,7 +324,7 @@ export default function CartoonMascot({
         <svg
           viewBox="0 0 160 160"
           className={`${
-            mode === 'auth' ? 'w-32 h-32 sm:w-40 sm:h-40' : 'w-24 h-24 sm:w-28 sm:h-28'
+            mode === 'auth' ? 'w-28 h-28 xs:w-36 xs:h-36 sm:w-40 sm:h-40' : 'w-20 h-20 xs:w-24 xs:h-24 sm:w-28 sm:h-28'
           } drop-shadow-[4px_4px_0px_#000]`}
           fill="none"
           xmlns="http://www.w3.org/2000/svg"

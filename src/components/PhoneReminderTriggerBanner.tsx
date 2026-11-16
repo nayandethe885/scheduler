@@ -38,7 +38,7 @@ export default function PhoneReminderTriggerBanner({
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: -100, opacity: 0 }}
         transition={{ type: 'spring', stiffness: 450, damping: 28 }}
-        className="fixed top-18 sm:top-20 left-4 right-4 sm:left-auto sm:right-6 sm:w-[420px] z-50 font-mono"
+        className="fixed top-14 xs:top-16 sm:top-20 left-3 right-3 sm:left-auto sm:right-6 sm:w-[420px] max-w-[calc(100vw-24px)] z-50 font-mono"
       >
         <div className="border-[3.5px] border-black dark:border-white bg-[#ffe600] text-black shadow-[6px_6px_0px_#000] p-4 relative">
           {/* Header */}

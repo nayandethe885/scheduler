@@ -102,21 +102,21 @@ export default function FocusTimerView({ tasks, onCompleteTask }: FocusTimerView
       className="max-w-5xl mx-auto space-y-8 pb-16 font-mono"
     >
       {/* 1. Header */}
-      <div className="border-[3px] border-black dark:border-white shadow-[6px_6px_0px_#000] dark:shadow-[6px_6px_0px_#fff] bg-white dark:bg-[#161816] p-6 sm:p-8 flex flex-col md:flex-row md:items-end justify-between gap-6 transition-colors duration-200">
+      <div className="border-[3px] border-black dark:border-white shadow-[6px_6px_0px_#000] dark:shadow-[6px_6px_0px_#fff] bg-white dark:bg-[#161816] p-4 xs:p-6 sm:p-8 flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6 transition-colors duration-200">
         <div className="space-y-2">
           <span className="bg-[#ff4d00] text-white px-2.5 py-0.5 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] text-xs font-black uppercase tracking-widest inline-block">
             03 // EXPEDITION CHRONOMETER
           </span>
-          <h1 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-[#141514] dark:text-[#f4f3ef] font-display-heavy">
+          <h1 className="text-3xl xs:text-4xl sm:text-5xl font-black uppercase tracking-tight text-[#141514] dark:text-[#f4f3ef] font-display-heavy">
             Focus Lab
           </h1>
-          <p className="text-xs uppercase tracking-wider font-bold text-[#555] dark:text-[#aaa]">
+          <p className="text-[11px] sm:text-xs uppercase tracking-wider font-bold text-[#555] dark:text-[#aaa]">
             HIGH-ALTITUDE CONCENTRATION · AMBIENT FREQUENCIES
           </p>
         </div>
 
-        <div className="flex items-center gap-2 px-3 py-2 border-2 border-black dark:border-white bg-[#ffe600] text-black shadow-[3px_3px_0px_#000] text-xs font-black">
-          <Flame className="w-4 h-4 fill-black stroke-black" />
+        <div className="flex items-center gap-2 px-3 py-2 border-2 border-black dark:border-white bg-[#ffe600] text-black shadow-[3px_3px_0px_#000] text-xs font-black self-start md:self-auto">
+          <Flame className="w-4 h-4 fill-black stroke-black shrink-0" />
           <span className="uppercase">EXPEDITION BLOCKS:</span>
           <span className="text-sm font-black">{completedSessions}</span>
         </div>
@@ -124,7 +124,7 @@ export default function FocusTimerView({ tasks, onCompleteTask }: FocusTimerView
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left 2 Cols: Stopwatch Readout */}
-        <div className="lg:col-span-2 border-[3px] border-black dark:border-white shadow-[6px_6px_0px_#000] dark:shadow-[6px_6px_0px_#fff] bg-[#fffdf0] dark:bg-[#181a18] p-6 sm:p-10 flex flex-col items-center justify-center space-y-8 text-center relative overflow-hidden">
+        <div className="lg:col-span-2 border-[3px] border-black dark:border-white shadow-[6px_6px_0px_#000] dark:shadow-[6px_6px_0px_#fff] bg-[#fffdf0] dark:bg-[#181a18] p-4 xs:p-6 sm:p-10 flex flex-col items-center justify-center space-y-6 sm:space-y-8 text-center relative overflow-hidden">
           {/* Background Ambient Pulse when timer is running */}
           {isRunning && (
             <motion.div
@@ -136,7 +136,7 @@ export default function FocusTimerView({ tasks, onCompleteTask }: FocusTimerView
           )}
 
           {/* Mode switch buttons */}
-          <div className="flex items-center gap-2 p-1 border-2 border-black dark:border-white bg-[#ece9df] dark:bg-[#121312] text-xs uppercase shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff]">
+          <div className="flex flex-wrap items-center justify-center gap-1.5 xs:gap-2 p-1 border-2 border-black dark:border-white bg-[#ece9df] dark:bg-[#121312] text-xs uppercase shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] max-w-full">
             {[
               { id: 'focus', label: '25M FOCUS' },
               { id: 'shortBreak', label: '05M BREAK' },
@@ -148,7 +148,7 @@ export default function FocusTimerView({ tasks, onCompleteTask }: FocusTimerView
                   key={m.id}
                   type="button"
                   onClick={() => handleSelectMode(m.id as any)}
-                  className={`px-4 py-2 font-black transition-all cursor-pointer ${
+                  className={`px-3 xs:px-4 py-1.5 xs:py-2 text-[10px] xs:text-xs font-black transition-all cursor-pointer ${
                     isSelected
                       ? 'bg-[#ffe600] text-black border-2 border-black shadow-[2px_2px_0px_#000]'
                       : 'text-[#666] dark:text-[#aaa] hover:text-black dark:hover:text-white'
@@ -161,18 +161,18 @@ export default function FocusTimerView({ tasks, onCompleteTask }: FocusTimerView
           </div>
 
           {/* Huge Monospace Digital Chronometer Display */}
-          <div className="relative py-4 flex flex-col items-center justify-center">
-            <div className="text-7xl sm:text-9xl font-black tracking-tight text-[#141514] dark:text-[#f4f3ef] leading-none select-none font-mono">
+          <div className="relative py-2 sm:py-4 flex flex-col items-center justify-center w-full">
+            <div className="text-5xl xs:text-7xl sm:text-9xl font-black tracking-tight text-[#141514] dark:text-[#f4f3ef] leading-none select-none font-mono">
               {formatSeconds(timeLeft)}
             </div>
             
-            <div className="text-xs uppercase tracking-widest text-[#555] dark:text-[#bbb] font-black mt-4 flex items-center gap-2">
-              <span className={`w-2.5 h-2.5 rounded-full ${isRunning ? 'bg-[#ff4d00] animate-ping' : 'bg-[#989a91]'}`} />
-              <span>{mode === 'focus' ? '// ACTIVE WORK BLOCK' : '// TRAIL RECUPERATION'} — {progressPct}% ELAPSED</span>
+            <div className="text-[10px] xs:text-xs uppercase tracking-widest text-[#555] dark:text-[#bbb] font-black mt-3 sm:mt-4 flex items-center gap-2 text-center">
+              <span className={`w-2 h-2 xs:w-2.5 xs:h-2.5 rounded-full shrink-0 ${isRunning ? 'bg-[#ff4d00] animate-ping' : 'bg-[#989a91]'}`} />
+              <span className="truncate">{mode === 'focus' ? '// ACTIVE WORK BLOCK' : '// TRAIL RECUPERATION'} — {progressPct}% ELAPSED</span>
             </div>
 
             {/* Brutalist Hard Border Progress Bar */}
-            <div className="w-64 sm:w-96 h-4 border-2 border-black dark:border-white bg-white dark:bg-[#121312] mt-4 overflow-hidden shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff]">
+            <div className="w-full max-w-xs sm:max-w-md h-3.5 sm:h-4 border-2 border-black dark:border-white bg-white dark:bg-[#121312] mt-3 sm:mt-4 overflow-hidden shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff]">
               <motion.div
                 className="h-full bg-[#ff4d00]"
                 animate={{ width: `${progressPct}%` }}
@@ -182,24 +182,24 @@ export default function FocusTimerView({ tasks, onCompleteTask }: FocusTimerView
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 w-full">
             <button
               type="button"
               onClick={handleToggleTimer}
-              className={`px-8 py-3.5 text-xs uppercase tracking-widest font-black border-2 border-black dark:border-white shadow-[4px_4px_0px_#000] dark:shadow-[4px_4px_0px_#fff] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all flex items-center gap-2 cursor-pointer ${
+              className={`flex-1 sm:flex-initial px-6 xs:px-8 py-3 xs:py-3.5 text-[11px] xs:text-xs uppercase tracking-widest font-black border-2 border-black dark:border-white shadow-[4px_4px_0px_#000] dark:shadow-[4px_4px_0px_#fff] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all flex items-center justify-center gap-2 cursor-pointer ${
                 isRunning
                   ? 'bg-black text-[#ffe600] dark:bg-white dark:text-black'
                   : 'bg-[#ff4d00] text-white hover:bg-[#e04400]'
               }`}
             >
-              {isRunning ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current" />}
-              {isRunning ? 'HOLD' : 'COMMENCE FOCUS'}
+              {isRunning ? <Pause className="w-4 h-4 fill-current shrink-0" /> : <Play className="w-4 h-4 fill-current shrink-0" />}
+              <span>{isRunning ? 'HOLD' : 'COMMENCE FOCUS'}</span>
             </button>
 
             <button
               type="button"
               onClick={handleResetTimer}
-              className="p-3.5 border-2 border-black dark:border-white bg-white dark:bg-[#202020] text-black dark:text-white shadow-[3px_3px_0px_#000] dark:shadow-[3px_3px_0px_#fff] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition cursor-pointer"
+              className="p-3 xs:p-3.5 border-2 border-black dark:border-white bg-white dark:bg-[#202020] text-black dark:text-white shadow-[3px_3px_0px_#000] dark:shadow-[3px_3px_0px_#fff] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition cursor-pointer shrink-0"
               title="Reset Timer"
             >
               <RotateCcw className="w-4 h-4 stroke-[2.5]" />

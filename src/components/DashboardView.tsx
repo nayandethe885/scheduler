@@ -257,7 +257,7 @@ export default function DashboardView({
       <motion.section 
         ref={heroAreaRef}
         variants={itemVariants}
-        className="relative overflow-hidden border-[3px] border-black dark:border-white shadow-[6px_6px_0px_#000] dark:shadow-[6px_6px_0px_#fff] bg-white dark:bg-[#161816] p-6 sm:p-10 lg:p-12 transition-colors duration-200"
+        className="relative overflow-hidden border-[3px] border-black dark:border-white shadow-[6px_6px_0px_#000] dark:shadow-[6px_6px_0px_#fff] bg-white dark:bg-[#161816] p-4 xs:p-6 sm:p-10 lg:p-12 transition-colors duration-200"
       >
         {/* Interactive GSAP Spotlight Light (User's Motion Graphic) */}
         <div
@@ -272,18 +272,18 @@ export default function DashboardView({
         {/* Procedural Dynamic Topographic Elevation Waves Canvas Motion Graphic */}
         <TerrainCanvas className="opacity-75 dark:opacity-85" />
 
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-end justify-between gap-8">
-          <div className="space-y-4 max-w-2xl">
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-end justify-between gap-6 sm:gap-8">
+          <div className="space-y-3 sm:space-y-4 max-w-2xl">
             {/* Animated Neo-Brutalist Sticker Kicker */}
-            <div className="flex flex-wrap items-center gap-2.5 text-xs font-black">
-              <span className="bg-[#ffe600] text-black border-2 border-black shadow-[2px_2px_0px_#000] px-3 py-1 uppercase tracking-wider -rotate-1">
+            <div className="flex flex-wrap items-center gap-2 xs:gap-2.5 text-[10px] xs:text-xs font-black">
+              <span className="bg-[#ffe600] text-black border-2 border-black shadow-[2px_2px_0px_#000] px-2.5 xs:px-3 py-1 uppercase tracking-wider -rotate-1">
                 BUILT FOR THE WAY OUT.
               </span>
               <button
                 type="button"
                 onClick={triggerScramble}
                 title="Click to trigger cipher scramble transition"
-                className="inline-flex items-center gap-1.5 px-3 py-1 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] bg-[#ff4d00] text-white text-xs font-black tracking-widest hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-2.5 xs:px-3 py-1 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] bg-[#ff4d00] text-white text-[10px] xs:text-xs font-black tracking-widest hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition cursor-pointer"
               >
                 <span className="w-2 h-2 rounded-full bg-[#ffe600] animate-pulse" />
                 <span className="text">TRAILHEAD</span>
@@ -291,7 +291,7 @@ export default function DashboardView({
             </div>
 
             {/* Massive Chunky Typography with Motion Stagger (Image 3) */}
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tighter uppercase leading-[0.95] text-[#141514] dark:text-[#f4f3ef] font-display-heavy">
+            <h1 className="text-3xl xs:text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tighter uppercase leading-[0.95] text-[#141514] dark:text-[#f4f3ef] font-display-heavy">
               <motion.span 
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -315,7 +315,7 @@ export default function DashboardView({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.25, duration: 0.5 }}
-              className="font-mono text-xs sm:text-sm tracking-wider uppercase text-[#141514] dark:text-[#f4f3ef] font-bold pt-1 max-w-xl leading-relaxed"
+              className="font-mono text-[11px] xs:text-xs sm:text-sm tracking-wider uppercase text-[#141514] dark:text-[#f4f3ef] font-bold pt-1 max-w-xl leading-relaxed"
             >
               TRUSTED GEAR. LOCAL KNOW-HOW. WIDE-OPEN POSSIBILITIES.
             </motion.p>
@@ -326,20 +326,20 @@ export default function DashboardView({
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
-            className="flex flex-col sm:flex-row lg:flex-col items-start lg:items-end justify-between gap-5 font-mono text-xs text-[#141514] dark:text-[#f4f3ef] shrink-0"
+            className="flex flex-col sm:flex-row lg:flex-col items-start lg:items-end justify-between gap-4 sm:gap-5 font-mono text-xs text-[#141514] dark:text-[#f4f3ef] shrink-0 w-full sm:w-auto"
           >
             {/* Live Gyroscopic Compass HUD */}
-            <CompassHUD className="self-start lg:self-end" />
+            <CompassHUD className="self-start lg:self-end scale-90 sm:scale-100 origin-left lg:origin-right" />
 
             <div className="text-left lg:text-right space-y-1">
-              <div className="text-[#141514] dark:text-[#f4f3ef] font-black tracking-widest uppercase flex items-center lg:justify-end gap-2">
-                <span className="relative flex h-2.5 w-2.5">
+              <div className="text-[#141514] dark:text-[#f4f3ef] font-black tracking-widest uppercase flex items-center lg:justify-end gap-2 text-[10px] sm:text-xs">
+                <span className="relative flex h-2.5 w-2.5 shrink-0">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ff4d00] opacity-75" />
                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#ff4d00]" />
                 </span>
-                DENVER, CO // 39.7392° N, 104.9903° W
+                <span>DENVER, CO // 39.7392° N, 104.9903° W</span>
               </div>
-              <div className="tracking-wider text-xs text-[#141514] dark:text-[#f4f3ef] font-bold uppercase">
+              <div className="tracking-wider text-[10px] sm:text-xs text-[#141514] dark:text-[#f4f3ef] font-bold uppercase">
                 ELEVATION: 5,280 FT // TIME: {currentTime || '00:00:00'} MST
               </div>
             </div>
@@ -349,9 +349,9 @@ export default function DashboardView({
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => onSelectTab('tasks')}
-              className="inline-flex items-center gap-3 px-4 py-2.5 bg-[#ffe600] text-black border-2 border-black shadow-[3px_3px_0px_#000] cursor-pointer font-black text-xs tracking-wider uppercase hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-3.5 sm:px-4 py-2 sm:py-2.5 bg-[#ffe600] text-black border-2 border-black shadow-[3px_3px_0px_#000] cursor-pointer font-black text-[11px] sm:text-xs tracking-wider uppercase hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all"
             >
-              <span className="w-2.5 h-2.5 rounded-full bg-[#ff4d00] animate-pulse" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[#ff4d00] animate-pulse shrink-0" />
               <span>
                 {completionRate}% RESOLVED // {completedTasks.length}/{tasks.length} DONE
               </span>
@@ -363,22 +363,22 @@ export default function DashboardView({
       {/* 2. STATS OVERVIEW: Neo-Brutalist 4-Color Grid */}
       <motion.section 
         variants={itemVariants}
-        className="grid grid-cols-2 lg:grid-cols-4 gap-4 font-mono"
+        className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 xs:gap-3.5 sm:gap-4 font-mono"
       >
         {/* Total Tasks (Yellow Accent) */}
         <motion.div 
           whileHover={{ y: -4 }}
           onClick={() => onSelectTab('tasks')}
-          className="p-5 border-[3px] border-black dark:border-white shadow-[5px_5px_0px_#000] dark:shadow-[5px_5px_0px_#fff] bg-[#fffdf0] dark:bg-[#1a1c1a] cursor-pointer group hover:shadow-[7px_7px_0px_#000] active:translate-x-1 active:translate-y-1 active:shadow-[2px_2px_0px_#000] transition-all"
+          className="p-3.5 xs:p-4 sm:p-5 border-[3px] border-black dark:border-white shadow-[4px_4px_0px_#000] sm:shadow-[5px_5px_0px_#000] dark:shadow-[4px_4px_0px_#fff] bg-[#fffdf0] dark:bg-[#1a1c1a] cursor-pointer group hover:shadow-[7px_7px_0px_#000] active:translate-x-1 active:translate-y-1 active:shadow-[2px_2px_0px_#000] transition-all"
         >
-          <div className="flex items-center justify-between text-xs font-black uppercase tracking-widest mb-3">
-            <span className="bg-[#ffe600] text-black px-2 py-0.5 border-2 border-black shadow-[1.5px_1.5px_0px_#000]">01 // BACKLOG</span>
-            <ArrowUpRight className="w-4 h-4 text-black dark:text-white stroke-[3] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+          <div className="flex items-center justify-between text-[10px] sm:text-xs font-black uppercase tracking-widest mb-2 sm:mb-3">
+            <span className="bg-[#ffe600] text-black px-1.5 xs:px-2 py-0.5 border-2 border-black shadow-[1.5px_1.5px_0px_#000]">01 // BACKLOG</span>
+            <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-black dark:text-white stroke-[3] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </div>
-          <div className="text-4xl sm:text-5xl font-black tracking-tight text-[#141514] dark:text-[#f4f3ef]">
+          <div className="text-3xl xs:text-4xl sm:text-5xl font-black tracking-tight text-[#141514] dark:text-[#f4f3ef]">
             {tasks.length < 10 ? `0${tasks.length}` : tasks.length}
           </div>
-          <div className="text-xs font-bold text-[#141514] dark:text-[#f4f3ef] uppercase tracking-wider mt-2">
+          <div className="text-[10px] sm:text-xs font-bold text-[#141514] dark:text-[#f4f3ef] uppercase tracking-wider mt-1 sm:mt-2 truncate">
             TOTAL ACTIVE ITEMS
           </div>
         </motion.div>
@@ -387,16 +387,16 @@ export default function DashboardView({
         <motion.div 
           whileHover={{ y: -4 }}
           onClick={() => onSelectTab('tasks')}
-          className="p-5 border-[3px] border-black dark:border-white shadow-[5px_5px_0px_#000] dark:shadow-[5px_5px_0px_#fff] bg-[#fff5f0] dark:bg-[#201a18] cursor-pointer group hover:shadow-[7px_7px_0px_#000] active:translate-x-1 active:translate-y-1 active:shadow-[2px_2px_0px_#000] transition-all"
+          className="p-3.5 xs:p-4 sm:p-5 border-[3px] border-black dark:border-white shadow-[4px_4px_0px_#000] sm:shadow-[5px_5px_0px_#000] dark:shadow-[4px_4px_0px_#fff] bg-[#fff5f0] dark:bg-[#201a18] cursor-pointer group hover:shadow-[7px_7px_0px_#000] active:translate-x-1 active:translate-y-1 active:shadow-[2px_2px_0px_#000] transition-all"
         >
-          <div className="flex items-center justify-between text-xs font-black uppercase tracking-widest mb-3">
-            <span className="bg-[#ff4d00] text-white px-2 py-0.5 border-2 border-black shadow-[1.5px_1.5px_0px_#000]">02 // PENDING</span>
-            <ArrowUpRight className="w-4 h-4 text-black dark:text-white stroke-[3] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+          <div className="flex items-center justify-between text-[10px] sm:text-xs font-black uppercase tracking-widest mb-2 sm:mb-3">
+            <span className="bg-[#ff4d00] text-white px-1.5 xs:px-2 py-0.5 border-2 border-black shadow-[1.5px_1.5px_0px_#000]">02 // PENDING</span>
+            <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-black dark:text-white stroke-[3] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </div>
-          <div className="text-4xl sm:text-5xl font-black tracking-tight text-[#ff4d00]">
+          <div className="text-3xl xs:text-4xl sm:text-5xl font-black tracking-tight text-[#ff4d00]">
             {pendingTasks.length < 10 ? `0${pendingTasks.length}` : pendingTasks.length}
           </div>
-          <div className="text-xs font-bold text-[#141514] dark:text-[#f4f3ef] uppercase tracking-wider mt-2">
+          <div className="text-[10px] sm:text-xs font-bold text-[#141514] dark:text-[#f4f3ef] uppercase tracking-wider mt-1 sm:mt-2 truncate">
             {highPriorityTasks.length} HIGH PRIORITY
           </div>
         </motion.div>
@@ -405,16 +405,16 @@ export default function DashboardView({
         <motion.div 
           whileHover={{ y: -4 }}
           onClick={() => onSelectTab('tasks')}
-          className="p-5 border-[3px] border-black dark:border-white shadow-[5px_5px_0px_#000] dark:shadow-[5px_5px_0px_#fff] bg-[#f6fff0] dark:bg-[#182018] cursor-pointer group hover:shadow-[7px_7px_0px_#000] active:translate-x-1 active:translate-y-1 active:shadow-[2px_2px_0px_#000] transition-all"
+          className="p-3.5 xs:p-4 sm:p-5 border-[3px] border-black dark:border-white shadow-[4px_4px_0px_#000] sm:shadow-[5px_5px_0px_#000] dark:shadow-[4px_4px_0px_#fff] bg-[#f6fff0] dark:bg-[#182018] cursor-pointer group hover:shadow-[7px_7px_0px_#000] active:translate-x-1 active:translate-y-1 active:shadow-[2px_2px_0px_#000] transition-all"
         >
-          <div className="flex items-center justify-between text-xs font-black uppercase tracking-widest mb-3">
-            <span className="bg-[#ccff00] text-black px-2 py-0.5 border-2 border-black shadow-[1.5px_1.5px_0px_#000]">03 // RESOLVED</span>
-            <ArrowUpRight className="w-4 h-4 text-black dark:text-white stroke-[3] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+          <div className="flex items-center justify-between text-[10px] sm:text-xs font-black uppercase tracking-widest mb-2 sm:mb-3">
+            <span className="bg-[#ccff00] text-black px-1.5 xs:px-2 py-0.5 border-2 border-black shadow-[1.5px_1.5px_0px_#000]">03 // RESOLVED</span>
+            <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-black dark:text-white stroke-[3] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </div>
-          <div className="text-4xl sm:text-5xl font-black tracking-tight text-[#141514] dark:text-[#f4f3ef]">
+          <div className="text-3xl xs:text-4xl sm:text-5xl font-black tracking-tight text-[#141514] dark:text-[#f4f3ef]">
             {completedTasks.length < 10 ? `0${completedTasks.length}` : completedTasks.length}
           </div>
-          <div className="text-xs font-bold text-[#141514] dark:text-[#f4f3ef] uppercase tracking-wider mt-2">
+          <div className="text-[10px] sm:text-xs font-bold text-[#141514] dark:text-[#f4f3ef] uppercase tracking-wider mt-1 sm:mt-2 truncate">
             FINISHED ITEMS
           </div>
         </motion.div>
@@ -423,16 +423,16 @@ export default function DashboardView({
         <motion.div 
           whileHover={{ y: -4 }}
           onClick={onOpenNewReminder}
-          className="p-5 border-[3px] border-black dark:border-white shadow-[5px_5px_0px_#000] dark:shadow-[5px_5px_0px_#fff] bg-[#f0fbff] dark:bg-[#151e22] cursor-pointer group hover:shadow-[7px_7px_0px_#000] active:translate-x-1 active:translate-y-1 active:shadow-[2px_2px_0px_#000] transition-all"
+          className="p-3.5 xs:p-4 sm:p-5 border-[3px] border-black dark:border-white shadow-[4px_4px_0px_#000] sm:shadow-[5px_5px_0px_#000] dark:shadow-[4px_4px_0px_#fff] bg-[#f0fbff] dark:bg-[#151e22] cursor-pointer group hover:shadow-[7px_7px_0px_#000] active:translate-x-1 active:translate-y-1 active:shadow-[2px_2px_0px_#000] transition-all"
         >
-          <div className="flex items-center justify-between text-xs font-black uppercase tracking-widest mb-3">
-            <span className="bg-[#00e5ff] text-black px-2 py-0.5 border-2 border-black shadow-[1.5px_1.5px_0px_#000]">04 // ALERTS</span>
-            <ArrowUpRight className="w-4 h-4 text-black dark:text-white stroke-[3] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+          <div className="flex items-center justify-between text-[10px] sm:text-xs font-black uppercase tracking-widest mb-2 sm:mb-3">
+            <span className="bg-[#00e5ff] text-black px-1.5 xs:px-2 py-0.5 border-2 border-black shadow-[1.5px_1.5px_0px_#000]">04 // ALERTS</span>
+            <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-black dark:text-white stroke-[3] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </div>
-          <div className="text-4xl sm:text-5xl font-black tracking-tight text-[#141514] dark:text-[#f4f3ef]">
+          <div className="text-3xl xs:text-4xl sm:text-5xl font-black tracking-tight text-[#141514] dark:text-[#f4f3ef]">
             {activeReminders.length < 10 ? `0${activeReminders.length}` : activeReminders.length}
           </div>
-          <div className="text-xs font-bold text-[#141514] dark:text-[#f4f3ef] uppercase tracking-wider mt-2">
+          <div className="text-[10px] sm:text-xs font-bold text-[#141514] dark:text-[#f4f3ef] uppercase tracking-wider mt-1 sm:mt-2 truncate">
             EXPEDITION ALERTS
           </div>
         </motion.div>
@@ -540,11 +540,11 @@ export default function DashboardView({
                   variants={rowVariants}
                   whileHover={{ backgroundColor: 'rgba(255, 230, 0, 0.08)' }}
                   onClick={() => onSelectTab('tasks')}
-                  className="group py-5 sm:py-6 px-4 sm:px-6 flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer transition-colors"
+                  className="group py-4 sm:py-6 px-3.5 sm:px-6 flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 cursor-pointer transition-colors"
                 >
                   {/* Left: Index, Brutalist Checkbox & Chunky Task Title */}
-                  <div className="flex items-center gap-4 sm:gap-6 min-w-0">
-                    <span className="font-mono text-sm font-black text-[#888] dark:text-[#888] shrink-0 group-hover:text-[#ff4d00] transition-colors">
+                  <div className="flex items-center gap-3 sm:gap-6 min-w-0">
+                    <span className="font-mono text-xs sm:text-sm font-black text-[#888] dark:text-[#888] shrink-0 group-hover:text-[#ff4d00] transition-colors">
                       {indexStr}
                     </span>
 
@@ -552,7 +552,7 @@ export default function DashboardView({
                     <button
                       type="button"
                       onClick={(e) => handleTaskCheckbox(e, task)}
-                      className={`w-6 h-6 rounded-none border-[2.5px] border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] flex items-center justify-center shrink-0 transition-transform active:translate-x-0.5 active:translate-y-0.5 cursor-pointer ${
+                      className={`w-5 h-5 sm:w-6 sm:h-6 rounded-none border-[2.5px] border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] flex items-center justify-center shrink-0 transition-transform active:translate-x-0.5 active:translate-y-0.5 cursor-pointer ${
                         isDone
                           ? 'bg-[#ccff00] text-black'
                           : 'bg-white dark:bg-[#202020] hover:bg-[#ffe600]'
@@ -567,16 +567,16 @@ export default function DashboardView({
                             exit={{ scale: 0 }}
                             transition={{ duration: 0.15 }}
                           >
-                            <Check className="w-4 h-4 stroke-[3.5] text-black" />
+                            <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[3.5] text-black" />
                           </motion.span>
                         )}
                       </AnimatePresence>
                     </button>
 
                     {/* Bold Title */}
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <h3 
-                        className={`text-xl sm:text-2xl font-black tracking-tight truncate transition-colors uppercase ${
+                        className={`text-base xs:text-lg sm:text-2xl font-black tracking-tight truncate transition-colors uppercase ${
                           isDone 
                             ? 'line-through text-[#888] dark:text-[#777]' 
                             : 'text-[#141514] dark:text-[#f4f3ef] group-hover:text-[#ff4d00]'
@@ -585,7 +585,7 @@ export default function DashboardView({
                         {task.title}
                       </h3>
                       {task.description && (
-                        <p className="font-mono text-xs font-bold text-[#555] dark:text-[#aaa] truncate max-w-xl mt-0.5">
+                        <p className="font-mono text-[11px] sm:text-xs font-bold text-[#555] dark:text-[#aaa] truncate max-w-xl mt-0.5">
                           {task.description}
                         </p>
                       )}
@@ -593,20 +593,20 @@ export default function DashboardView({
                   </div>
 
                   {/* Center & Right: Brutalist Sticker Pill Badge & Meta */}
-                  <div className="flex items-center justify-between md:justify-end gap-4 sm:gap-6 pl-10 md:pl-0 shrink-0 font-mono">
+                  <div className="flex items-center justify-between md:justify-end gap-3 sm:gap-6 pl-8 sm:pl-10 md:pl-0 shrink-0 font-mono">
                     <span 
-                      className={`px-3 py-1 border-2 border-black shadow-[2px_2px_0px_#000] text-xs font-black uppercase tracking-wider ${pillBg}`}
+                      className={`px-2.5 sm:px-3 py-1 border-2 border-black shadow-[2px_2px_0px_#000] text-[10px] sm:text-xs font-black uppercase tracking-wider ${pillBg}`}
                     >
                       {pillLabel}
                     </span>
 
-                    <span className="text-xs uppercase tracking-wider font-bold text-[#666] dark:text-[#aaa] hidden sm:inline">
+                    <span className="text-[11px] sm:text-xs uppercase tracking-wider font-bold text-[#666] dark:text-[#aaa] hidden sm:inline">
                       {metaTokens.join(' · ')}
                     </span>
 
                     {/* Diagonal Arrow Trigger ↗ */}
                     <span 
-                      className="text-2xl font-black text-black dark:text-white group-hover:text-[#ff4d00] group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform inline-block"
+                      className="text-xl sm:text-2xl font-black text-black dark:text-white group-hover:text-[#ff4d00] group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform inline-block"
                     >
                       ↗
                     </span>
@@ -778,7 +778,7 @@ export default function DashboardView({
       {/* 5. GIGANTIC OUTLINE WATERMARK TYPOGRAPHY */}
       <motion.section 
         variants={itemVariants} 
-        className="relative pt-12 pb-6 overflow-hidden select-none pointer-events-auto"
+        className="relative pt-8 sm:pt-12 pb-6 overflow-hidden select-none pointer-events-auto"
       >
         <motion.div 
           animate={{ y: [0, -6, 0] }}
@@ -788,19 +788,20 @@ export default function DashboardView({
           title="Click to trigger cipher scramble transition"
         >
           <span 
-            className="watermark-text text-6xl sm:text-8xl md:text-9xl lg:text-[11rem] uppercase leading-none block select-none font-black tracking-tighter"
+            className="watermark-text text-4xl xs:text-6xl sm:text-8xl md:text-9xl lg:text-[11rem] uppercase leading-none block select-none font-black tracking-tighter"
             style={{
-              WebkitTextStroke: '3px var(--border-main)',
+              WebkitTextStroke: '2.5px var(--border-main)',
               color: 'transparent',
               letterSpacing: '-0.04em',
             }}
           >
             Trailhead.
           </span>
-          <div className="flex items-center justify-center gap-2 mt-4">
-            <span className="text-xs font-mono font-black text-black bg-[#ffe600] border-2 border-black shadow-[3px_3px_0px_#000] uppercase tracking-widest flex items-center gap-2 px-4 py-1.5 hover:-translate-x-0.5 hover:-translate-y-0.5 transition cursor-pointer">
-              <Sparkles className="w-4 h-4 text-black animate-spin-slow stroke-[2.5]" />
-              CLICK TO SCRAMBLE CIPHER (ﾊﾐﾋｰｳｼﾅﾓﾆｻ012345789)
+          <div className="flex items-center justify-center gap-2 mt-4 px-2">
+            <span className="text-[10px] xs:text-xs font-mono font-black text-black bg-[#ffe600] border-2 border-black shadow-[3px_3px_0px_#000] uppercase tracking-widest flex items-center gap-1.5 xs:gap-2 px-3 xs:px-4 py-1.5 hover:-translate-x-0.5 hover:-translate-y-0.5 transition cursor-pointer max-w-full">
+              <Sparkles className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-black animate-spin-slow stroke-[2.5] shrink-0" />
+              <span className="hidden xs:inline">CLICK TO SCRAMBLE CIPHER (ﾊﾐﾋｰｳｼﾅﾓﾆｻ012345789)</span>
+              <span className="xs:hidden">SCRAMBLE CIPHER ⚡</span>
             </span>
           </div>
         </motion.div>

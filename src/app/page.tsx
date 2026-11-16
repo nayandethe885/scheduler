@@ -529,7 +529,7 @@ export default function LifeOSApp() {
             completionRate={completionRate}
           />
 
-          <main className="flex-1 p-3.5 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full pb-24 lg:pb-8">
+          <main className="flex-1 p-2.5 xs:p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full pb-24 lg:pb-8">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeTab}

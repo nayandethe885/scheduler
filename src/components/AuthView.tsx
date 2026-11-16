@@ -102,37 +102,38 @@ export default function AuthView({ onSuccess }: AuthViewProps) {
   };
 
   return (
-    <div className="min-h-screen relative flex items-center justify-center p-4 sm:p-6 lg:p-8 aesthetic-bg text-[#141514] dark:text-[#f4f3ef] overflow-hidden font-mono">
+    <div className="min-h-screen relative flex items-center justify-center p-3 xs:p-4 sm:p-6 lg:p-8 aesthetic-bg text-[#141514] dark:text-[#f4f3ef] overflow-hidden font-mono">
       {/* Background Interactive Topographic Elevation Motion Graphic */}
       <TerrainCanvas className="opacity-40 dark:opacity-60 pointer-events-none" />
 
       {/* Watermark Branding Header */}
-      <div className="absolute top-6 left-6 right-6 flex items-center justify-between z-20 pointer-events-none">
-        <div className="flex items-center gap-2.5">
-          <div className="p-1.5 bg-[#ff4d00] text-white border-2 border-black dark:border-white shadow-[2px_2px_0px_#000]">
-            <Mountain className="w-5 h-5 stroke-[2.5]" />
+      <div className="absolute top-3 xs:top-4 sm:top-6 left-3 xs:left-4 sm:left-6 right-3 xs:right-4 sm:right-6 flex items-center justify-between z-20 pointer-events-none">
+        <div className="flex items-center gap-2 xs:gap-2.5">
+          <div className="p-1 xs:p-1.5 bg-[#ff4d00] text-white border-2 border-black dark:border-white shadow-[2px_2px_0px_#000]">
+            <Mountain className="w-4 h-4 xs:w-5 xs:h-5 stroke-[2.5]" />
           </div>
           <div>
-            <div className="font-extrabold text-sm sm:text-base tracking-tighter uppercase font-display-heavy">
+            <div className="font-extrabold text-xs xs:text-sm sm:text-base tracking-tighter uppercase font-display-heavy">
               TRAILHEAD
             </div>
-            <div className="text-[10px] tracking-widest font-black text-[#555] dark:text-[#aaa]">
+            <div className="text-[8px] xs:text-[10px] tracking-widest font-black text-[#555] dark:text-[#aaa] hidden 2xs:block">
               BASE STATION AUTHENTICATION // DENVER
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 pointer-events-auto">
+        <div className="flex items-center gap-1.5 xs:gap-2 pointer-events-auto">
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             type="button"
             onClick={() => setIsInstallModalOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1 bg-[#ccff00] text-black border-2 border-black shadow-[2px_2px_0px_#000] text-[11px] font-black uppercase tracking-wider cursor-pointer hover:-translate-x-0.5 hover:-translate-y-0.5 transition"
+            className="flex items-center gap-1 xs:gap-1.5 px-2 xs:px-3 py-1 bg-[#ccff00] text-black border-2 border-black shadow-[2px_2px_0px_#000] text-[10px] xs:text-[11px] font-black uppercase tracking-wider cursor-pointer hover:-translate-x-0.5 hover:-translate-y-0.5 transition"
             title="Install Trailhead as Native Application"
           >
             <Download className="w-3.5 h-3.5 stroke-[3] animate-bounce" />
-            <span>INSTALL APP</span>
+            <span className="hidden xs:inline">INSTALL</span>
+            <span>APP</span>
           </motion.button>
 
           <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-[#ffe600] text-black border-2 border-black shadow-[2px_2px_0px_#000] text-[11px] font-black uppercase tracking-wider">
@@ -143,10 +144,10 @@ export default function AuthView({ onSuccess }: AuthViewProps) {
       </div>
 
       {/* Main Authentication Grid */}
-      <div className="relative z-20 w-full max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pt-16 sm:pt-12">
+      <div className="relative z-20 w-full max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center pt-16 xs:pt-20 sm:pt-16 pb-6 sm:pb-8">
         {/* Left Column: Mascot Greeting & Character Showcase */}
         <div className="lg:col-span-5 flex flex-col items-center text-center lg:text-left lg:items-start order-2 lg:order-1">
-          <div className="mb-4 relative">
+          <div className="mb-4 relative w-full flex justify-center lg:justify-start">
             <CartoonMascot
               mode="auth"
               isPasswordFocused={isPasswordFocused}
@@ -163,22 +164,22 @@ export default function AuthView({ onSuccess }: AuthViewProps) {
               <Sparkles className="w-3 h-3 stroke-[2.5]" />
               EXPEDITION COMPANION
             </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold uppercase tracking-tight leading-none text-[#141514] dark:text-[#f4f3ef]">
+            <h2 className="text-xl xs:text-2xl sm:text-3xl font-extrabold uppercase tracking-tight leading-none text-[#141514] dark:text-[#f4f3ef]">
               Meet Pipo.
             </h2>
-            <p className="text-xs font-bold text-[#555] dark:text-[#bbb] leading-relaxed">
+            <p className="text-[11px] xs:text-xs font-bold text-[#555] dark:text-[#bbb] leading-relaxed">
               Your autonomous personal productivity scout. Talks, guides, and celebrates milestones across your whole LifeOS portal.
             </p>
           </div>
 
           {/* Quick Demo Access Pills */}
-          <div className="mt-5 w-full max-w-sm flex flex-col sm:flex-row gap-2.5">
+          <div className="mt-4 sm:mt-5 w-full max-w-sm flex flex-col sm:flex-row gap-2 xs:gap-2.5">
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               type="button"
               onClick={handleQuickDemoLogin}
-              className="flex-1 flex items-center justify-center gap-2 px-3.5 py-2.5 bg-[#ff4d00] hover:bg-[#e04400] text-white border-2 border-black dark:border-white shadow-[3px_3px_0px_#000] dark:shadow-[3px_3px_0px_#fff] text-xs font-extrabold tracking-wider uppercase transition cursor-pointer"
+              className="flex-1 flex items-center justify-center gap-2 px-3 xs:px-3.5 py-2 xs:py-2.5 bg-[#ff4d00] hover:bg-[#e04400] text-white border-2 border-black dark:border-white shadow-[3px_3px_0px_#000] dark:shadow-[3px_3px_0px_#fff] text-[11px] xs:text-xs font-extrabold tracking-wider uppercase transition cursor-pointer"
             >
               <Zap className="w-4 h-4 fill-current stroke-[2.5]" />
               <span>1-CLICK DEMO (NAYAN)</span>
@@ -189,7 +190,7 @@ export default function AuthView({ onSuccess }: AuthViewProps) {
               whileTap={{ scale: 0.98 }}
               type="button"
               onClick={handleGuestLogin}
-              className="px-3.5 py-2.5 bg-white dark:bg-[#1c1e1c] text-[#141514] dark:text-[#f4f3ef] border-2 border-black dark:border-white shadow-[3px_3px_0px_#000] dark:shadow-[3px_3px_0px_#fff] text-xs font-extrabold tracking-wider uppercase transition cursor-pointer"
+              className="px-3 xs:px-3.5 py-2 xs:py-2.5 bg-white dark:bg-[#1c1e1c] text-[#141514] dark:text-[#f4f3ef] border-2 border-black dark:border-white shadow-[3px_3px_0px_#000] dark:shadow-[3px_3px_0px_#fff] text-[11px] xs:text-xs font-extrabold tracking-wider uppercase transition cursor-pointer"
             >
               GUEST ACCESS
             </motion.button>
@@ -197,10 +198,10 @@ export default function AuthView({ onSuccess }: AuthViewProps) {
         </div>
 
         {/* Right Column: Neo-Brutalist Authentication Form Card */}
-        <div className="lg:col-span-7 order-1 lg:order-2">
-          <div className="bg-white dark:bg-[#161816] border-[3px] border-black dark:border-white shadow-[6px_6px_0px_#000] dark:shadow-[6px_6px_0px_#fff] p-5 sm:p-8 relative">
+        <div className="lg:col-span-7 order-1 lg:order-2 w-full">
+          <div className="bg-white dark:bg-[#161816] border-[3px] border-black dark:border-white shadow-[6px_6px_0px_#000] dark:shadow-[6px_6px_0px_#fff] p-4 xs:p-6 sm:p-8 relative">
             {/* Top Switcher Tabs */}
-            <div className="flex border-b-[3px] border-black dark:border-white -mt-5 -mx-5 sm:-mt-8 sm:-mx-8 mb-6 bg-[#f7f4eb] dark:bg-[#0e0f0e]">
+            <div className="flex border-b-[3px] border-black dark:border-white -mt-4 -mx-4 xs:-mt-6 xs:-mx-6 sm:-mt-8 sm:-mx-8 mb-5 sm:mb-6 bg-[#f7f4eb] dark:bg-[#0e0f0e]">
               <button
                 type="button"
                 onClick={() => {

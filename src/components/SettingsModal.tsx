@@ -75,19 +75,19 @@ export default function SettingsModal({ isOpen, onClose, profile, onUpdateProfil
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-fadeIn font-mono">
-      <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto border-[3.5px] border-black dark:border-white bg-[#fffdf0] dark:bg-[#181a18] shadow-[8px_8px_0px_#000] dark:shadow-[8px_8px_0px_#fff] p-6 text-[#141514] dark:text-[#f4f3ef] transition-colors duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2.5 xs:p-4 bg-black/70 backdrop-blur-xs animate-fadeIn font-mono">
+      <div className="relative w-full max-w-2xl max-h-[92dvh] overflow-y-auto border-[3px] sm:border-[3.5px] border-black dark:border-white bg-[#fffdf0] dark:bg-[#181a18] shadow-[6px_6px_0px_#000] sm:shadow-[8px_8px_0px_#000] dark:shadow-[6px_6px_0px_#fff] p-4 xs:p-6 text-[#141514] dark:text-[#f4f3ef] transition-colors duration-200">
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b-2 border-black dark:border-white">
-          <div className="flex items-center gap-3">
-            <div className="p-1.5 border-2 border-black bg-[#ffe600] text-black shadow-[2px_2px_0px_#000]">
-              <Compass className="w-5 h-5 stroke-[2.5]" />
+        <div className="flex items-center justify-between pb-3 xs:pb-4 border-b-2 border-black dark:border-white">
+          <div className="flex items-center gap-2.5 xs:gap-3">
+            <div className="p-1.5 border-2 border-black bg-[#ffe600] text-black shadow-[2px_2px_0px_#000] shrink-0">
+              <Compass className="w-4 h-4 xs:w-5 xs:h-5 stroke-[2.5]" />
             </div>
             <div>
-              <span className="bg-[#ff4d00] text-white px-2 py-0.5 border-2 border-black shadow-[1.5px_1.5px_0px_#000] text-xs font-black uppercase tracking-widest inline-block">
+              <span className="bg-[#ff4d00] text-white px-2 py-0.5 border-2 border-black shadow-[1.5px_1.5px_0px_#000] text-[10px] xs:text-xs font-black uppercase tracking-widest inline-block">
                 // STATION PREFERENCES
               </span>
-              <h2 className="text-base font-black uppercase tracking-tight text-[#141514] dark:text-[#f4f3ef] font-display-heavy mt-0.5">
+              <h2 className="text-sm xs:text-base font-black uppercase tracking-tight text-[#141514] dark:text-[#f4f3ef] font-display-heavy mt-0.5">
                 Trailhead Configuration
               </h2>
             </div>
@@ -102,22 +102,22 @@ export default function SettingsModal({ isOpen, onClose, profile, onUpdateProfil
         </div>
 
         {/* Tab navigation */}
-        <div className="flex flex-wrap items-center gap-2 border-b-2 border-black dark:border-white mt-4 pb-3 text-xs uppercase font-black">
+        <div className="flex flex-wrap items-center gap-1.5 xs:gap-2 border-b-2 border-black dark:border-white mt-3 xs:mt-4 pb-2.5 xs:pb-3 text-[10px] xs:text-xs uppercase font-black">
           <button
             type="button"
             onClick={() => setActiveTab('profile')}
-            className={`px-3 py-1.5 border-2 border-black dark:border-white transition cursor-pointer ${
+            className={`px-2.5 xs:px-3 py-1.5 border-2 border-black dark:border-white transition cursor-pointer ${
               activeTab === 'profile'
                 ? 'bg-[#ffe600] text-black shadow-[2px_2px_0px_#000]'
                 : 'bg-white dark:bg-[#121312] text-[#555] dark:text-[#aaa]'
             }`}
           >
-            01 // APPEARANCE & GOALS
+            01 // APPEARANCE
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('ai')}
-            className={`px-3 py-1.5 border-2 border-black dark:border-white transition cursor-pointer ${
+            className={`px-2.5 xs:px-3 py-1.5 border-2 border-black dark:border-white transition cursor-pointer ${
               activeTab === 'ai'
                 ? 'bg-[#ffe600] text-black shadow-[2px_2px_0px_#000]'
                 : 'bg-white dark:bg-[#121312] text-[#555] dark:text-[#aaa]'

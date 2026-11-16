@@ -288,7 +288,7 @@ export default function AIChatView({
           <button
             type="button"
             onClick={toggleSpeechRecognition}
-            className={`p-3 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] transition cursor-pointer ${
+            className={`p-2.5 xs:p-3 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] transition cursor-pointer shrink-0 ${
               isListening
                 ? 'bg-[#ff4d00] text-white animate-pulse'
                 : 'bg-white dark:bg-[#202020] text-black dark:text-white hover:bg-[#ffe600] hover:text-black'
@@ -302,14 +302,14 @@ export default function AIChatView({
             type="text"
             value={inputText}
             onChange={e => setInputText(e.target.value)}
-            placeholder={isListening ? 'LISTENING TO FIELD AUDIO...' : 'ENTER DISPATCH COMMAND (E.G. SCHEDULE RUN TOMORROW 8 AM)...'}
-            className="flex-1 px-4 py-3 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] bg-[#fffdf0] dark:bg-[#181a18] text-xs font-black text-[#141514] dark:text-[#f4f3ef] placeholder-[#777] uppercase tracking-wider focus:outline-none"
+            placeholder={isListening ? 'LISTENING TO FIELD AUDIO...' : 'ENTER DISPATCH INSTRUCTION...'}
+            className="flex-1 min-w-0 px-3 xs:px-4 py-2.5 xs:py-3 border-2 border-black dark:border-white shadow-[2px_2px_0px_#000] dark:shadow-[2px_2px_0px_#fff] bg-[#fffdf0] dark:bg-[#181a18] text-xs font-black text-[#141514] dark:text-[#f4f3ef] placeholder-[#777] uppercase tracking-wider focus:outline-none"
           />
 
           <button
             type="submit"
             disabled={!inputText.trim() || isThinking}
-            className="px-5 py-3 bg-[#ff4d00] hover:bg-[#e04400] text-white border-2 border-black shadow-[2px_2px_0px_#000] text-xs font-black uppercase tracking-wider transition disabled:opacity-40 flex items-center gap-1.5 cursor-pointer"
+            className="px-3.5 xs:px-5 py-2.5 xs:py-3 bg-[#ff4d00] hover:bg-[#e04400] text-white border-2 border-black shadow-[2px_2px_0px_#000] text-xs font-black uppercase tracking-wider transition disabled:opacity-40 flex items-center gap-1.5 cursor-pointer shrink-0"
           >
             <Send className="w-4 h-4 stroke-[2.5]" />
             <span className="hidden sm:inline">DISPATCH</span>
